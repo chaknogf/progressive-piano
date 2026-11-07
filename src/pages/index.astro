@@ -8,6 +8,7 @@ import Inversions from '../components/Inversions.astro';
 import Exercise from '../components/Exercise.astro';
 import Emotions from '../components/Emotions.astro';
 import Tips from '../components/Tips.astro';
+import SynthLab from '../components/SynthLab.astro';
 ---
 <Layout>
   <h1>Cadencia</h1>
@@ -68,4 +69,68 @@ import Tips from '../components/Tips.astro';
 
   <h2 id="s7">7. Consejos de interpretación</h2>
   <Tips />
+
+  <h2 id="s8">8. Del acorde al sonido: síntesis, efectos y DAW</h2>
+  <p>Del papel al altavoz: cómo se construye, se mezcla y se graba el sonido de un acorde.</p>
+
+  <h3>A. Ecualización (EQ)</h3>
+  <p>Filtra y esculpe el espectro: elimina lo que molesta y realza lo que brilla.</p>
+  <div class="box">
+    <svg viewBox="0 0 420 160" class="kb" role="img" aria-label="Curva de ecualización con HPF, campana y high shelf">
+      <line x1="30" y1="130" x2="400" y2="130" class="ln"/>
+      <line x1="30" y1="20" x2="30" y2="130" class="ln"/>
+      <text x="20" y="25" class="sn">dB</text>
+      <text x="395" y="145" class="sn">Hz</text>
+      <path d="M30,120 C60,120 70,125 90,128 C110,130 120,90 160,70 C200,50 240,60 280,80 C320,95 360,70 400,60" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
+      <text x="55" y="145" class="sn">HPF 80–100</text>
+      <text x="150" y="60" class="sn">Campana 200–5k</text>
+      <text x="330" y="55" class="sn">Shelf &gt;8k</text>
+    </svg>
+    <div class="scroll">
+      <table>
+        <tr><th>Control</th><th>Rango</th><th>Qué hace</th><th>Ejemplo piano / synth</th></tr>
+        <tr><td>HPF</td><td>80–100 Hz</td><td>Corta graves que ensucian</td><td>Piano: quita retumbo de la sala</td></tr>
+        <tr><td>Gain (campana)</td><td>±6 dB</td><td>Realza o atenúa una banda</td><td>Synth: +3 dB a 2 kHz para presencia</td></tr>
+        <tr><td>Q</td><td>0.5–4</td><td>Ancho de la campana</td><td>Piano: Q bajo para suavidad</td></tr>
+        <tr><td>High shelf</td><td>&gt;8 kHz</td><td>Brillo o aire</td><td>Synth: +2 dB para chispa</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>B. Reverb</h3>
+  <div class="box">
+    <ul>
+      <li><b>Pre-delay:</b> 10–30 ms. Separa el ataque seco de la cola; más pre-delay = más claridad.</li>
+      <li><b>Decay:</b> room o placa 0,8–1,5 s; hall o ambient 2,5–4 s.</li>
+      <li><b>Wet/dry:</b> mezcla entre señal original (dry) y procesada (wet). En mezcla final, suele bastar 15–30 % wet.</li>
+    </ul>
+  </div>
+
+  <h3>C. Sintetizador sustractivo</h3>
+  <div class="box">
+    <svg viewBox="0 0 420 80" class="kb" role="img" aria-label="Cadena de síntesis sustractiva: oscilador, filtro y amplificador">
+      <rect x="20" y="20" width="100" height="40" rx="8" class="cd" fill="var(--card)"/>
+      <text x="70" y="45" class="sn" text-anchor="middle">Oscilador</text>
+      <rect x="160" y="20" width="100" height="40" rx="8" class="cd" fill="var(--card)"/>
+      <text x="210" y="45" class="sn" text-anchor="middle">Filtro (VCF)</text>
+      <rect x="300" y="20" width="100" height="40" rx="8" class="cd" fill="var(--card)"/>
+      <text x="350" y="45" class="sn" text-anchor="middle">Amplificador (VCA)</text>
+      <line x1="120" y1="40" x2="160" y2="40" class="ln"/>
+      <line x1="260" y1="40" x2="300" y2="40" class="ln"/>
+    </svg>
+    <p>El oscilador genera la forma de onda; el filtro (VCF) recorta armónicos; el amplificador (VCA) aplica la envolvente ADSR. La cadena clásica es <b>Oscilador → Filtro → Amplificador</b>.</p>
+  </div>
+
+  <h3>D. MIDI y DAW</h3>
+  <div class="box">
+    <ul>
+      <li><b>Note On / Note Off:</b> enciende y apaga una nota con su número (0–127).</li>
+      <li><b>Velocity:</b> fuerza del golpe, de 0 a 127; afecta volumen y timbre.</li>
+      <li><b>Pitch bend:</b> desafinación continua (rueda de modulación).</li>
+      <li><b>CC1 (Modulation):</b> control continuo asignable (vibrato, filtro, etc.).</li>
+    </ul>
+    <p class="mut"><b>Flujo de grabación MIDI en el DAW:</b> teclado MIDI → interfaz → pista MIDI → instrumento virtual → audio → mezcla → exportación.</p>
+  </div>
+
+  <SynthLab />
 </Layout>

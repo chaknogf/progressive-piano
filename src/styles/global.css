@@ -63,6 +63,21 @@ h1, h2, h3, h4 {
 }
 h1 {
   font-size: 2.2rem;
+  background: linear-gradient(90deg, #f97316, #ec4899, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
 h2 {
   font-size: 1.6rem;

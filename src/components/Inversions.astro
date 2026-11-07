@@ -21,8 +21,8 @@ const descriptions = [
   <div id="iv"></div>
 </div>
 <script>
-  import { $, $$, must } from '../scripts/dom';
-  import { renderChordView } from '../scripts/views';
+  import { $, $$, must } from '../lib/dom';
+  import { renderChordView } from '../lib/views';
 
   const box = must(document.getElementById('inversions'), '#inversions');
   const select = must($<HTMLSelectElement>('#ic', box), '#ic');

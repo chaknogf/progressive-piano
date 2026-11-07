@@ -39,10 +39,10 @@ const {
       <slot />
     </main>
     <script>
-      import { $, $$ } from '../scripts/dom';
-      import { chordNotes as notes } from '../scripts/music';
-      import { play } from '../scripts/audio';
-      import { renderChordView } from '../scripts/views';
+      import { $, $$ } from '../lib/dom';
+      import { chordNotes as notes } from '../lib/theory';
+      import { playSequence as play } from '../lib/audio';
+      import { renderChordView } from '../lib/views';
 
       document.addEventListener('click', (event) => {
         const target = event.target as HTMLElement | null;

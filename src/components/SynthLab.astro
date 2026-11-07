@@ -1,0 +1,219 @@
+---
+---
+<section class="box" id="synthlab" aria-labelledby="synthlab-title">
+  <h3 id="synthlab-title">Laboratorio de síntesis</h3>
+  <p class="mut">El timbre elegido aquí afecta a toda la reproducción del sitio.</p>
+
+  <div class="synth-grid">
+    <div class="synth-panel">
+      <h4>Osciladores</h4>
+      <div class="row" role="group" aria-label="Forma de onda">
+        <button class="wave on" type="button" data-wave="sine" aria-pressed="true">Seno</button>
+        <button class="wave" type="button" data-wave="sawtooth" aria-pressed="false">Sierra</button>
+        <button class="wave" type="button" data-wave="square" aria-pressed="false">Cuadrada</button>
+        <button class="wave" type="button" data-wave="triangle" aria-pressed="false">Triangular</button>
+      </div>
+      <div class="wave-draw" aria-label="Forma de onda seleccionada">
+        <svg viewBox="0 0 240 80" class="wave-svg" role="img" aria-label="Onda sonora">
+          <line x1="0" y1="40" x2="240" y2="40" class="ln"/>
+          <path id="wavePath" d="" class="o"/>
+        </svg>
+      </div>
+      <ul class="mut">
+        <li><b>Seno:</b> suave y puro; flautas, subgraves.</li>
+        <li><b>Sierra:</b> brillante y rica en armónicos; cuerdas, leads.</li>
+        <li><b>Cuadrada:</b> hueca y nasal; bajos, clarinetes.</li>
+        <li><b>Triangular:</b> suave con pocos armónicos; piano eléctrico.</li>
+      </ul>
+    </div>
+
+    <div class="synth-panel">
+      <h4>Envolvente ADSR</h4>
+      <div class="row">
+        <label>Attack <input type="range" id="atk" min="0.005" max="2" step="0.001" value="0.02"/></label>
+        <span id="atkV" class="mut">0.02</span>
+      </div>
+      <div class="row">
+        <label>Decay <input type="range" id="dec" min="0.01" max="2" step="0.001" value="0.1"/></label>
+        <span id="decV" class="mut">0.10</span>
+      </div>
+      <div class="row">
+        <label>Sustain <input type="range" id="sus" min="0" max="1" step="0.01" value="0.6"/></label>
+        <span id="susV" class="mut">0.60</span>
+      </div>
+      <div class="row">
+        <label>Release <input type="range" id="rel" min="0.05" max="3" step="0.01" value="0.3"/></label>
+        <span id="relV" class="mut">0.30</span>
+      </div>
+      <div class="env-draw">
+        <svg viewBox="0 0 240 100" class="env-svg" role="img" aria-label="Envolvente ADSR">
+          <line x1="0" y1="90" x2="240" y2="90" class="ln"/>
+          <path id="envPath" d="" class="o"/>
+        </svg>
+      </div>
+      <div class="row" role="group" aria-label="Presets">
+        <button class="preset" type="button" data-preset="Piano">Piano</button>
+        <button class="preset" type="button" data-preset="Pad">Pad</button>
+        <button class="preset" type="button" data-preset="Bajo">Bajo</button>
+        <button class="preset" type="button" data-preset="Lead">Lead</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <button id="synthTimbre" type="button" class="on" data-timbre="piano" aria-pressed="true">Piano (muestras)</button>
+    <button id="synthTest" type="button">▶ Probar con C – Am – F – G</button>
+  </div>
+</section>
+<script>
+  import { setWaveform, setAdsr, playSequence } from '../lib/audio';
+  import { chordNotes } from '../lib/theory';
+
+  const waves = document.querySelectorAll<HTMLButtonElement>('.wave');
+  const presets = document.querySelectorAll<HTMLButtonElement>('.preset');
+  const wavePath = document.getElementById('wavePath') as SVGPathElement | null;
+  const envPath = document.getElementById('envPath') as SVGPathElement | null;
+  const atk = document.getElementById('atk') as HTMLInputElement | null;
+  const dec = document.getElementById('dec') as HTMLInputElement | null;
+  const sus = document.getElementById('sus') as HTMLInputElement | null;
+  const rel = document.getElementById('rel') as HTMLInputElement | null;
+  const atkV = document.getElementById('atkV');
+  const decV = document.getElementById('decV');
+  const susV = document.getElementById('susV');
+  const relV = document.getElementById('relV');
+  const testBtn = document.getElementById('synthTest');
+  const timbreBtn = document.getElementById('synthTimbre');
+
+  let timbre: 'piano' | 'synth' = 'piano';
+  let currentWave: string = 'sine';
+
+  function drawWave(wave: string) {
+    if (!wavePath) return;
+    const N = 120;
+    let d = '';
+    for (let i = 0; i <= N; i++) {
+      const x = (i / N) * 240;
+      const t = (i / N) * Math.PI * 4;
+      let y = 0;
+      if (wave === 'sine') y = Math.sin(t);
+      else if (wave === 'square') y = Math.sin(t) >= 0 ? 1 : -1;
+      else if (wave === 'sawtooth') y = 2 * ((t / (2 * Math.PI)) % 1) - 1;
+      else if (wave === 'triangle') y = 2 * Math.abs(2 * ((t / (2 * Math.PI)) % 1) - 1) - 1;
+      const yy = 40 - y * 30;
+      d += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + yy.toFixed(1) + ' ';
+    }
+    wavePath.setAttribute('d', d);
+  }
+
+  function drawEnv() {
+    if (!envPath || !atk || !dec || !sus || !rel) return;
+    const a = parseFloat(atk.value);
+    const d = parseFloat(dec.value);
+    const s = parseFloat(sus.value);
+    const r = parseFloat(rel.value);
+    const total = a + d + 0.6 + r;
+    const scale = 240 / total;
+    const x0 = 0, y0 = 90;
+    const x1 = a * scale, y1 = 10;
+    const x2 = (a + d) * scale, y2 = 90 - s * 75;
+    const x3 = (a + d + 0.6) * scale, y3 = y2;
+    const x4 = (a + d + 0.6 + r) * scale, y4 = 90;
+    envPath.setAttribute('d', `M${x0},${y0} L${x1},${y1} L${x2},${y2} L${x3},${y3} L${x4},${y4}`);
+  }
+
+  function updateValues() {
+    if (atkV) atkV.textContent = parseFloat(atk!.value).toFixed(2);
+    if (decV) decV.textContent = parseFloat(dec!.value).toFixed(2);
+    if (susV) susV.textContent = parseFloat(sus!.value).toFixed(2);
+    if (relV) relV.textContent = parseFloat(rel!.value).toFixed(2);
+  }
+
+  function applyAdsr() {
+    if (timbre === 'piano') return;
+    setAdsr({
+      attack: parseFloat(atk!.value),
+      decay: parseFloat(dec!.value),
+      sustain: parseFloat(sus!.value),
+      release: parseFloat(rel!.value),
+    });
+  }
+
+  waves.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      waves.forEach((b) => { b.classList.remove('on'); b.setAttribute('aria-pressed', 'false'); });
+      btn.classList.add('on');
+      btn.setAttribute('aria-pressed', 'true');
+      currentWave = btn.dataset.wave ?? 'sine';
+      if (timbre === 'synth') setWaveform(currentWave as any);
+      drawWave(currentWave);
+    });
+  });
+
+  [atk, dec, sus, rel].forEach((el) => {
+    el?.addEventListener('input', () => {
+      updateValues();
+      drawEnv();
+      applyAdsr();
+    });
+  });
+
+  presets.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const name = btn.dataset.preset ?? 'Piano';
+      const presetMap: Record<string, { wave: string; adsr: { attack: number; decay: number; sustain: number; release: number } }> = {
+        Piano: { wave: 'triangle', adsr: { attack: 0.01, decay: 0.3, sustain: 0.4, release: 0.6 } },
+        Pad: { wave: 'sawtooth', adsr: { attack: 0.25, decay: 0.2, sustain: 0.7, release: 0.8 } },
+        Bajo: { wave: 'square', adsr: { attack: 0.02, decay: 0.1, sustain: 0.8, release: 0.1 } },
+        Lead: { wave: 'sawtooth', adsr: { attack: 0.05, decay: 0.1, sustain: 0.6, release: 0.2 } },
+      };
+      const p = presetMap[name];
+      if (!p) return;
+      currentWave = p.wave;
+      waves.forEach((b) => {
+        const on = b.dataset.wave === p.wave;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
+      if (atk) atk.value = String(p.adsr.attack);
+      if (dec) dec.value = String(p.adsr.decay);
+      if (sus) sus.value = String(p.adsr.sustain);
+      if (rel) rel.value = String(p.adsr.release);
+      updateValues();
+      drawWave(currentWave);
+      drawEnv();
+      if (timbre === 'synth') {
+        setWaveform(currentWave as any);
+        setAdsr(p.adsr);
+      }
+    });
+  });
+
+  timbreBtn?.addEventListener('click', () => {
+    timbre = timbre === 'piano' ? 'synth' : 'piano';
+    if (timbre === 'synth') {
+      timbreBtn.textContent = 'Sintético';
+      timbreBtn.classList.add('on');
+      setWaveform(currentWave as any);
+      applyAdsr();
+    } else {
+      timbreBtn.textContent = 'Piano (muestras)';
+      timbreBtn.classList.remove('on');
+    }
+    timbreBtn.setAttribute('aria-pressed', String(timbre === 'synth'));
+  });
+
+  testBtn?.addEventListener('click', () => {
+    playSequence(['C', 'Am', 'F', 'G'].map((n) => chordNotes(n)), 0, 1.2);
+  });
+
+  updateValues();
+  drawWave(currentWave);
+  drawEnv();
+</script>
+<style>
+  .synth-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .synth-panel { background: var(--card); border: 1px solid var(--bd); border-radius: 14px; padding: 16px; }
+  .wave-draw, .env-draw { margin: 10px 0; }
+  .wave-svg, .env-svg { width: 100%; height: auto; display: block; }
+  .wave.on, .preset:active { background: var(--acc); border-color: var(--acc); color: #fff; }
+</style>

@@ -1,6 +1,6 @@
-import { $ } from './dom';
-import { NOTE_NAMES, chordNotes, displayNote, guitarShape, guitarSvg, keyboardSvg, parseChord } from './music';
-import { play } from './audio';
+import { $ } from '../lib/dom';
+import { NOTE_NAMES, chordNotes, displayNote, guitarShape, guitarSvg, keyboardSvg, parseChord } from './theory';
+import { playSequence } from './audio';
 
 export function renderChordView(
   element: Element,
@@ -22,5 +22,5 @@ export function renderChordView(
     <button class="pl" type="button">▶ Escuchar</button>`;
 
   const playButton = $('.pl', element);
-  playButton?.addEventListener('click', () => play([notes], 0, 1.5));
+  playButton?.addEventListener('click', () => playSequence([notes], 0, 1.5));
 }

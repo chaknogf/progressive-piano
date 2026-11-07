@@ -7,6 +7,7 @@ const sections: [string, string][] = [
   ['s5', 'Ejercicio'],
   ['s6', 'Emociones'],
   ['s7', 'Consejos'],
+  ['s8', 'Sonido'],
 ];
 ---
 <nav id="nav">
@@ -15,7 +16,7 @@ const sections: [string, string][] = [
   ))}
 </nav>
 <script>
-  import { $ } from '../scripts/dom';
+  import { $ } from '../lib/dom';
   const nav = $('#nav');
   nav?.addEventListener('click', (event) => {
     const target = event.target as HTMLElement | null;

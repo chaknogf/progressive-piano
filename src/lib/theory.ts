@@ -1,4 +1,5 @@
 export const NOTE_NAMES = ['Do', 'Do♯', 'Re', 'Re♯', 'Mi', 'Fa', 'Fa♯', 'Sol', 'Sol♯', 'La', 'La♯', 'Si'];
+export const NOTE_LETTERS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 const PITCH_CLASS: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
 export const FLAT_NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
@@ -40,7 +41,7 @@ export function parseChord(name: string): ParsedChord {
   };
 }
 
-export const displayNote = (name: string): string =>
+export const displayName = (name: string): string =>
   name
     .replace(/^([A-G])b/, '$1♭')
     .replace(/\/([A-G])b/, '/$1♭')
@@ -61,6 +62,10 @@ export function chordNotes(name: string, inversion = 0): number[] {
   return notes;
 }
 
+export function noteNames(notes: number[]): string[] {
+  return notes.map((n) => NOTE_LETTERS[((n % 12) + 12) % 12]);
+}
+
 export function keyboardSvg(notes: number[], lo?: number, hi?: number): string {
   const low = lo ?? Math.floor(Math.min(...notes) / 12) * 12;
   const high = hi ?? Math.ceil((Math.max(...notes) + 1) / 12) * 12;
@@ -74,17 +79,17 @@ export function keyboardSvg(notes: number[], lo?: number, hi?: number): string {
     const pc = ((semitone % 12) + 12) % 12;
     const on = pressed.has(semitone);
     if (whiteKeys.includes(pc)) {
-      whites += `<rect x="${i * WHITE}" y="0" width="${WHITE}" height="84" class="wk${on ? ' on' : ''}"/>`;
+      whites += `<rect x="${i * WHITE}" y="0" width="${WHITE}" height="84" class="wk${on ? ' on' : ''}" role="img" aria-label="${NOTE_NAMES[pc]}"/>`;
       if (on) whites += `<text x="${i * WHITE + WHITE / 2}" y="76" class="t">${NOTE_NAMES[pc]}</text>`;
       i++;
     } else {
-      blacks += `<rect x="${i * WHITE - 7}" y="0" width="14" height="50" class="bk${on ? ' on' : ''}"/>`;
+      blacks += `<rect x="${i * WHITE - 7}" y="0" width="14" height="50" class="bk${on ? ' on' : ''}" role="img" aria-label="${NOTE_NAMES[pc]}"/>`;
     }
   }
-  return `<svg viewBox="0 0 ${i * WHITE} 86" class="kb">${whites}${blacks}</svg>`;
+  return `<svg viewBox="0 0 ${i * WHITE} 86" class="kb" aria-label="Teclado de piano">${whites}${blacks}</svg>`;
 }
 
-const OPEN_SHAPES: Record<string, number[]> = {
+export const OPEN_SHAPES: Record<string, number[]> = {
   Bdim: [-1, 2, 3, 4, 3, -1],
   C: [-1, 3, 2, 0, 1, 0],
   Am: [-1, 0, 2, 2, 1, 0],
@@ -105,7 +110,7 @@ const OPEN_SHAPES: Record<string, number[]> = {
   Em7: [0, 2, 0, 0, 0, 0],
 };
 
-const E_SHAPES: Record<string, number[]> = {
+export const E_SHAPES: Record<string, number[]> = {
   '': [0, 2, 2, 1, 0, 0],
   m: [0, 2, 2, 0, 0, 0],
   '7': [0, 2, 0, 1, 0, 0],
@@ -113,7 +118,7 @@ const E_SHAPES: Record<string, number[]> = {
   maj7: [0, 2, 1, 1, 0, 0],
 };
 
-const A_SHAPES: Record<string, number[]> = {
+export const A_SHAPES: Record<string, number[]> = {
   '': [-1, 0, 2, 2, 2, 0],
   m: [-1, 0, 2, 2, 1, 0],
   '7': [-1, 0, 2, 0, 2, 0],
@@ -150,9 +155,9 @@ export function guitarSvg(frets: number[] | null): string {
     strings += `<line x1="${22 + i * 18}" y1="30" x2="${22 + i * 18}" y2="140" class="ln"/>`;
     strings += `<text x="${22 + i * 18}" y="154" class="sn">${'EADGBe'[i]}</text>`;
   }
-  let fretsLines = '';
+  let fretLines = '';
   for (let j = 0; j <= 5; j++) {
-    fretsLines += `<line x1="22" y1="${30 + j * 22}" x2="112" y2="${30 + j * 22}" class="${j === 0 && base === 1 ? 'nut' : 'ln'}"/>`;
+    fretLines += `<line x1="22" y1="${30 + j * 22}" x2="112" y2="${30 + j * 22}" class="${j === 0 && base === 1 ? 'nut' : 'ln'}"/>`;
   }
   frets.forEach((x, i) => {
     const cx = 22 + i * 18;
@@ -161,5 +166,20 @@ export function guitarSvg(frets: number[] | null): string {
     else strings += `<circle cx="${cx}" cy="${30 + (x - base) * 22 + 11}" r="7.5" class="d"/>`;
   });
   if (base > 1) strings += `<text x="116" y="45" class="fn">${base}</text>`;
-  return `<svg viewBox="0 0 140 160" class="gt">${strings}${fretsLines}</svg>`;
+  return `<svg viewBox="0 0 140 160" class="gt" aria-label="Diagrama de guitarra">${strings}${fretLines}</svg>`;
 }
+
+const SCALE_STEPS = [0, 2, 4, 5, 7, 9, 11];
+const DEGREE_INDEX: Record<string, number> = { I: 0, II: 1, III: 2, IV: 3, V: 4, VI: 5, VII: 6 };
+
+export function degreeToChord(degree: string, keyIndex: number): string {
+  const match = /^(♭?)([ivIV]+)$/.exec(degree.trim());
+  if (!match) return 'C';
+  const step = SCALE_STEPS[DEGREE_INDEX[match[2].toUpperCase()] ?? 0];
+  const offset = step - (match[1] ? 1 : 0);
+  const root = FLAT_NAMES[((keyIndex + offset) % 12 + 12) % 12];
+  return root + (match[2] === match[2].toLowerCase() ? 'm' : '');
+}
+
+// Alias for components that expect the original name.
+export const displayNote = displayName;

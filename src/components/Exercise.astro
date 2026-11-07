@@ -20,9 +20,9 @@
   <li><b>Pedal de resonancia:</b> pulsa ligeramente y cámbialo en el primer tiempo de cada compás para que no se empasten los sonidos.</li>
 </ul>
 <script>
-  import { keyboardSvg, NOTE_NAMES } from '../scripts/music';
-  import { play } from '../scripts/audio';
-  import { must } from '../scripts/dom';
+  import { keyboardSvg, NOTE_NAMES } from '../lib/theory';
+  import { playSequence } from '../lib/audio';
+  import { must } from '../lib/dom';
 
   interface Step {
     chord: string;
@@ -51,6 +51,6 @@
 
   const button = must(document.getElementById('pex'), '#pex');
   button.addEventListener('click', () => {
-    play([[-12, 4, 7, 12], [-15, 4, 9, 12], [-19, 0, 5, 9], [-17, -1, 2, 7]], 0.3, 1.5);
+    playSequence([[-12, 4, 7, 12], [-15, 4, 9, 12], [-19, 0, 5, 9], [-17, -1, 2, 7]], 0.3, 1.5);
   });
 </script>

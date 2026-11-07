@@ -5,8 +5,8 @@ import { CATEGORIES, PROGRESSIONS } from '../data/progressions';
 <div class="grid" id="cat"></div>
 <script>
   import { CATEGORIES, PROGRESSIONS } from '../data/progressions';
-  import { displayNote } from '../scripts/music';
-  import { must } from '../scripts/dom';
+  import { displayNote } from '../lib/theory';
+  import { must } from '../lib/dom';
 
   const filterRow = must(document.getElementById('flt'), '#flt');
   filterRow.innerHTML = [

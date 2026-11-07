@@ -4,9 +4,9 @@ import { BASE_CHORDS } from '../data/chords';
 <div class="grid" id="base"></div>
 <script>
   import { BASE_CHORDS } from '../data/chords';
-  import { displayNote } from '../scripts/music';
-  import { renderChordView } from '../scripts/views';
-  import { must } from '../scripts/dom';
+  import { displayNote } from '../lib/theory';
+  import { renderChordView } from '../lib/views';
+  import { must } from '../lib/dom';
 
   const grid = must(document.getElementById('base'), '#base');
   grid.innerHTML = BASE_CHORDS.map(
