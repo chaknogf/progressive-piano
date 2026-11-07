@@ -5,15 +5,15 @@ App Astro (estática) generada a partir del manual original. Desplegable en Verc
 ## Desarrollo
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 ## Build
 
 ```bash
-npm run build
-npm run preview
+pnpm build
+pnpm preview
 ```
 
 ## Despliegue en Vercel
