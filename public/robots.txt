@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
 
-# Sitemap (añade la URL real cuando publiques el sitio)
-# Sitemap: https://tu-dominio.vercel.app/sitemap-index.xml
+Sitemap: https://progressive-piano.vercel.app/sitemap.xml
