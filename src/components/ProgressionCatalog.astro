@@ -1,0 +1,38 @@
+---
+import { CATEGORIES, PROGRESSIONS } from '../data/progressions';
+---
+<div class="row" id="flt"></div>
+<div class="grid" id="cat"></div>
+<script>
+  import { CATEGORIES, PROGRESSIONS } from '../data/progressions';
+  import { displayNote } from '../scripts/music';
+  import { must } from '../scripts/dom';
+
+  const filterRow = must(document.getElementById('flt'), '#flt');
+  filterRow.innerHTML = [
+    '<button class="f on" type="button" data-c="">Todas</button>',
+    ...Object.entries(CATEGORIES).map(
+      ([key, label]) => `<button class="f" type="button" data-c="${key}">${label}</button>`,
+    ),
+  ].join('');
+
+  const grid = must(document.getElementById('cat'), '#cat');
+  grid.innerHTML = PROGRESSIONS.map(
+    (item) => `
+      <article class="cd" data-c="${item.category}">
+        <span class="tg">${CATEGORIES[item.category]}</span>
+        <h3>${item.title}</h3>
+        <p class="gr">${item.degrees}</p>
+        <div class="chips">
+          ${item.chords
+            .split(' ')
+            .map((chord) => `<button class="ch" type="button" data-n="${chord}">${displayNote(chord)}</button>`)
+            .join('')}
+        </div>
+        <p>${item.description}</p>
+        <p class="sg">♪ ${item.songs}</p>
+        <div class="v"></div>
+        <button class="pp" type="button" data-ch="${item.chords}">▶ Tocar progresión</button>
+      </article>`,
+  ).join('');
+</script>

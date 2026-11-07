@@ -1,0 +1,56 @@
+---
+---
+<div class="grid" id="ex"></div>
+<div class="box">
+  <h3>Secuencia de notas (patrón 4/4)</h3>
+  <div class="scroll">
+    <table>
+      <tr><th>Compás</th><th>Acorde</th><th>Voicing (mano derecha)</th><th>Pulso 1 · 2 · 3 · 4</th></tr>
+      <tr><td>1</td><td>C</td><td>Fundamental</td><td>Do(izq) · Mi · Sol · Do</td></tr>
+      <tr><td>2</td><td>Am</td><td>1.ª inversión</td><td>La(izq) · Mi · La · Do</td></tr>
+      <tr><td>3</td><td>F</td><td>2.ª inversión</td><td>Fa(izq) · Do · Fa · La</td></tr>
+      <tr><td>4</td><td>G</td><td>1.ª inversión</td><td>Sol(izq) · Si · Re · Sol</td></tr>
+    </table>
+  </div>
+  <p class="mut">Pulso 1: bajo (izquierda) + primera nota del arpegio; pulsos 2 a 4: las tres notas siguientes, subiendo.</p>
+  <div class="row"><button id="pex" type="button">▶ Escuchar el ejercicio</button></div>
+</div>
+<ul>
+  <li><b>Muñeca relajada:</b> un giro circular suave, no golpes rígidos con los dedos.</li>
+  <li><b>Pedal de resonancia:</b> pulsa ligeramente y cámbialo en el primer tiempo de cada compás para que no se empasten los sonidos.</li>
+</ul>
+<script>
+  import { keyboardSvg, NOTE_NAMES } from '../scripts/music';
+  import { play } from '../scripts/audio';
+  import { must } from '../scripts/dom';
+
+  interface Step {
+    chord: string;
+    voicing: string;
+    notes: number[];
+  }
+
+  const steps: Step[] = [
+    { chord: 'C', voicing: 'Fundamental', notes: [0, 4, 7] },
+    { chord: 'Am', voicing: '1.ª inversión', notes: [0, 4, 9] },
+    { chord: 'F', voicing: '2.ª inversión', notes: [0, 5, 9] },
+    { chord: 'G', voicing: '1.ª inversión', notes: [-1, 2, 7] },
+  ];
+
+  const grid = must(document.getElementById('ex'), '#ex');
+  grid.innerHTML = steps
+    .map(
+      (step) => `
+        <div class="cd">
+          <h3>${step.chord} · ${step.voicing}</h3>
+          ${keyboardSvg(step.notes, -12, 12)}
+          <p class="nn">${step.notes.map((s) => NOTE_NAMES[((s % 12) + 12) % 12]).join(' – ')}</p>
+        </div>`,
+    )
+    .join('');
+
+  const button = must(document.getElementById('pex'), '#pex');
+  button.addEventListener('click', () => {
+    play([[-12, 4, 7, 12], [-15, 4, 9, 12], [-19, 0, 5, 9], [-17, -1, 2, 7]], 0.3, 1.5);
+  });
+</script>

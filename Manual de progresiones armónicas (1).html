@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manual de progresiones armónicas</title>
+<style>
+:root{--bg:#fbf8f3;--fg:#241f1a;--mut:#6d6458;--card:#fff;--bd:#e4dccf;--acc:#c2410c;--acc2:#fde6d8;--wk:#fff;--bk:#2a2420;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17130f;--fg:#f1e9dd;--mut:#a89d8e;--card:#221c16;--bd:#3a3128;--acc:#f97316;--acc2:#3a2416;--wk:#efe7da;--bk:#0e0b08;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17130f;--fg:#f1e9dd;--mut:#a89d8e;--card:#221c16;--bd:#3a3128;--acc:#f97316;--acc2:#3a2416;--wk:#efe7da;--bk:#0e0b08;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:20px 16px 60px}
+h1,h2,h3,h4{font-family:Georgia,"Times New Roman",serif;line-height:1.2;margin:0 0 .4em}
+h1{font-size:2.2rem}h2{font-size:1.6rem;margin-top:2.2em;padding-top:.6em;border-top:2px solid var(--acc)}h3{font-size:1.15rem}h4{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);font-family:system-ui}
+.lead{color:var(--mut);font-size:1.05rem}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+button,select{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--bd);border-radius:999px;padding:6px 14px;cursor:pointer}
+button:hover{border-color:var(--acc)}
+.on,button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.cd,.box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
+.box{margin:14px 0}.box.hl{background:var(--acc2);border-color:var(--acc)}
+.tg{font-size:.72rem;color:var(--acc);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.gr{font-family:Georgia,serif;font-style:italic;color:var(--mut);margin:.2em 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.ch{border-radius:8px;font-weight:700;padding:4px 10px}
+.sg{font-size:.88rem;color:var(--mut)}
+.vw{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin:10px 0}
+.vw>div:first-child{flex:1 1 220px;min-width:0}
+.kb{width:100%;max-width:380px;height:auto;display:block}
+.gt{width:120px;height:auto;display:block}
+.nn{margin:2px 0;font-size:.85rem;color:var(--mut)}
+.mut{color:var(--mut);font-size:.85rem}
+.wk{fill:var(--wk);stroke:var(--bd)}.wk.on{fill:var(--acc)}.bk{fill:var(--bk)}.bk.on{fill:var(--acc);stroke:var(--bk)}
+.t{font:8px system-ui;fill:#fff;text-anchor:middle}
+.ln{stroke:var(--mut);stroke-width:1}.nut{stroke:var(--fg);stroke-width:4}
+.o{fill:none;stroke:var(--fg);stroke-width:1.5}.d{fill:var(--acc)}
+.g,.sn,.fn{font:11px system-ui;fill:var(--mut);text-anchor:middle}.sn{font-size:9px}.fn{text-anchor:start;font-weight:700;fill:var(--acc)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+td,th{border:1px solid var(--bd);padding:6px 10px;text-align:left}th{background:var(--acc2)}
+.scroll{overflow-x:auto}
+code{background:var(--acc2);padding:1px 6px;border-radius:5px}
+ul{padding-left:1.2em}
+</style></head><body><main>
+<h1>Manual de progresiones armónicas</h1>
+<p class="lead">De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra. Toca cualquier acorde para ver su teclado y su diagrama de guitarra, y escúchalo.</p>
+<nav id="nav"></nav>
+
+<h2 id="s1">1. Cómo leer una progresión</h2>
+<p>Hay dos lenguajes. <b>Por nombre</b> (C – Am – F – G) te dice las notas exactas. <b>Por grados</b> (números romanos) funciona en cualquier tono: mayúsculas (I, IV, V) = acorde mayor; minúsculas (ii, vi) = menor.</p>
+<div class="box hl"><b>Regla de oro:</b> I – vi – IV – V en Do mayor es C – Am – F – G; en Sol mayor, los mismos grados son G – Em – C – D. Los grados no cambian de función, solo la nota raíz.</div>
+<div class="box tool"><h3>Transpositor</h3>
+<div class="row"><label>Tonalidad <select id="key"></select></label><label>Progresión <select id="pre"><option>I – V – vi – IV</option><option>vi – IV – I – V</option><option>I – vi – IV – V</option><option>ii – V – I</option></select></label></div>
+<p class="gr" id="degs"></p><div class="chips" id="tr"></div><div class="v"></div></div>
+<h4>Cómo leer los diagramas</h4>
+<ul><li><b>Piano:</b> las teclas naranjas son las que se pulsan; el nombre aparece en las blancas.</li>
+<li><b>Guitarra:</b> cuerdas de izquierda a derecha: E (grave), A, D, G, B, e (aguda). ✕ = no se toca; ○ = al aire; ● = dedo en ese traste. Si el acorde está lejos de la cejuela, se indica el número de traste.</li></ul>
+
+<h2 id="s2">2. Los siete grados de Do mayor</h2>
+<p>Una tríada son tres notas apiladas: fundamental, tercera y quinta. Cada nota de la escala de Do mayor construye un acorde: son los siete grados. I, IV y V son mayores; ii, iii y vi son menores; vii° es disminuido. Los cuatro más usados en la música popular son I, IV, V y vi.</p>
+<div class="grid" id="base"></div>
+
+<h2 id="s3">3. Catálogo de progresiones</h2>
+<div class="row" id="flt"></div>
+<div class="grid" id="cat"></div>
+
+<h2 id="s4">4. Inversiones y conducción de voces</h2>
+<p>Las inversiones evitan que el piano suene como bloques rígidos: la mano se queda en una zona cómoda y solo se mueve lo mínimo. Según la nota que pongas en el bajo, el acorde cambia de posición.</p>
+<div class="box"><div class="row"><label>Acorde <select id="ic"><option>C</option><option>Am</option><option>F</option><option>G</option><option>Dm</option><option>Em</option></select></label>
+<button class="iv on" data-i="0">Fundamental</button><button class="iv" data-i="1">1.ª inversión</button><button class="iv" data-i="2">2.ª inversión</button></div>
+<p class="mut" id="idesc"></p><div id="iv"></div></div>
+<ul><li><b>Fundamental:</b> la raíz abajo (Do – Mi – Sol).</li><li><b>1.ª inversión:</b> la tercera al bajo (Mi – Sol – Do): suena dulce y abierta.</li><li><b>2.ª inversión:</b> la quinta al bajo (Sol – Do – Mi): pide resolución, ideal antes de un acorde importante.</li></ul>
+<div class="box hl"><b>Regla del ancla común:</b> si dos acordes comparten notas (C y Am comparten Do y Mi), deja esos dedos quietos y mueve solo el que cambia.<br><b>Divide el trabajo:</b> mano izquierda = solo la nota fundamental; mano derecha = inversiones en la zona media/aguda, en bloque o arpegio. Así no saturas los graves.</div>
+
+<h2 id="s5">5. Ejercicio: arpegios con mínima distancia</h2>
+<p>Progresión I – vi – IV – V (C – Am – F – G). Mano izquierda: solo la raíz, una octava abajo. Mano derecha: las inversiones de abajo, sin saltos.</p>
+<div class="grid" id="ex"></div>
+<div class="box"><h3>Secuencia de notas (patrón 4/4)</h3><div class="scroll"><table>
+<tr><th>Compás</th><th>Acorde</th><th>Voicing (mano derecha)</th><th>Pulso 1 · 2 · 3 · 4</th></tr>
+<tr><td>1</td><td>C</td><td>Fundamental</td><td>Do(izq) · Mi · Sol · Do</td></tr>
+<tr><td>2</td><td>Am</td><td>1.ª inversión</td><td>La(izq) · Mi · La · Do</td></tr>
+<tr><td>3</td><td>F</td><td>2.ª inversión</td><td>Fa(izq) · Do · Fa · La</td></tr>
+<tr><td>4</td><td>G</td><td>1.ª inversión</td><td>Sol(izq) · Si · Re · Sol</td></tr></table></div>
+<p class="mut">Pulso 1: bajo (izquierda) + primera nota del arpegio; pulsos 2 a 4: las tres notas siguientes, subiendo.</p>
+<div class="row"><button id="pex">▶ Escuchar el ejercicio</button></div></div>
+<ul><li><b>Muñeca relajada:</b> un giro circular suave, no golpes rígidos con los dedos.</li><li><b>Pedal de resonancia:</b> pulsa ligeramente y cámbialo en el primer tiempo de cada compás para que no se empasten los sonidos.</li></ul>
+
+<h2 id="s6">6. Emociones: modos y tonalidades</h2>
+<p>La emoción de una armonía depende sobre todo del <b>modo</b> (qué notas tiene la escala), no de la tonalidad concreta: Do mayor y Re mayor transmiten lo mismo, solo cambia la altura. Se suele asociar las tonalidades agudas con brillo y las graves con peso, pero eso es más registro y tradición que una propiedad de la tonalidad. Elige una tónica y recorre los modos, del más luminoso al más oscuro.</p>
+<div class="cd mdp"><div class="row"><label>Tónica <select id="mk"></select></label></div>
+<div class="row" id="mb"></div>
+<div style="height:8px;border-radius:4px;background:linear-gradient(90deg,#fbbf24,#fb923c,#a855f7,#1e1b4b)"></div>
+<div class="row mut" style="justify-content:space-between;margin-top:2px"><span>Más luminoso</span><span>Más oscuro</span></div>
+<h3 id="mt"></h3><p id="md"></p><p class="gr" id="mg"></p>
+<h4>Escala en el piano</h4><div id="mp"></div>
+<h4>Progresión de ejemplo (toca un acorde)</h4><div class="chips" id="mc"></div><div class="v"></div>
+<div class="row"><button id="msc">▶ Escala</button><button id="mpr">▶ Progresión</button></div></div>
+<div class="box"><h3>Guía rápida: emoción → recurso</h3><div class="scroll"><table>
+<tr><th>Emoción</th><th>Recurso</th><th>Ejemplo</th></tr>
+<tr><td>Alegría, luz</td><td>Mayor (jónico) o lidio</td><td>C – F – G – C</td></tr>
+<tr><td>Tristeza, nostalgia</td><td>Menor natural (eólico)</td><td>Am – F – C – G</td></tr>
+<tr><td>Melancolía con esperanza</td><td>Dórico</td><td>Am – D – Am – G</td></tr>
+<tr><td>Heroico, rockero</td><td>Mixolidio (♭VII)</td><td>C – B♭ – F – C</td></tr>
+<tr><td>Oscuridad, tensión</td><td>Frigio / cadencia andaluza</td><td>Am – G – F – E</td></tr>
+<tr><td>Misterio, ensueño</td><td>Lidio (♯4)</td><td>Cmaj7 – D – Cmaj7 – D</td></tr>
+<tr><td>Melancolía romántica</td><td>IV menor (intercambio modal)</td><td>C – Am – F – Fm</td></tr>
+<tr><td>Inquietud extrema</td><td>Locrio (poco usado)</td><td>Bdim – C – Dm – Bdim</td></tr></table></div></div>
+
+<h2 id="s7">7. Consejos de interpretación</h2>
+<div class="grid">
+<div class="cd"><h3>Guitarra</h3><ul><li>Si el F con cejilla cuesta, usa capo en el traste 2 o 4 y toca formas abiertas (G – D – Em – C).</li><li>Urbano/pop moderno: voicings de 2–3 cuerdas, arpegios rápidos y capo en trastes 2 a 5.</li><li>Latina y flamenca: rasgueos secos y cejilla para el golpe percusivo.</li><li>Electrónica: delay y chorus convierten una progresión simple en un tapiz sonoro.</li></ul></div>
+<div class="cd"><h3>Piano</h3><ul><li>Desde los 90, añade extensiones: maj7, add9, sus2/sus4.</li><li>Clásico: independencia de manos, arpegios amplios a la izquierda y melodía a la derecha.</li><li>Salsa/bolero: la izquierda entrena los contratiempos, imitando el contrabajo y el montuno.</li></ul></div>
+<div class="cd"><h3>Jazz y baladas</h3><ul><li>Estilo Sinatra: cambia tríadas por acordes de 4 notas (Cmaj7, Dm7, G7, Am7); voicings sin quinta; arpegios sutiles que imitan los vientos de una big band.</li><li>Baladas 80s/90s: acordes add9 (Cadd9, Fadd9) para el brillo cristalino de estudio.</li></ul></div>
+</div>
+</main>
+<script>
+const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
+const N=['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'],PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11},FL=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const IV={'':[0,4,7],m:[0,3,7],7:[0,4,7,10],m7:[0,3,7,10],maj7:[0,4,7,11],dim7:[0,3,6,9],m7b5:[0,3,6,10],sus4:[0,5,7],dim:[0,3,6]};
+const pc=s=>(PC[s[0]]+(s[1]=='#'?1:s[1]=='b'?-1:0)+12)%12;
+function parse(n){const m=n.match(/^([A-G][b#]?)([^\/]*)(?:\/([A-G][b#]?))?$/);return{r:pc(m[1]),q:m[2],b:m[3]?pc(m[3]):null}}
+const dn=n=>n.replace(/^([A-G])b/,'$1♭').replace(/\/([A-G])b/,'/$1♭').replace(/#/g,'♯').replace('b5','♭5');
+function notes(n,inv=0){const c=parse(n);let a=IV[c.q].map(i=>c.r+i);for(let i=0;i<inv;i++)a[i]+=12;a.sort((x,y)=>x-y);if(c.b!=null){let b=c.b;while(b>=a[0])b-=12;a.unshift(b)}return a}
+function kb(nt,lo,hi){lo=lo??Math.floor(Math.min(...nt)/12)*12;hi=hi??Math.ceil((Math.max(...nt)+1)/12)*12;const W=22,S=new Set(nt);let w='',b='',i=0;
+for(let s=lo;s<hi;s++){const p=((s%12)+12)%12,on=S.has(s);
+if([0,2,4,5,7,9,11].includes(p)){w+=`<rect x="${i*W}" y="0" width="${W}" height="84" class="wk${on?' on':''}"/>`+(on?`<text x="${i*W+W/2}" y="76" class="t">${N[p]}</text>`:'');i++}
+else b+=`<rect x="${i*W-7}" y="0" width="14" height="50" class="bk${on?' on':''}"/>`}
+return `<svg viewBox="0 0 ${i*W} 86" class="kb">${w}${b}</svg>`}
+const OP={Bdim:[-1,2,3,4,3,-1],C:[-1,3,2,0,1,0],Am:[-1,0,2,2,1,0],G:[3,2,0,0,0,3],F:[1,3,3,2,1,1],Dm:[-1,-1,0,2,3,1],Em:[0,2,2,0,0,0],E:[0,2,2,1,0,0],D:[-1,-1,0,2,3,2],A:[-1,0,2,2,2,0],G7:[3,2,0,0,0,1],E7:[0,2,0,1,0,0],D7:[-1,-1,0,2,1,2],Cmaj7:[-1,3,2,0,0,0],Fmaj7:[-1,-1,3,2,1,0],Am7:[-1,0,2,0,1,0],Dm7:[-1,-1,0,2,1,1],Em7:[0,2,0,0,0,0]};
+const TE={'':[0,2,2,1,0,0],m:[0,2,2,0,0,0],7:[0,2,0,1,0,0],m7:[0,2,0,0,0,0],maj7:[0,2,1,1,0,0]},TA={'':[-1,0,2,2,2,0],m:[-1,0,2,2,1,0],7:[-1,0,2,0,2,0],m7:[-1,0,2,0,1,0],maj7:[-1,0,2,1,2,0]};
+function shape(n){const c=parse(n),k=n.split('/')[0];if(OP[k])return OP[k];const e=(c.r+8)%12,a=(c.r+3)%12;const t=TA[c.q]&&(a<e||!TE[c.q])?[TA[c.q],a]:TE[c.q]?[TE[c.q],e]:null;return t&&t[0].map(x=>x<0?x:x+t[1])}
+function gt(f){if(!f)return'<p class="mut">Sin diagrama de guitarra (forma poco común).</p>';const p=f.filter(x=>x>0),mn=p.length?Math.min(...p):1,mx=p.length?Math.max(...p):1,base=mx<=4?1:mn;let s='';
+for(let i=0;i<6;i++)s+=`<line x1="${22+i*18}" y1="30" x2="${22+i*18}" y2="140" class="ln"/><text x="${22+i*18}" y="154" class="sn">${'EADGBe'[i]}</text>`;
+for(let j=0;j<=5;j++)s+=`<line x1="22" y1="${30+j*22}" x2="112" y2="${30+j*22}" class="${j==0&&base==1?'nut':'ln'}"/>`;
+f.forEach((x,i)=>{const cx=22+i*18;if(x<0)s+=`<text x="${cx}" y="22" class="g">✕</text>`;else if(x==0)s+=`<circle cx="${cx}" cy="18" r="4.5" class="o"/>`;else s+=`<circle cx="${cx}" cy="${30+(x-base)*22+11}" r="7.5" class="d"/>`});
+if(base>1)s+=`<text x="116" y="45" class="fn">${base}</text>`;
+return `<svg viewBox="0 0 140 160" class="gt">${s}</svg>`}
+let AC;function tone(f,t,d){const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.05)}
+function play(seq,gap,len){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();let t=AC.currentTime+.05;seq.forEach(a=>{a.forEach((s,i)=>tone(261.63*2**(s/12),t+i*gap,1.1));t+=len})}catch(e){}}
+function view(el,n,inv=0,po=false){const nt=notes(n,inv),c=parse(n);
+el.innerHTML=`<div class="vw"><div><h4>Piano · ${dn(n)}</h4>${kb(nt)}<p class="nn">${nt.map(s=>N[((s%12)+12)%12]).join(' – ')}</p></div>${po?'':`<div><h4>Guitarra</h4>${gt(shape(n))}${c.b!=null?'<p class="mut">Bajo en otra nota: se muestra el acorde base.</p>':''}</div>`}</div><button class="pl">▶ Escuchar</button>`;
+$('.pl',el).onclick=()=>play([nt],0,1.5)}
+const CAT={pop:'Pop y rock 80s–hoy',act:'Música actual',cla:'Clásica y romántica',ele:'Electrónica',lat:'Latina',jaz:'Sinatra / jazz',bal:'Baladas en inglés'};
+const P=[
+['pop','El bucle antémico','I – V – vi – IV','C G Am F','Don’t Stop Believin’ (Journey), With Or Without You (U2), Someone Like You (Adele), Despacito','La reina del pop desde los 80: equilibrio perfecto entre tensión y resolución.'],
+['pop','Épica menor','vi – IV – I – V','Am F C G','Zombie (The Cranberries), Complicated (Avril Lavigne), Apologize (OneRepublic)','Empieza en el relativo menor: más sombría, nostálgica y dramática.'],
+['pop','Cadencia andaluza','i – ♭VII – ♭VI – V','Am G F E','Sultans of Swing (Dire Straits), Smooth (Santana), Hips Don’t Lie (Shakira)','Bajo descendente con gran tensión dramática.'],
+['pop','R&B / neo-soul ii–V–I','ii – V – I','Dm7 G7 Cmaj7','Sunday Morning (Maroon 5), Bruno Mars, Alicia Keys, Daniel Caesar','Armonía de jazz con séptimas y novenas.'],
+['pop','Mixolidia / power','I – ♭VII – IV – I','C Bb F C','Sweet Child O’ Mine (Guns N’ Roses), Clocks (Coldplay), Born in the U.S.A. (Springsteen)','El ♭VII (intercambio modal) da una sonoridad heroica.'],
+['pop','Bajo descendente','I – V/VII – vi – V – IV – I/III – ii – V','C G/B Am G F C/E Dm G','Tears in Heaven (Clapton), Perfect (Ed Sheeran)','Para piano y guitarra acústica: el bajo baja paso a paso.'],
+['act','Bucle urbano / reguetón','i – ♭VI – ♭VII','Am F G','Bad Bunny, Rauw Alejandro, Rosalía, Karol G, Billie Eilish','Tres acordes en bucle continuo que sostienen el ritmo.'],
+['act','Royal Road (J-Pop)','IV – V – iii – vi','Fmaj7 G7 Em7 Am','Anime openings, baladas K-Pop, Olivia Rodrigo','Resolución suspendida, nostálgica y brillante.'],
+['act','Grunge / alt-rock 90s','I – ♭III – IV – ♭VI','C Eb F Ab','In Bloom y Lithium (Nirvana), Say It Ain’t So (Weezer)','Acordes prestados del modo menor dan peso y dinamismo.'],
+['act','Variante Creep','I – III – IV – iv','C E F Fm','Creep (Radiohead)','El IV mayor pasa a menor: un giro agridulce célebre.'],
+['act','Plagal / indie pop','IV – I – vi – V','F C Am G','Riptide (Vance Joy), As It Was (Harry Styles), Clairo, Mac DeMarco','Oscila entre F y C: ambiente etéreo y relajado.'],
+['act','Neo-soul / lofi','vi7 – ii7 – V7 – Imaj7','Am7 Dm7 G7 Cmaj7','SZA, Frank Ocean, Tyler, The Creator, Steve Lacy','Un acorde secundario añade tensión elegante.'],
+['act','El Canon','I – V – vi – iii – IV – I – IV – V','C G Am Em F C F G','Memories (Maroon 5), Graduation (Vitamin C), Basket Case (Green Day)','Basada en Pachelbel: la balada romántica por excelencia.'],
+['cla','Cadencia ii – V – I','ii – V – I','Dm G7 C','Bach, Mozart, Beethoven, Chopin','Pilar de la música clásica para cerrar frases (a menudo precedida de I 6/4 – V7 – I).'],
+['cla','Círculo de quintas','iii – vi – ii – V – I','Em Am Dm G7 C','Bach, Vivaldi; base de Hey Jude (The Beatles)','Cada acorde cae una quinta.'],
+['cla','Giro romántico','I – vi – IV – iv','C Am F Fm','Chopin, Liszt, Tchaikovsky','El IV menor aporta melancolía puramente romántica.'],
+['ele','Trance / EDM anthem','vi – IV – I – V','Am F C G','Armin van Buuren, Tiësto, Avicii','Euforia masiva en build-ups y drops.'],
+['ele','Deep house','i7 – iv7','Am7 Dm7','Disclosure, Ben Böhmer','Dos acordes con séptimas en bucle: cálido y bailable.'],
+['ele','Synthwave','I – ♭VII – vi – ♭VI','C Bb Am Ab','The Midnight, Kavinsky (Nightcall)','Nostalgia futurista de los 80.'],
+['lat','Tumbao de salsa','i7 – IV7','Am7 D7','Héctor Lavoe, Celia Cruz, Marc Anthony','Base de la salsa sobre un groove sincopado.'],
+['lat','Bolero','I – Idim7 – ii7 – V7','C C#dim7 Dm7 G7','Luis Miguel, Armando Manzanero, Los Panchos','El dim7 de paso conecta acordes cromáticamente.'],
+['lat','Rumba flamenca','i – ♭VII – ♭VI – V','Am G F E','Gipsy Kings, Estopa, Shakira, Juanes','Cadencia andaluza: motor de la rumba y el pop latino.'],
+['jaz','Jazz romántico','vi7 – ii7 – V7 – Imaj7 – IVmaj7 – viiø7 – III7','Am7 Dm7 G7 Cmaj7 Fmaj7 Bm7b5 E7','Fly Me to the Moon, Autumn Leaves, All the Things You Are','Dominantes secundarias y extensiones; voicings sin quinta.'],
+['jaz','Puente AABA','Imaj7 – I♯dim7 – ii7 – V7 → IVmaj7 – iv7 – Imaj7','Cmaj7 C#dim7 Dm7 G7 Fmaj7 Fm7 Cmaj7','My Way, Night and Day, Unforgettable','El puente pasa al subdominante menor para dramatizar.'],
+['bal','Lamento romántico','I – V/VII – vi – V – IV – I/III – ii7 – V7','C G/B Am C/G F C/E Dm7 G7','Careless Whisper, Right Here Waiting, Against All Odds','El bajo desciende mientras la tónica se sostiene.'],
+['bal','Gran poder vocal','I – V – vi – IV → ii7 – V7sus4 – V7 – I','C G Am F Dm7 Gsus4 G7 C','I Will Always Love You, My Heart Will Go On, I Don’t Want to Miss a Thing','Suspensión sus4 justo antes del clímax.'],
+['bal','Piano-pop minimalista','I – vi – IV – V','C Am F G','Someone Like You (Adele), Stay With Me (Sam Smith), All of Me (John Legend)','Cuatro acordes: la voz lleva la dinámica.'],
+['bal','Retro-soul en 6/8','I – iii – IV – iv','C Em F Fm','Perfect (Ed Sheeran), When I Was Your Man (Bruno Mars)','Compás de 6/8 con sabor R&B clásico.']];
+$('#cat').innerHTML=P.map(([c,t,g,ch,s,d])=>`<article class="cd" data-c="${c}"><span class="tg">${CAT[c]}</span><h3>${t}</h3><p class="gr">${g}</p><div class="chips">${ch.split(' ').map(x=>`<button class="ch" data-n="${x}">${dn(x)}</button>`).join('')}</div><p>${d}</p><p class="sg">♪ ${s}</p><div class="v"></div><button class="pp" data-ch="${ch}">▶ Tocar progresión</button></article>`).join('');
+$('#flt').innerHTML=['<button class="f on" data-c="">Todas</button>'].concat(Object.entries(CAT).map(([k,v])=>`<button class="f" data-c="${k}">${v}</button>`)).join('');
+const D={I:0,II:1,III:2,IV:3,V:4,VI:5,VII:6},SC=[0,2,4,5,7,9,11];
+function dg(s,k){const m=s.trim().match(/^(♭?)([ivIV]+)$/);return FL[(k+SC[D[m[2].toUpperCase()]]-(m[1]?1:0)+12)%12]+(m[2]===m[2].toLowerCase()?'m':'')}
+$('#key').innerHTML=FL.map((n,i)=>`<option value="${i}">${dn(n)} mayor</option>`).join('');
+function tr(){const k=+$('#key').value,ds=$('#pre').value.split(/\s*–\s*/);$('#degs').textContent=$('#pre').value;$('#tr').innerHTML=ds.map(d=>{const n=dg(d,k);return `<button class="ch" data-n="${n}">${dn(n)}</button>`}).join('');$('.tool .v').innerHTML=''}
+$('#key').onchange=$('#pre').onchange=tr;tr();
+[['C','I','Tónica'],['Dm','ii','Supertónica'],['Em','iii','Mediante'],['F','IV','Subdominante'],['G','V','Dominante'],['Am','vi','Superdominante (relativo menor)'],['Bdim','vii°','Sensible']].forEach(([n,g,f])=>{const d=document.createElement('div');d.className='cd';d.innerHTML=`<span class="tg">Grado ${g} · ${f}</span><h3>${dn(n)}</h3><div class="v"></div>`;$('#base').append(d);view($('.v',d),n)});
+const ID=['Fundamental: la raíz está abajo.','1.ª inversión: la tercera pasa al bajo.','2.ª inversión: la quinta pasa al bajo.'];let inv=0;
+function ri(){view($('#iv'),$('#ic').value,inv,true);$('#idesc').textContent=ID[inv]}
+$$('.iv').forEach(b=>b.onclick=()=>{inv=+b.dataset.i;$$('.iv').forEach(x=>x.classList.toggle('on',x===b));ri()});$('#ic').onchange=ri;ri();
+const EX=[['C','Fundamental',[0,4,7]],['Am','1.ª inversión',[0,4,9]],['F','2.ª inversión',[0,5,9]],['G','1.ª inversión',[-1,2,7]]];
+$('#ex').innerHTML=EX.map(([n,t,a])=>`<div class="cd"><h3>${n} · ${t}</h3>${kb(a,-12,12)}<p class="nn">${a.map(s=>N[((s%12)+12)%12]).join(' – ')}</p></div>`).join('');
+$('#pex').onclick=()=>play([[-12,4,7,12],[-15,4,9,12],[-19,0,5,9],[-17,-1,2,7]],.3,1.5);
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+if(b.classList.contains('ch')){const h=b.closest('.cd,.tool');$$('.ch',h).forEach(x=>x.classList.toggle('on',x===b));view($('.v',h),b.dataset.n)}
+else if(b.classList.contains('pp'))play(b.dataset.ch.split(' ').map(n=>notes(n)),0,1.2);
+else if(b.classList.contains('f')){$$('.f').forEach(x=>x.classList.toggle('on',x===b));$$('#cat .cd').forEach(c=>c.style.display=!b.dataset.c||c.dataset.c===b.dataset.c?'':'none')}});
+const MD=[['lidio','Lidio',[0,2,4,6,7,9,11],'Asombro, sueño, magia','Como el mayor pero con la 4.ª aumentada (♯4): flota y suena fantástico, sin pesadez.','I – II – I – II',[[0,'maj7'],[2,''],[0,'maj7'],[2,'']]],
+['jonico','Jónico (mayor)',[0,2,4,5,7,9,11],'Alegría, luz, estabilidad','La escala mayor: brillante y resuelta, la base del pop festivo.','I – IV – V – I',[[0,''],[5,''],[7,''],[0,'']]],
+['mixo','Mixolidio',[0,2,4,5,7,9,10],'Heroico, relajado, rockero','Mayor con 7.ª menor (♭7): el ♭VII da un aire heroico o nostálgico.','I – ♭VII – IV – I',[[0,''],[10,''],[5,''],[0,'']]],
+['dorico','Dórico',[0,2,3,5,7,9,10],'Melancolía con esperanza, “cool”','Menor con 6.ª mayor: triste pero no hundido; muy usado en jazz, funk y soul.','i – IV – i – ♭VII',[[0,'m'],[5,''],[0,'m'],[10,'']]],
+['eolico','Eólico (menor natural)',[0,2,3,5,7,8,10],'Tristeza, nostalgia, drama','La escala menor natural: sombría e introspectiva. La épica menor Am – F – C – G vive aquí.','i – ♭VI – ♭III – ♭VII',[[0,'m'],[8,''],[3,''],[10,'']]],
+['frigio','Frigio',[0,1,3,5,7,8,10],'Oscuridad, tensión, dramatismo','Menor con 2.ª menor (♭2): el semitono sobre la tónica da un color oscuro, flamenco y metalero.','i – ♭II – i – ♭VII',[[0,'m'],[1,''],[0,'m'],[10,'']]],
+['locrio','Locrio',[0,1,3,5,6,8,10],'Inestabilidad, inquietud','Su 5.ª es disminuida: la tónica es un acorde disminuido y nunca termina de asentarse.','i° – ♭II – ♭iii – i°',[[0,'dim'],[1,''],[3,'m'],[0,'dim']]]];
+let mi=1,MS=[],MC=[];
+$('#mk').innerHTML=FL.map((n,i)=>`<option value="${i}">${dn(n)}</option>`).join('');
+$('#mb').innerHTML=MD.map((m,i)=>`<button class="mm${i==1?' on':''}" data-i="${i}">${m[1]}</button>`).join('');
+function rm(){const m=MD[mi],k=+$('#mk').value;MS=m[2].map(s=>k+s).concat(k+12);MC=m[6].map(([o,q])=>FL[(k+o)%12]+q);
+$('#mt').textContent=`${dn(FL[k])} ${m[1]}`;$('#md').innerHTML=`<b>${m[3]}.</b> ${m[4]}`;$('#mg').textContent=`Grados: ${m[5]}`;
+$('#mp').innerHTML=kb(MS)+`<p class="nn">${MS.map(s=>N[s%12]).join(' – ')}</p>`;
+$('#mc').innerHTML=MC.map(n=>`<button class="ch" data-n="${n}">${dn(n)}</button>`).join('');$('.mdp .v').innerHTML=''}
+$$('.mm').forEach(b=>b.onclick=()=>{mi=+b.dataset.i;$$('.mm').forEach(x=>x.classList.toggle('on',x===b));rm()});
+$('#mk').onchange=rm;$('#msc').onclick=()=>play(MS.map(s=>[s]),0,.35);$('#mpr').onclick=()=>play(MC.map(n=>notes(n)),0,1.2);rm();
+$('#nav').innerHTML=[['s1','Leer'],['s2','Acordes'],['s3','Catálogo'],['s4','Inversiones'],['s5','Ejercicio'],['s6','Emociones'],['s7','Consejos']].map(([i,t])=>`<button data-go="${i}">${t}</button>`).join('');
+$('#nav').onclick=e=>{const g=e.target.dataset.go;if(g)document.getElementById(g).scrollIntoView({behavior:'smooth'})};
+</script></body></html>

@@ -1,0 +1,53 @@
+---
+const chords = ['C', 'Am', 'F', 'G', 'Dm', 'Em'];
+const descriptions = [
+  'Fundamental: la raíz está abajo.',
+  '1.ª inversión: la tercera pasa al bajo.',
+  '2.ª inversión: la quinta pasa al bajo.',
+];
+---
+<div class="box" id="inversions">
+  <div class="row">
+    <label>Acorde
+      <select id="ic">
+        {chords.map((chord) => <option>{chord}</option>)}
+      </select>
+    </label>
+    <button class="iv on" type="button" data-i="0">Fundamental</button>
+    <button class="iv" type="button" data-i="1">1.ª inversión</button>
+    <button class="iv" type="button" data-i="2">2.ª inversión</button>
+  </div>
+  <p class="mut" id="idesc"></p>
+  <div id="iv"></div>
+</div>
+<script>
+  import { $, $$, must } from '../scripts/dom';
+  import { renderChordView } from '../scripts/views';
+
+  const box = must(document.getElementById('inversions'), '#inversions');
+  const select = must($<HTMLSelectElement>('#ic', box), '#ic');
+  const target = must($('#iv', box), '#iv');
+  const buttons = $$<HTMLButtonElement>('.iv', box);
+  const description = must($('#idesc', box), '#idesc');
+  const descriptions = [
+    'Fundamental: la raíz está abajo.',
+    '1.ª inversión: la tercera pasa al bajo.',
+    '2.ª inversión: la quinta pasa al bajo.',
+  ];
+  let inversion = 0;
+
+  function render(): void {
+    renderChordView(target, select.value, inversion, true);
+    description.textContent = descriptions[inversion];
+  }
+
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      inversion = Number(button.dataset.i ?? 0);
+      buttons.forEach((candidate) => candidate.classList.toggle('on', candidate === button));
+      render();
+    });
+  });
+  select.addEventListener('change', render);
+  render();
+</script>

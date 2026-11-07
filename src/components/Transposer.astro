@@ -1,0 +1,64 @@
+---
+---
+<div class="box tool" id="transposer">
+  <h3>Transpositor</h3>
+  <div class="row">
+    <label>Tonalidad <select id="key"></select></label>
+    <label>Progresión
+      <select id="pre">
+        <option>I – V – vi – IV</option>
+        <option>vi – IV – I – V</option>
+        <option>I – vi – IV – V</option>
+        <option>ii – V – I</option>
+      </select>
+    </label>
+  </div>
+  <p class="gr" id="degs"></p>
+  <div class="chips" id="tr"></div>
+  <div class="v"></div>
+</div>
+<script>
+  import { FLAT_NAMES, displayNote } from '../scripts/music';
+  import { $, must } from '../scripts/dom';
+
+  const SCALE_STEPS = [0, 2, 4, 5, 7, 9, 11];
+  const DEGREE_INDEX: Record<string, number> = {
+    I: 0, II: 1, III: 2, IV: 3, V: 4, VI: 5, VII: 6,
+  };
+
+  function chordForDegree(degree: string, key: number): string {
+    const match = /^(♭?)([ivIV]+)$/.exec(degree.trim());
+    if (!match) return 'C';
+    const step = SCALE_STEPS[DEGREE_INDEX[match[2].toUpperCase()] ?? 0];
+    const offset = step - (match[1] ? 1 : 0);
+    const root = FLAT_NAMES[((key + offset) % 12 + 12) % 12];
+    return root + (match[2] === match[2].toLowerCase() ? 'm' : '');
+  }
+
+  const keySelect = must($<HTMLSelectElement>('#key'), '#key');
+  const progressionSelect = must($<HTMLSelectElement>('#pre'), '#pre');
+  const degreesLabel = must($('#degs'), '#degs');
+  const chips = must($('#tr'), '#tr');
+  const transposer = must(document.getElementById('transposer'), '#transposer');
+  const view = must($('.v', transposer), '.v');
+
+  keySelect.innerHTML = FLAT_NAMES.map((name, index) => `<option value="${index}">${displayNote(name)} mayor</option>`).join('');
+
+  function render(): void {
+    const key = Number(keySelect.value);
+    const label = progressionSelect.value;
+    const degrees = label.split(/\s*–\s*/);
+    degreesLabel.textContent = label;
+    chips.innerHTML = degrees
+      .map((degree) => {
+        const chord = chordForDegree(degree, key);
+        return `<button class="ch" type="button" data-n="${chord}">${displayNote(chord)}</button>`;
+      })
+      .join('');
+    view.innerHTML = '';
+  }
+
+  keySelect.addEventListener('change', render);
+  progressionSelect.addEventListener('change', render);
+  render();
+</script>

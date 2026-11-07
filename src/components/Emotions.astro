@@ -1,0 +1,92 @@
+---
+---
+<div class="cd mdp" id="modes">
+  <div class="row">
+    <label>Tónica <select id="mk"></select></label>
+  </div>
+  <div class="row" id="mb"></div>
+  <div style="height:8px;border-radius:4px;background:linear-gradient(90deg,#fbbf24,#fb923c,#a855f7,#1e1b4b)"></div>
+  <div class="row mut" style="justify-content:space-between;margin-top:2px">
+    <span>Más luminoso</span><span>Más oscuro</span>
+  </div>
+  <h3 id="mt"></h3>
+  <p id="md"></p>
+  <p class="gr" id="mg"></p>
+  <h4>Escala en el piano</h4>
+  <div id="mp"></div>
+  <h4>Progresión de ejemplo (toca un acorde)</h4>
+  <div class="chips" id="mc"></div>
+  <div class="v"></div>
+  <div class="row">
+    <button id="msc" type="button">▶ Escala</button>
+    <button id="mpr" type="button">▶ Progresión</button>
+  </div>
+</div>
+<script>
+  import { MODES } from '../data/modes';
+  import { FLAT_NAMES, NOTE_NAMES, displayNote, keyboardSvg } from '../scripts/music';
+  import { chordNotes } from '../scripts/music';
+  import { play } from '../scripts/audio';
+  import { $, must } from '../scripts/dom';
+
+  const root = must(document.getElementById('modes'), '#modes');
+  const tonicSelect = must($<HTMLSelectElement>('#mk', root), '#mk');
+  const modeButtons = must($('#mb', root), '#mb');
+  const title = must($('#mt', root), '#mt');
+  const description = must($('#md', root), '#md');
+  const degrees = must($('#mg', root), '#mg');
+  const scale = must($('#mp', root), '#mp');
+  const chips = must($('#mc', root), '#mc');
+  const view = must($('.v', root), '.v');
+  const scaleButton = must($('#msc', root), '#msc');
+  const progressionButton = must($('#mpr', root), '#mpr');
+
+  tonicSelect.innerHTML = FLAT_NAMES.map((name, index) => `<option value="${index}">${displayNote(name)}</option>`).join('');
+  modeButtons.innerHTML = MODES.map(
+    (mode, index) => `<button class="mm${index === 1 ? ' on' : ''}" type="button" data-i="${index}">${mode.name}</button>`,
+  ).join('');
+
+  let current = 1;
+
+  function render(): void {
+    const mode = MODES[current];
+    const key = Number(tonicSelect.value);
+    const scaleNotes = mode.scale.map((s) => key + s).concat(key + 12);
+    const progression = mode.progression.map(
+      ([offset, quality]) => FLAT_NAMES[((key + offset) % 12 + 12) % 12] + quality,
+    );
+
+    title.textContent = `${displayNote(FLAT_NAMES[key])} ${mode.name}`;
+    description.innerHTML = `<b>${mode.emotion}.</b> ${mode.description}`;
+    degrees.textContent = `Grados: ${mode.degrees}`;
+    scale.innerHTML = `${keyboardSvg(scaleNotes)}<p class="nn">${scaleNotes.map((s) => NOTE_NAMES[s % 12]).join(' – ')}</p>`;
+    chips.innerHTML = progression.map((chord) => `<button class="ch" type="button" data-n="${chord}">${displayNote(chord)}</button>`).join('');
+    view.innerHTML = '';
+  }
+
+  modeButtons.querySelectorAll<HTMLButtonElement>('.mm').forEach((button) => {
+    button.addEventListener('click', () => {
+      current = Number(button.dataset.i ?? 0);
+      modeButtons.querySelectorAll<HTMLButtonElement>('.mm').forEach((candidate) => {
+        candidate.classList.toggle('on', candidate === button);
+      });
+      render();
+    });
+  });
+  tonicSelect.addEventListener('change', render);
+  scaleButton.addEventListener('click', () => {
+    const mode = MODES[current];
+    const key = Number(tonicSelect.value);
+    play(mode.scale.map((s) => [key + s]), 0, 0.35);
+  });
+  progressionButton.addEventListener('click', () => {
+    const mode = MODES[current];
+    const key = Number(tonicSelect.value);
+    const progression = mode.progression.map(
+      ([offset, quality]) => FLAT_NAMES[((key + offset) % 12 + 12) % 12] + quality,
+    );
+    play(progression.map((chord) => chordNotes(chord)), 0, 1.2);
+  });
+
+  render();
+</script>

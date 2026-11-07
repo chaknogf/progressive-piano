@@ -1,0 +1,60 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Manual de progresiones armónicas',
+  description = 'De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra.',
+} = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#fbf8f3" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main>
+      <slot />
+    </main>
+    <script>
+      import { $, $$ } from '../scripts/dom';
+      import { chordNotes as notes } from '../scripts/music';
+      import { play } from '../scripts/audio';
+      import { renderChordView } from '../scripts/views';
+
+      document.addEventListener('click', (event) => {
+        const target = event.target as HTMLElement | null;
+        const button = target?.closest('button');
+        if (!button) return;
+
+        if (button.classList.contains('ch')) {
+          const host = button.closest<HTMLElement>('.cd, .tool');
+          if (!host) return;
+          const name = button.dataset.n;
+          if (!name) return;
+          const container = $('.v', host);
+          if (container) renderChordView(container, name);
+          $$('.ch', host).forEach((chip) => chip.classList.toggle('on', chip === button));
+        } else if (button.classList.contains('pp')) {
+          const chart = button.dataset.ch;
+          if (chart) play(chart.split(' ').map((name) => notes(name)), 0, 1.2);
+        } else if (button.classList.contains('f')) {
+          $$('.f').forEach((filter) => filter.classList.toggle('on', filter === button));
+          $$('#cat .cd').forEach((card) => {
+            const element = card as HTMLElement;
+            const match = !button.dataset.c || element.dataset.c === button.dataset.c;
+            element.style.display = match ? '' : 'none';
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

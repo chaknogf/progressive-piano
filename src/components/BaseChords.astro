@@ -1,0 +1,25 @@
+---
+import { BASE_CHORDS } from '../data/chords';
+---
+<div class="grid" id="base"></div>
+<script>
+  import { BASE_CHORDS } from '../data/chords';
+  import { displayNote } from '../scripts/music';
+  import { renderChordView } from '../scripts/views';
+  import { must } from '../scripts/dom';
+
+  const grid = must(document.getElementById('base'), '#base');
+  grid.innerHTML = BASE_CHORDS.map(
+    (item) => `
+      <div class="cd">
+        <span class="tg">Grado ${item.degree} · ${item.name}</span>
+        <h3>${displayNote(item.chord)}</h3>
+        <div class="v"></div>
+      </div>`,
+  ).join('');
+
+  grid.querySelectorAll<HTMLElement>('.cd').forEach((card, index) => {
+    const target = card.querySelector('.v');
+    if (target) renderChordView(target, BASE_CHORDS[index].chord);
+  });
+</script>
