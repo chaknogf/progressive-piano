@@ -6,9 +6,13 @@ interface Props {
   description?: string;
 }
 
+const DEFAULT_TITLE = 'Manual de Progresiones Armónicas para Piano y Guitarra';
+const DEFAULT_DESCRIPTION =
+  'De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra.';
+
 const {
-  title = 'Manual de progresiones armónicas',
-  description = 'De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra.',
+  title = DEFAULT_TITLE,
+  description = DEFAULT_DESCRIPTION,
 } = Astro.props;
 ---
 <!DOCTYPE html>
@@ -16,9 +20,19 @@ const {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content={description} />
-    <meta name="theme-color" content="#fbf8f3" />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content="progresiones armónicas, acordes de piano, acordes de guitarra, teoría musical, grados, inversiones, modos, pop, rock, jazz, latina" />
+    <meta name="author" content="Manual de Progresiones Armónicas" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#fbf8f3" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
   </head>
   <body>
     <main>
