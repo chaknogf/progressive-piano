@@ -6,3 +6,4 @@ export const SITE_DESCRIPTION =
 export const SITE_KEYWORDS =
   'progresiones armónicas, acordes de piano, acordes de guitarra, trastes, síntesis musical, sonido, ritmo, percusión, teoría musical';
 export const SITE_URL = 'https://progressive-music.vercel.app';
+export const SITE_LOGO = '/components/Logo.astro';

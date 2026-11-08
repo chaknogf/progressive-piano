@@ -14,10 +14,14 @@ import Fretboard from "../components/Fretboard.astro";
 import Beats from "../components/Beats.astro";
 import ChordsByKey from "../components/ChordsByKey.astro";
 import { SITE_NAME, SITE_SUBTITLE } from "../data/site";
+import Logo from "../components/Logo.astro";
 ---
 
 <Layout>
-  <h1>{SITE_NAME}</h1>
+  <h1>
+    {SITE_NAME}
+    <Logo class="h1-logo" />
+  </h1>
   <h2 class="subtitle">{SITE_SUBTITLE}</h2>
   <p class="lead">
     De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y
@@ -36,26 +40,34 @@ import { SITE_NAME, SITE_SUBTITLE } from "../data/site";
   </p>
   <h3>Dos secuencias que lo explican todo</h3>
   <p>
-    Casi cualquier progresión puede leerse a partir de dos patrones de calidades.
-    Si los recuerdas, puedes encontrar los acordes que corresponden a cada grado
-    en cualquier tonalidad.
+    Casi cualquier progresión puede leerse a partir de dos patrones de
+    calidades. Si los recuerdas, puedes encontrar los acordes que corresponden a
+    cada grado en cualquier tonalidad.
   </p>
   <div class="grid">
     <div class="cd">
       <span class="tg">Escala mayor</span>
-      <p><b>I</b> mayor · <b>ii</b> menor · <b>iii</b> menor · <b>IV</b> mayor · <b>V</b> mayor · <b>vi</b> menor · <b>vii°</b> disminuido</p>
+      <p>
+        <b>I</b> mayor · <b>ii</b> menor · <b>iii</b> menor · <b>IV</b> mayor · <b
+          >V</b
+        > mayor · <b>vi</b> menor · <b>vii°</b> disminuido
+      </p>
       <p class="mut">Calidades: M · m · m · M · M · m · dim</p>
     </div>
     <div class="cd">
       <span class="tg">Menor natural</span>
-      <p><b>i</b> menor · <b>ii°</b> disminuido · <b>III</b> mayor · <b>iv</b> menor · <b>v</b> menor · <b>VI</b> mayor · <b>VII</b> mayor</p>
+      <p>
+        <b>i</b> menor · <b>ii°</b> disminuido · <b>III</b> mayor · <b>iv</b> menor
+        · <b>v</b> menor · <b>VI</b> mayor · <b>VII</b> mayor
+      </p>
       <p class="mut">Calidades: m · dim · M · m · m · M · M</p>
     </div>
   </div>
   <p>
     En Do mayor: <b>C, Dm, Em, F, G, Am, Bdim</b>. En La menor natural:
-    <b>Am, Bdim, C, Dm, Em, F, G</b>. Son los mismos siete acordes en otro orden:
-    La menor empieza en el sexto grado de Do mayor y es su tonalidad relativa.
+    <b>Am, Bdim, C, Dm, Em, F, G</b>. Son los mismos siete acordes en otro
+    orden: La menor empieza en el sexto grado de Do mayor y es su tonalidad
+    relativa.
   </p>
   <Transposer />
   <ChordsByKey />
@@ -63,8 +75,8 @@ import { SITE_NAME, SITE_SUBTITLE } from "../data/site";
     <summary><b>Nota sobre la escala menor</b></summary>
     <p>
       La tabla usa la escala menor natural. En muchas canciones, el quinto grado
-      menor se convierte en mayor (E o E7) para aumentar la tensión antes de volver
-      a Am; por ejemplo, en Am – G – F – E.
+      menor se convierte en mayor (E o E7) para aumentar la tensión antes de
+      volver a Am; por ejemplo, en Am – G – F – E.
     </p>
   </details>
   <div class="box mini-challenge">
@@ -89,20 +101,36 @@ import { SITE_NAME, SITE_SUBTITLE } from "../data/site";
       de la cejuela, se indica el número de traste.
     </li>
   </ul>
-  <p class="source-note">Para ampliar: <a href="https://blog.landr.com/how-to-write-chord-progressions/" target="_blank" rel="noreferrer">guía de progresiones de LANDR</a> (inglés).</p>
+  <p class="source-note">
+    Para ampliar: <a
+      href="https://blog.landr.com/how-to-write-chord-progressions/"
+      target="_blank"
+      rel="noreferrer">guía de progresiones de LANDR</a
+    > (inglés).
+  </p>
 
   <script>
-    import { must } from '../lib/dom';
+    import { must } from "../lib/dom";
 
-    const checkButton = must(document.querySelector<HTMLButtonElement>('[data-check-vi]'), '[data-check-vi]');
-    const answer = must(document.querySelector<HTMLElement>('[data-vi-answer]'), '[data-vi-answer]');
-    checkButton.addEventListener('click', () => {
-      const selected = document.querySelector<HTMLInputElement>('input[name="vi-challenge"]:checked');
+    const checkButton = must(
+      document.querySelector<HTMLButtonElement>("[data-check-vi]"),
+      "[data-check-vi]",
+    );
+    const answer = must(
+      document.querySelector<HTMLElement>("[data-vi-answer]"),
+      "[data-vi-answer]",
+    );
+    checkButton.addEventListener("click", () => {
+      const selected = document.querySelector<HTMLInputElement>(
+        'input[name="vi-challenge"]:checked',
+      );
       answer.hidden = false;
-      if (selected?.value === 'Em') {
-        answer.textContent = '¡Correcto! Em es el vi: Mi es el sexto grado de Sol mayor y el acorde de ese grado es menor.';
+      if (selected?.value === "Em") {
+        answer.textContent =
+          "¡Correcto! Em es el vi: Mi es el sexto grado de Sol mayor y el acorde de ese grado es menor.";
       } else {
-        answer.textContent = 'La respuesta es Em. Sol mayor: G, Am, Bm, C, D, Em, F♯dim; el sexto grado es Mi menor.';
+        answer.textContent =
+          "La respuesta es Em. Sol mayor: G, Am, Bm, C, D, Em, F♯dim; el sexto grado es Mi menor.";
       }
     });
   </script>

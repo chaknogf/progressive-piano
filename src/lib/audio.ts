@@ -212,6 +212,14 @@ export function scheduleTone(semitone: number, when: number, duration: number): 
 function scheduleNoteImpl(semitone: number, when: number, duration: number): void {
   const ctx = audioContext();
   const { waveform, adsr } = getConfig();
+  // The default Piano patch uses a decaying, slightly inharmonic harmonic
+  // stack. A triangle oscillator has an unnaturally steady tone, while a
+  // struck piano loses its upper partials quickly after the hammer attack.
+  if (waveform === 'triangle') {
+    schedulePianoNote(ctx, semitone, when, duration, adsr.release);
+    return;
+  }
+
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   const peak = 0.14;
@@ -230,6 +238,62 @@ function scheduleNoteImpl(semitone: number, when: number, duration: number): voi
   gain.connect(bus());
   osc.start(when);
   osc.stop(releaseEnd + 0.05);
+}
+
+function schedulePianoNote(ctx: AudioContext, semitone: number, when: number, duration: number, release: number): void {
+  const fundamental = freq(semitone);
+  const output = bus();
+  const note = ctx.createGain();
+  const body = ctx.createBiquadFilter();
+  body.type = 'lowpass';
+  body.frequency.value = Math.min(9000, Math.max(1800, fundamental * 18));
+  body.Q.value = 0.55;
+  note.gain.setValueAtTime(0.0001, when);
+  note.gain.linearRampToValueAtTime(0.19, when + 0.004);
+  note.gain.exponentialRampToValueAtTime(0.0001, when + Math.max(0.9, duration + release));
+  note.connect(body);
+  body.connect(output);
+
+  // Stiff strings have slightly stretched overtones, which gives the sound
+  // more of a piano character than a single oscillator waveform.
+  const partials = [1, 0.48, 0.27, 0.17, 0.11, 0.075, 0.05, 0.035];
+  partials.forEach((level, index) => {
+    const harmonic = index + 1;
+    const oscillator = ctx.createOscillator();
+    const partialGain = ctx.createGain();
+    const stretch = 1 + 0.00012 * harmonic * harmonic;
+    const decay = Math.max(0.16, 2.8 / (harmonic ** 0.72));
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(fundamental * harmonic * stretch, when);
+    partialGain.gain.setValueAtTime(level, when);
+    partialGain.gain.exponentialRampToValueAtTime(0.0001, when + decay);
+    oscillator.connect(partialGain);
+    partialGain.connect(note);
+    oscillator.start(when);
+    oscillator.stop(when + decay + 0.02);
+  });
+
+  // A very short, filtered hammer transient supplies the attack of a struck
+  // key without adding an external sample or dependency.
+  const transientLength = Math.max(1, Math.floor(ctx.sampleRate * 0.018));
+  const transient = ctx.createBuffer(1, transientLength, ctx.sampleRate);
+  const samples = transient.getChannelData(0);
+  for (let index = 0; index < samples.length; index++) {
+    samples[index] = (Math.random() * 2 - 1) * (1 - index / samples.length) ** 2;
+  }
+  const hammer = ctx.createBufferSource();
+  const hammerFilter = ctx.createBiquadFilter();
+  const hammerGain = ctx.createGain();
+  hammer.buffer = transient;
+  hammerFilter.type = 'bandpass';
+  hammerFilter.frequency.value = Math.min(5200, Math.max(1400, fundamental * 7));
+  hammerFilter.Q.value = 0.8;
+  hammerGain.gain.setValueAtTime(0.028, when);
+  hammerGain.gain.exponentialRampToValueAtTime(0.0001, when + 0.018);
+  hammer.connect(hammerFilter);
+  hammerFilter.connect(hammerGain);
+  hammerGain.connect(body);
+  hammer.start(when);
 }
 
 export function playChord(notes: number[], duration = 1.2): void {

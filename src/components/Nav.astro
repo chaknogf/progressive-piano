@@ -1,28 +1,45 @@
 ---
 const sections: [string, string][] = [
-  ['s1', 'Leer'],
-  ['s2', 'Acordes'],
-  ['s3', 'Catálogo'],
-  ['s4', 'Inversiones'],
-  ['s5', 'Ejercicio'],
-  ['s6', 'Emociones'],
-  ['s7', 'Consejos'],
-  ['s8', 'Sonido'],
-  ['s9', 'Trastes'],
-  ['s10', 'Beats'],
+  ["s1", "Leer"],
+  ["s2", "Acordes"],
+  ["s3", "Catálogo"],
+  ["s4", "Inversiones"],
+  ["s5", "Ejercicio"],
+  ["s6", "Emociones"],
+  ["s7", "Consejos"],
+  ["s8", "Sonido"],
+  ["s9", "Trastes"],
+  ["s10", "Beats"],
+];
+
+const levelSections: [string, string][] = [
+  ["level-inicial", "Inicial⭐️"],
+  ["level-intermedio", "Intermedio ⭐️⭐️"],
+  ["level-avanzado", "Avanzado ⭐️⭐️⭐️"],
 ];
 ---
+
 <nav id="nav">
-  {sections.map(([id, label]) => (
-    <button type="button" data-go={id}>{label}</button>
-  ))}
+  <!-- <div class="level-group">
+    <span>Nivel</span>
+    {levelSections.map(([id, label]) => (
+      <button type="button" data-go={id} class="level-btn">{label}</button>
+    ))}
+  </div> -->
+  {
+    sections.map(([id, label]) => (
+      <button type="button" data-go={id}>
+        {label}
+      </button>
+    ))
+  }
 </nav>
 <script>
-  import { $ } from '../lib/dom';
-  const nav = $('#nav');
-  nav?.addEventListener('click', (event) => {
+  import { $ } from "../lib/dom";
+  const nav = $("#nav");
+  nav?.addEventListener("click", (event) => {
     const target = event.target as HTMLElement | null;
-    const id = target?.closest('button')?.dataset.go;
-    if (id) document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    const id = target?.closest("button")?.dataset.go;
+    if (id) document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   });
 </script>
