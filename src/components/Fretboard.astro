@@ -118,7 +118,7 @@ const cl=()=>{$('#pm').hidden=true;document.body.style.overflow='';try{document.
 $('#pmx').onclick=cl;document.addEventListener('keydown',e=>{if(e.key=='Escape'&&!$('#pm').hidden)cl()});
 })();
 </script>
-<style>
+<style is:global>
   [hidden]{display:none!important}
   .sim label{display:flex;flex-direction:column;font-size:.78rem;color:var(--mut);gap:3px}
   .sim select{border-radius:10px}
