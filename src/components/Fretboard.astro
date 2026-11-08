@@ -100,7 +100,7 @@ $('#pmv').innerHTML=g}
 $('#pmv').onclick=e=>{const t=e.target;P2.bad=[];if(t.dataset.h!=null){const s=+t.dataset.h;P2.m[s]=null;P2.mu[s]=!P2.mu[s]}
 else if(t.dataset.r!=null){const s=+t.dataset.r,r=+t.dataset.r,p=P2.m[s];if(p&&p.f==r)P2.m[s]=null;else{const fi=P2.fi;if(fi>1)P2.m=P2.m.map(q=>q&&q.fi==fi?null:q);P2.m[s]={f:r,fi};P2.mu[s]=false;pl(T0[s]+r)}}
 msg('');pv()};
-function fgs(){$('#pmf').innerHTML=[1,2,3,4].map(i=>`<button class="fg${P2.fi==i?' on':''}" data-f="${i}" style="--c:${FC[i]}"><b>${i}</b><small>${FN[i]}</small></button>`).join('')}
+function fgs(){$('#pmf').innerHTML=[1,2,3,4].map(i=>`<button class="fg${P2.fi==i?' on':''}" data-f="${i}" style="--c:${FC[i]}" aria-pressed="${P2.fi==i}"><b>${i}</b><small>${FN[i]}</small></button>`).join('')}
 $('#pmf').onclick=e=>{const b=e.target.closest('[data-f]');if(b){P2.fi=+b.dataset.f;fgs()}};
 $('#pmc').innerHTML=opt(PC,x=>`${x[0]} · ${x[3]}`);
 $('#pmc').onchange=e=>{P2.ci=+e.target.value;rs()};
@@ -112,8 +112,9 @@ $('#pmk').onclick=()=>{const[nm,fr,fi]=PC[P2.ci],bad=[];for(let s=0;s<6;s++){con
 P2.bad=bad;pv();if(bad.length){msg(`Casi: revisa las cuerdas en rojo (${bad.map(s=>6-s).join(', ')}). Marca con ✕ las que no se tocan.`);return}
 const wf=[];fr.forEach((e,s)=>{if(e>0&&P2.m[s].fi!=fi[s])wf.push(`cuerda ${6-s}: dedo ${fi[s]}`)});
 msg(wf.length?`✓ ¡Posición correcta! Para más comodidad usa ${wf.join('; ')}.`:`✓ ¡Perfecto! Así se toca ${dn(nm)}.`,1);strum(fr)};
-$('#fpm').onclick=()=>{$('#pm').hidden=false;document.body.style.overflow='hidden';try{$('#pm').requestFullscreen&&$('#pm').requestFullscreen().catch(()=>{})}catch(e){}fgs();rs()};
-const cl=()=>{$('#pm').hidden=true;document.body.style.overflow='';try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}};
+let prevFocus=null;
+$('#fpm').onclick=()=>{prevFocus=document.activeElement;$('#pm').hidden=false;document.body.style.overflow='hidden';try{$('#pm').requestFullscreen&&$('#pm').requestFullscreen().catch(()=>{})}catch(e){}fgs();rs();setTimeout(()=>$('#pmx')?.focus(),50)};
+const cl=()=>{$('#pm').hidden=true;document.body.style.overflow='';try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}if(prevFocus&&prevFocus.focus)prevFocus.focus()};
 $('#pmx').onclick=cl;document.addEventListener('keydown',e=>{if(e.key=='Escape'&&!$('#pm').hidden)cl()});
 })();
 </script>

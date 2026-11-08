@@ -64,7 +64,7 @@ function cur(k){$$$('#bgrid .cl').forEach(c=>c.classList.toggle('cur',+c.dataset
 function sched(){const bpm=+$('#bt').value,sw=$('#bs').value/100,sd=60/bpm/4;
 while(bs+step*sd<AC.currentTime+.15){const st=step,t=bs+st*sd+(st%2?sw*sd:0);
 G.forEach((row,r)=>{if(row[st])drum(r,t)});
-if(!st&&$('#bc').checked)notes(GN[gi][4][bar%4]).forEach(n=>tone(261.63*2**((n-12)/12),t,sd*15));
+if(!st&&$('#bc').checked)notes(GN[gi][4][bar%4]).forEach(n=>window.__scheduleTone?.(n-12,t,sd*15));
 setTimeout(()=>on&&cur(st),Math.max(0,(t-AC.currentTime)*1000));
 if(++step==16){step=0;bs+=16*sd;bar++}}}
 function stop(){on=0;clearInterval(tm);$('#bp').textContent='▶ Reproducir';cur(-1)}

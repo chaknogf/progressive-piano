@@ -25,10 +25,12 @@ export function getConfig(): SynthConfig {
 
 export function setWaveform(waveform: Waveform): void {
   config.waveform = waveform;
+  syncGlobal();
 }
 
 export function setAdsr(partial: Partial<Adsr>): void {
   config.adsr = { ...config.adsr, ...partial };
+  syncGlobal();
 }
 
 export function resetConfig(): void {
@@ -52,7 +54,11 @@ function freq(semitone: number): number {
   return 261.63 * 2 ** (semitone / 12);
 }
 
-function scheduleNote(semitone: number, when: number, duration: number): void {
+export function scheduleTone(semitone: number, when: number, duration: number): void {
+  scheduleNoteImpl(semitone, when, duration);
+}
+
+function scheduleNoteImpl(semitone: number, when: number, duration: number): void {
   const ctx = audioContext();
   const { waveform, adsr } = getConfig();
   const osc = ctx.createOscillator();
@@ -78,7 +84,7 @@ export function playChord(notes: number[], duration = 1.2): void {
   try {
     const ctx = audioContext();
     const when = ctx.currentTime + 0.05;
-    notes.forEach((n) => scheduleNote(n, when, duration));
+    notes.forEach((n) => scheduleNoteImpl(n, when, duration));
     (window as any).__pulseLogo?.();
   } catch (error) {
     console.error('No se pudo reproducir el acorde', error);
@@ -91,7 +97,7 @@ export function playSequence(sequence: number[][], gap = 0, length = 1.2): void 
     let time = ctx.currentTime + 0.05;
     sequence.forEach((chord) => {
       chord.forEach((semitone, index) => {
-        scheduleNote(semitone, time + index * gap, 1.1);
+        scheduleNoteImpl(semitone, time + index * gap, 1.1);
       });
       time += length;
     });
@@ -100,6 +106,15 @@ export function playSequence(sequence: number[][], gap = 0, length = 1.2): void 
     console.error('No se pudo reproducir la secuencia', error);
   }
 }
+
+function syncGlobal() {
+  if (typeof window === 'undefined') return;
+  (window as any).__synthConfig = getConfig();
+  (window as any).__scheduleTone = (semitone: number, when: number, duration: number) => {
+    scheduleNoteImpl(semitone, when, duration);
+  };
+}
+syncGlobal();
 
 export const PRESETS: Record<string, SynthConfig> = {
   Piano: { waveform: 'triangle', adsr: { attack: 0.01, decay: 0.3, sustain: 0.4, release: 0.6 } },
