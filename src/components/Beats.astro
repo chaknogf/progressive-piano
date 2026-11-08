@@ -1,0 +1,98 @@
+---
+---
+<section id="s10">
+  <h2>10. Ritmo y percusión: beats por género</h2>
+  <p>La percusión define la energía, la cadencia y el movimiento de un track. Cada elemento ocupa un lugar en el espectro de frecuencias y en el compás.</p>
+  <div class="scroll">
+    <table>
+      <tr><th>Instrumento</th><th>Función y rango</th><th>Mejor momento para usarlo</th></tr>
+      <tr><td><b>Kick (bombo)</b></td><td>Cimiento grave (20–100 Hz): peso y pulso principal.</td><td>Inicio de los compases y acentos fuertes.</td></tr>
+      <tr><td><b>Snare (caja)</b></td><td>Ancla de frecuencia media (200 Hz–2 kHz): responde al kick en los tiempos débiles (backbeat).</td><td>Tiempos 2 y 4 (o el 3 en trap).</td></tr>
+      <tr><td><b>Clap (palmas)</b></td><td>Alternativa o capa de la caja.</td><td>Coros o secciones que piden más brillo.</td></tr>
+      <tr><td><b>Hi-hat cerrado</b></td><td>Agudos (5–18 kHz): marca la subdivisión y el groove.</td><td>Estrofas, para mantener el control del tempo.</td></tr>
+      <tr><td><b>Hi-hat abierto</b></td><td>Apertura de energía y elevación.</td><td>Contratiempo del coro, para dar soltura.</td></tr>
+      <tr><td><b>Congas / bongós</b></td><td>Relleno orgánico en medios-agudos; síncopa y movimiento.</td><td>Afrobeat, salsa, funk y house, para llenar huecos.</td></tr>
+      <tr><td><b>Toms</b></td><td>Percusión tonal dinámica (grave, medio, agudo).</td><td>Fills al final de 4 u 8 compases y build-ups antes de un drop.</td></tr>
+      <tr><td><b>Rimshot / sidestick</b></td><td>Percusión suave de bajo impacto.</td><td>Estrofas tranquilas o baladas, donde una caja completa sería agresiva.</td></tr>
+    </table>
+  </div>
+  <h3 style="margin-top:1.4em">Secuenciador de beats</h3>
+  <p>Cada columna es una semicorchea; las líneas gruesas marcan los 4 tiempos del compás. Elige un género, activa o apaga casillas y juega con el tempo y el swing. Con “Con acordes” suena además una progresión, con el timbre que hayas elegido en la sección 8.</p>
+  <div class="sim">
+    <div class="seg" id="bg"></div>
+    <div class="row">
+      <button id="bp" class="on">▶ Reproducir</button>
+      <label>Tempo <b id="bv"></b> BPM<input type="range" id="bt" min="60" max="180"></label>
+      <label>Swing <b id="bw"></b> %<input type="range" id="bs" min="0" max="50"></label>
+      <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="bc"> Con acordes</label>
+      <button id="bx">Limpiar</button>
+    </div>
+    <div class="sq" id="bgrid"></div>
+    <p class="mut" id="bch"></p>
+  </div>
+  <div class="box hl" id="bn"></div>
+  <h3 style="margin-top:1.4em">Armonía y percusión: la radiografía por género</h3>
+  <p>Cada género combina un tipo de acordes con un tipo de beat. Toca los acordes para ver su teclado y su diapasón.</p>
+  <div class="grid" id="bcards"></div>
+</section>
+<script is:inline>
+const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
+const N=['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'],PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11},FL=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const IV={'':[0,4,7],m:[0,3,7],7:[0,4,7,10],m7:[0,3,7,10],maj7:[0,4,7,11],dim7:[0,3,6,9],m7b5:[0,3,6,10],sus4:[0,5,7],dim:[0,3,6]};
+const pc=s=>(PC[s[0]]+(s[1]=='#'?1:s[1]=='b'?-1:0)+12)%12;
+function parse(n){const m=n.match(/^([A-G][b#]?)([^\/]*)(?:\/([A-G][b#]?))?$/);return{r:pc(m[1]),q:m[2],b:m[3]?pc(m[3]):null}}
+const dn=n=>n.replace(/^([A-G])b/,'$1♭').replace(/\/([A-G])b/,'/$1♭').replace(/#/g,'♯').replace('b5','♭5');
+function notes(n,inv=0){const c=parse(n);let a=IV[c.q].map(i=>c.r+i);for(let i=0;i<inv;i++)a[i]+=12;a.sort((x,y)=>x-y);if(c.b!=null){let b=c.b;while(b>=a[0])b-=12;a.unshift(b)}return a}
+let AC;
+function tone(f,t,d){AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.14,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.05)}
+(()=>{const TR=['Kick','Caja / Clap','Hat cerrado','Hat abierto','Conga'];
+const GN=[
+['House / four-on-the-floor',124,0,['x...x...x...x...','....x.......x...','................','..x...x...x...x.','................'],['Am7','Dm7','Am7','Dm7'],'Sirve también para techno, synthwave y disco. Kick en los 4 tiempos; clap o caja en el 2 y el 4 (backbeat); hi-hat abierto en el contratiempo (las “y”), la clave del groove house. Los toms casi no van en el patrón: se colocan al final del compás 4 u 8 como fill descendente (agudo → medio → grave) para avisar un cambio de sección.'],
+['Boom bap / hip-hop clásico',90,20,['x......x.x......','....x.......x...','x.x.x.x.x.x.x.x.','................','................'],['Dm7','G7','Cmaj7','A7'],'Ritmo sincopado con swing. El kick va en el 1, con un segundo kick desplazado antes del 3; la caja es seca y pesada en el 2 y el 4. Congas o bongós en los huecos libres dan textura orgánica.'],
+['Trap / drill',140,0,['x..x......x.....','........x.......','xxxxxxxxxxxxxxxx','................','................'],['Am','G','F','E'],'130–160 BPM en medio tiempo, dominado por el sub-bajo 808. La caja o el clap cae en el tercer tiempo, no en el 2 y el 4. Los hi-hats llevan el peso creativo: de corcheas a ráfagas de semicorcheas o fusas con pitch rolls. Los rimshots acentúan contra-ritmos antes de la caja.'],
+['Reggaetón / dembow',95,0,['x...x...x...x...','...x.x.....x.x..','................','................','................'],['C','G','Am','F'],'Kick en los cuatro tiempos y caja, palo o rimshot en un patrón sincopado (el dembow) que da el vaivén característico. Congas y woodblocks rellenan con percusión seca.'],
+['Afrobeat / pop latino',105,0,['x.....x.....x...','................','xxxxxxxxxxxxxxxx','................','..x.x..x..x.x..x'],['Am','F','G','G'],'Polirritmia orgánica: las congas usan el tumbao (golpe abierto + palma o dedo) en lugar de una caja pesada, y el shaker mantiene el pulso. Las claves marcan el marco temporal (3-2 o 2-3), y los toms se afinan melódicamente para construir el patrón junto al kick.'],
+['Rock / pop',110,0,['x.......x.......','....x.......x...','x.x.x.x.x.x.x.x.','................','................'],['C','Bb','F','C'],'Pop: I – V – vi – IV, con ganchos melódicos inmediatos. Rock: power chords (raíz y quinta), pentatónicas y modo mixolidio con el ♭VII (de Do mayor a Si bemol mayor) para un sonido crudo y de estadio. Batería real: kick en el 1 y el 3 en el rock (cuatro tiempos en el pop bailable) y caja en el 2 y el 4. Los toms hacen los breaks y fills entre estrofa y coro; el crash abre secciones y el ride lleva el pulso en lo intenso.']];
+let gi=0,G=[],on=0,step=0,bar=0,bs=0,tm,NB;
+const $$$=s=>document.querySelectorAll(s);
+function ac(){AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=='suspended')AC.resume();if(!NB){NB=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}}
+function drum(r,t){const g=AC.createGain();g.connect(AC.destination);
+if(r==0||r==4){const o=AC.createOscillator(),k=r==0;o.frequency.setValueAtTime(k?150:260,t);o.frequency.exponentialRampToValueAtTime(k?42:190,t+(k?.12:.1));g.gain.setValueAtTime(k?.9:.4,t);g.gain.exponentialRampToValueAtTime(.001,t+(k?.35:.18));o.connect(g);o.start(t);o.stop(t+.4);return}
+const n=AC.createBufferSource(),f=AC.createBiquadFilter(),d=r==1?.2:r==2?.05:.3;n.buffer=NB;f.type=r==1?'bandpass':'highpass';f.frequency.value=r==1?1800:7000;g.gain.setValueAtTime(r==1?.7:.25,t);g.gain.exponentialRampToValueAtTime(.001,t+d);n.connect(f);f.connect(g);n.start(t);n.stop(t+d+.05);
+if(r==1){const o=AC.createOscillator(),h=AC.createGain();o.type='triangle';o.frequency.setValueAtTime(200,t);h.gain.setValueAtTime(.3,t);h.gain.exponentialRampToValueAtTime(.001,t+.1);o.connect(h);h.connect(AC.destination);o.start(t);o.stop(t+.12)}}
+function cur(k){$$$('#bgrid .cl').forEach(c=>c.classList.toggle('cur',+c.dataset.k==k))}
+function sched(){const bpm=+$('#bt').value,sw=$('#bs').value/100,sd=60/bpm/4;
+while(bs+step*sd<AC.currentTime+.15){const st=step,t=bs+st*sd+(st%2?sw*sd:0);
+G.forEach((row,r)=>{if(row[st])drum(r,t)});
+if(!st&&$('#bc').checked)notes(GN[gi][4][bar%4]).forEach(n=>tone(261.63*2**((n-12)/12),t,sd*15));
+setTimeout(()=>on&&cur(st),Math.max(0,(t-AC.currentTime)*1000));
+if(++step==16){step=0;bs+=16*sd;bar++}}}
+function stop(){on=0;clearInterval(tm);$('#bp').textContent='▶ Reproducir';cur(-1)}
+function load(i){gi=i;const g=GN[i];G=g[3].map(r=>[...r].map(c=>c=='x'));$('#bt').value=g[1];$('#bs').value=g[2];lab();
+$('#bg').innerHTML=GN.map((x,j)=>`<button data-i="${j}" class="${j==i?'on':''}">${x[0]}</button>`).join('');
+$('#bn').innerHTML=`<b>${g[0]}.</b> ${g[5]}`;$('#bch').textContent=`Acordes (un compás cada uno): ${g[4].map(dn).join(' – ')}`;
+$('#bgrid').innerHTML=TR.map((n,r)=>`<span class="bl">${n}</span>`+G[r].map((v,k)=>`<button class="cl${v?' on':''}${k%4?'':' b'}" data-r="${r}" data-k="${k}" aria-label="${n}, semicorchea ${k+1}"></button>`).join('')).join('')}
+function lab(){$('#bv').textContent=$('#bt').value;$('#bw').textContent=$('#bs').value}
+$('#bg').onclick=e=>{const i=e.target.dataset.i;if(i!=null)load(+i)};
+$('#bgrid').onclick=e=>{const b=e.target.closest('.cl');if(!b)return;const r=+b.dataset.r,k=+b.dataset.k;G[r][k]=!G[r][k];b.classList.toggle('on',G[r][k]);if(G[r][k]&&!on){ac();drum(r,AC.currentTime)}};
+$('#bt').oninput=$('#bs').oninput=lab;
+$('#bp').onclick=()=>{if(on){stop();return}ac();on=1;step=0;bar=0;bs=AC.currentTime+.08;$('#bp').textContent='■ Detener';tm=setInterval(sched,25);sched()};
+$('#bx').onclick=()=>{G=G.map(r=>r.map(()=>false));$$$('#bgrid .cl').forEach(c=>c.classList.remove('on'))};
+const CD=[
+['Lo-fi (hip-hop, chill, study)','Dm7 G7 Cmaj7 A7','Acordes de jazz extendidos (maj7, m9, dominante 11, add9) con conducción de voces muy suave. Progresiones cíclicas y nostálgicas, por ejemplo ii7 – V7 – Imaj7 – VI7.','Kick profundo y comprimido, de low-end cálido. Caja o rimshot apagado en el 2 y el 4, algo corrido del pulso exacto para sonar humano. Hi-hats lentos con crackle de vinilo y lluvia; sin toms agresivos, a lo sumo shakers o madera de fondo.'],
+['House (deep, tech, progressive)','Am7 Dm7 Am7 Dm7','Stabs de piano eléctrico (Rhodes, Wurlitzer) o de sintetizador tipo órgano M1. Acordes de 4 notas con inversiones limpias que entran a contratiempo.','Four-on-the-floor limpio, con el bajo comprimido por sidechain cada vez que golpea el kick. Clap en el 2 y el 4 con capa brillante y reverb plate corta; hat cerrado en las “y” y hat abierto en el pulso débil para dar aire antes de los drops.'],
+['Tribal / latin house','Am Bb Am Bb','Progresiones menores oscuras o modales (frigio, menor armónica), con una nota pedal repetida en el bajo mientras la armonía fluctúa.','Kick constante en 4/4, pero mandan las congas, bongós y tumbadoras con síncopas hiperactivas. Shakers, whistles y cowbells cortan en medios-altos para crear una atmósfera cálida y de alta energía.'],
+['Electro / synthwave / cyberpunk','C Bb Am Ab','Progresiones oscuras, cinemáticas y épicas inspiradas en los 80, con modos eólico y dórico y tríadas con novena añadida.','Kick electrónico y pesado (estilo TR-808 o LinnDrum). Caja o clap con gated reverb para un sonido enorme y espacial; hats en semicorcheas mecánicas con paneos rápidos y rimshots sintéticos.'],
+['Trap','Am G F E','Melodías oscuras y menores (armónicas o frigias) con flautas, pianos de cola tristes o bells con octavador y reversa.','El 808 manda y se desliza (glide) de nota en nota con saturación armónica. Caja o clap agudo y cortante en el tercer tiempo; hats rápidos e impredecibles, con tresillos y fusas programadas como rolls.'],
+['Reggaetón / urbano','C G Am F','Progresiones pop de 4 acordes (I – vi – IV – V o variaciones menores) con plucks suaves, guitarras acústicas procesadas o pianos eléctricos modernos.','Kick en los cuatro tiempos y el patrón sincopado del dembow, que empuja el cuerpo adelante y atrás. Woodblocks, rimshots y percusión latina digital rellenan los huecos.'],
+['Rock y pop','C Bb F C','Pop: I – V – vi – IV, con ganchos melódicos inmediatos. Rock: power chords (raíz y quinta), pentatónicas y modo mixolidio con el ♭VII (de Do mayor a Si bemol mayor) para un sonido crudo y de estadio.','Batería real: kick en el 1 y el 3 en el rock (cuatro tiempos en el pop bailable) y caja en el 2 y el 4. Los toms hacen los breaks y fills entre estrofa y coro; el crash abre secciones y el ride lleva el pulso en lo intenso.']];
+$('#bcards').innerHTML=CD.map(([t,ch,a,b])=>`<article class="cd"><h3>${t}</h3><div class="chips">${ch.split(' ').map(x=>`<button class="ch" data-n="${x}">${dn(x)}</button>`).join('')}</div><p><b>Armonía.</b> ${a}</p><p><b>Beat.</b> ${b}</p><div class="v"></div></article>`).join('');
+load(0);
+})();
+</script>
+<style>
+  .sq{display:grid;grid-template-columns:72px repeat(16,minmax(0,1fr));gap:3px;align-items:center;margin:10px 0}
+  .bl{font-size:.7rem;color:var(--mut);line-height:1.1}
+  .cl{height:30px;min-height:0;min-width:0;padding:0;border-radius:5px;border:1px solid var(--bd);background:var(--card)}
+  .cl.b{border-left:2px solid var(--mut)}.cl.on{background:var(--acc);border-color:var(--acc)}.cl.cur{outline:2px solid var(--fg);outline-offset:1px}
+</style>
