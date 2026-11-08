@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest run",
+    "test:browser": "node tests/chords-by-key.browser.mjs",
     "test:watch": "vitest"
   },
   "dependencies": {

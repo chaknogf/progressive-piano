@@ -38,6 +38,8 @@ function tonicLabel(key: string): string {
         type="button"
         class:list={['key-chord', `quality-${chord.quality}`, { selected: index === 0 }]}
         data-chord-index={index}
+        data-chord-id={chord.id}
+        aria-label={`${chord.degree}, ${chord.name}, ${qualityLabel(chord.quality)}${functionLabel(index) ? `, ${functionLabel(index)}` : ''}`}
         aria-pressed={index === 0 ? 'true' : 'false'}
       >
         <span class="chord-degree">{chord.degree}</span>
@@ -54,7 +56,7 @@ function tonicLabel(key: string): string {
 </section>
 
 <script>
-  import { chordNotes, diatonicChords, pitchClass, type ScaleMode } from '../lib/theory';
+  import { chordNotes, diatonicChords, DIATONIC_KEYS, pitchClass, relativeTonic, type ScaleMode } from '../lib/theory';
   import { playSequence } from '../lib/audio';
   import { renderChordView } from '../lib/views';
   import { must } from '../lib/dom';
@@ -111,8 +113,8 @@ function tonicLabel(key: string): string {
       button.setAttribute('aria-pressed', String(selected));
     });
     selectedLabel.textContent = `${chord.degree} · ${chord.name} (${qualityLabel(chord.quality)})`;
-    renderChordView(view, chord.name);
-    if (shouldPlay) playSequence([chordNotes(chord.name)], 0, 1.3);
+    renderChordView(view, chord.id, 0, false, chord.name);
+    if (shouldPlay) playSequence([chordNotes(chord.id)], 0, 1.3);
   }
 
   function render(mode: ScaleMode, key: string, selectedIndex = 0): void {
@@ -128,7 +130,7 @@ function tonicLabel(key: string): string {
     });
     grid.innerHTML = chords.map((chord, index) => {
       const label = functionLabel(index);
-      return `<button type="button" class="key-chord quality-${chord.quality}${index === selectedIndex ? ' selected' : ''}" data-chord-index="${index}" aria-pressed="${index === selectedIndex}">
+      return `<button type="button" class="key-chord quality-${chord.quality}${index === selectedIndex ? ' selected' : ''}" data-chord-index="${index}" data-chord-id="${chord.id}" aria-label="${chord.degree}, ${chord.name}, ${qualityLabel(chord.quality)}${label ? `, ${label}` : ''}" aria-pressed="${index === selectedIndex}">
         <span class="chord-degree">${chord.degree}</span>
         <span class="chord-name">${chord.name}</span>
         <span class="chord-quality">${qualityLabel(chord.quality)}</span>
@@ -137,9 +139,8 @@ function tonicLabel(key: string): string {
     }).join('');
     renderSelected(selectedIndex, false);
 
-    const relativeMode: ScaleMode = mode === 'major' ? 'minor' : 'major';
-    const relativeChord = chords[mode === 'major' ? 5 : 2];
-    relativeHint.textContent = `${keyLabel(relativeChord.root)} ${relativeMode === 'minor' ? 'menor' : 'mayor'}`;
+    const relative = relativeTonic(key, mode);
+    relativeHint.textContent = `${keyLabel(relative.tonic)} ${relative.mode === 'minor' ? 'menor' : 'mayor'}`;
     relativeButton.setAttribute('aria-label', `Ver el relativo: ${relativeHint.textContent}`);
   }
 
@@ -158,13 +159,8 @@ function tonicLabel(key: string): string {
     if (button) renderSelected(Number(button.dataset.chordIndex));
   });
   relativeButton.addEventListener('click', () => {
-    const nextMode: ScaleMode = currentMode === 'major' ? 'minor' : 'major';
-    const relativeChord = chords[currentMode === 'major' ? 5 : 2];
-    const relativeRoot = relativeChord.root.replaceAll('♯', '#').replaceAll('♭', 'b');
-    const relativePitch = pitchClass(relativeRoot);
-    const keys = nextMode === 'major' ? majorKeys : minorKeys;
-    const nextKey = keys.find((key) => pitchClass(key) === relativePitch) ?? relativeRoot;
-    render(nextMode, nextKey);
+    const relative = relativeTonic(currentKey, currentMode);
+    render(relative.mode, relative.tonic);
   });
 
   render(currentMode, currentKey, 0);

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PROGRESSIONS } from '../src/data/progressions';
-import { chordNotes, degreeToChord, diatonicChords, DIATONIC_KEYS, displayName, guitarShape, noteNames, parseChord } from '../src/lib/theory';
+import { chordNotes, degreeToChord, diatonicChords, DIATONIC_KEY_PAIRS, DIATONIC_KEYS, displayName, guitarShape, noteNames, parseChord, relativeTonic } from '../src/lib/theory';
 
 const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11];
 const ROMAN_INDEX: Record<string, number> = { I: 0, II: 1, III: 2, IV: 3, V: 4, VI: 5, VII: 6 };
@@ -27,6 +27,19 @@ describe('theory', () => {
     expect(parseChord('G/B')).toEqual({ root: 7, quality: '', bass: 11 });
     expect(parseChord('E♭m')).toEqual({ root: 3, quality: 'm', bass: null });
     expect(parseChord('F♯')).toEqual({ root: 6, quality: '', bass: null });
+    expect(parseChord('E♯dim')).toEqual({ root: 5, quality: 'dim', bass: null });
+    expect(parseChord('E#dim')).toEqual({ root: 5, quality: 'dim', bass: null });
+    expect(parseChord('B♯')).toEqual({ root: 0, quality: '', bass: null });
+    expect(parseChord('B#')).toEqual({ root: 0, quality: '', bass: null });
+    expect(parseChord('C♭')).toEqual({ root: 11, quality: '', bass: null });
+    expect(parseChord('Cb')).toEqual({ root: 11, quality: '', bass: null });
+    expect(parseChord('Fb')).toEqual({ root: 4, quality: '', bass: null });
+    expect(parseChord('Fº')).toEqual({ root: 5, quality: 'dim', bass: null });
+    expect(parseChord('F°')).toEqual({ root: 5, quality: 'dim', bass: null });
+    expect(parseChord('Bm7b5')).toEqual({ root: 11, quality: 'm7b5', bass: null });
+    expect(parseChord('Bm7♭5')).toEqual({ root: 11, quality: 'm7b5', bass: null });
+    expect(chordNotes('Fº')).toEqual([5, 8, 11]);
+    expect(chordNotes('Bm7♭5')).toEqual([11, 14, 17, 21]);
   });
 
   it('spells diatonic triads with the correct scale letters and qualities', () => {
@@ -53,12 +66,31 @@ describe('theory', () => {
 
   it('offers the specified twelve major and minor keys', () => {
     expect(DIATONIC_KEYS.major).toEqual(['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F']);
-    expect(DIATONIC_KEYS.minor).toEqual(['A', 'E', 'B', 'F#', 'C#', 'G#', 'Eb', 'Bb', 'F', 'C', 'G', 'D']);
+    expect(DIATONIC_KEYS.minor).toEqual(['A', 'E', 'B', 'F#', 'C#', 'G#', 'D#', 'Bb', 'F', 'C', 'G', 'D']);
     for (const mode of ['major', 'minor'] as const) {
       for (const tonic of DIATONIC_KEYS[mode]) {
-        expect(diatonicChords(tonic, mode), `${tonic} ${mode}`).toHaveLength(7);
+        const chords = diatonicChords(tonic, mode);
+        expect(chords, `${tonic} ${mode}`).toHaveLength(7);
+        for (const chord of chords) {
+          const parsed = parseChord(chord.id);
+          const intervals = chord.quality === 'major' ? [0, 4, 7] : chord.quality === 'minor' ? [0, 3, 7] : [0, 3, 6];
+          const actualPitches = chordNotes(chord.id).map((note) => note % 12).sort((a, b) => a - b);
+          const expectedPitches = intervals.map((interval) => (parsed.root + interval) % 12).sort((a, b) => a - b);
+          expect(actualPitches, `${tonic} ${mode} ${chord.id}`).toEqual(expectedPitches);
+          expect(chord.id).not.toMatch(/[♯♭]/);
+        }
       }
     }
+  });
+
+  it('returns the paired relative key in both directions', () => {
+    for (const pair of DIATONIC_KEY_PAIRS) {
+      expect(relativeTonic(pair.major, 'major')).toEqual({ tonic: pair.minor, mode: 'minor' });
+      expect(relativeTonic(pair.minor, 'minor')).toEqual({ tonic: pair.major, mode: 'major' });
+    }
+    expect(diatonicChords('D#', 'minor').map((chord) => chord.name)).toEqual([
+      'D♯m', 'E♯dim', 'F♯', 'G♯m', 'A♯m', 'B', 'C♯',
+    ]);
   });
 
   it('chordNotes Am inversion 1', () => {

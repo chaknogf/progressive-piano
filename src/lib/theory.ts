@@ -27,15 +27,35 @@ export interface ParsedChord {
 
 export type ScaleMode = 'major' | 'minor';
 export type TriadQuality = 'major' | 'minor' | 'diminished';
+
+export const DIATONIC_KEY_PAIRS = [
+  { major: 'C', minor: 'A' },
+  { major: 'G', minor: 'E' },
+  { major: 'D', minor: 'B' },
+  { major: 'A', minor: 'F#' },
+  { major: 'E', minor: 'C#' },
+  { major: 'B', minor: 'G#' },
+  { major: 'F#', minor: 'D#' },
+  { major: 'Db', minor: 'Bb' },
+  { major: 'Ab', minor: 'F' },
+  { major: 'Eb', minor: 'C' },
+  { major: 'Bb', minor: 'G' },
+  { major: 'F', minor: 'D' },
+] as const;
+
 export const DIATONIC_KEYS: Record<ScaleMode, readonly string[]> = {
-  major: ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'],
-  minor: ['A', 'E', 'B', 'F#', 'C#', 'G#', 'Eb', 'Bb', 'F', 'C', 'G', 'D'],
+  major: DIATONIC_KEY_PAIRS.map((pair) => pair.major),
+  minor: DIATONIC_KEY_PAIRS.map((pair) => pair.minor),
 };
 
 export interface DiatonicChord {
   degree: string;
   quality: TriadQuality;
+  /** ASCII chord symbol for parsing, note generation, guitar shapes, and audio. */
+  id: string;
+  /** Typographic chord symbol for the interface. */
   name: string;
+  rootId: string;
   root: string;
 }
 
@@ -73,9 +93,18 @@ export function diatonicChords(tonic: string, mode: ScaleMode): DiatonicChord[] 
     const root = `${letter}${accidental}`;
     const quality = scale.qualities[index];
     const suffix = quality === 'minor' ? 'm' : quality === 'diminished' ? 'dim' : '';
+    const rootId = root.replaceAll('♯', '#').replaceAll('♭', 'b');
 
-    return { degree: scale.degrees[index], quality, name: `${root}${suffix}`, root };
+    return { degree: scale.degrees[index], quality, id: `${rootId}${suffix}`, name: `${root}${suffix}`, rootId, root };
   });
+}
+
+export function relativeTonic(tonic: string, mode: ScaleMode): { tonic: string; mode: ScaleMode } {
+  const pair = DIATONIC_KEY_PAIRS.find((candidate) => candidate[mode] === tonic);
+  if (!pair) throw new Error(`Tonalidad sin pareja relativa: ${tonic} ${mode}`);
+  return mode === 'major'
+    ? { tonic: pair.minor, mode: 'minor' }
+    : { tonic: pair.major, mode: 'major' };
 }
 
 export function pitchClass(token: string): number {
@@ -86,7 +115,11 @@ export function pitchClass(token: string): number {
 }
 
 export function parseChord(name: string): ParsedChord {
-  const match = /^([A-G][b#♭♯]?)([^/]*)(?:\/([A-G][b#♭♯]?))?$/.exec(name);
+  const normalized = name
+    .replaceAll('♯', '#')
+    .replaceAll('♭', 'b')
+    .replace(/[º°]$/, 'dim');
+  const match = /^([A-G][b#]?)([^/]*)(?:\/([A-G][b#]?))?$/.exec(normalized);
   if (!match) return { root: 0, quality: '', bass: null };
   return {
     root: pitchClass(match[1]),
