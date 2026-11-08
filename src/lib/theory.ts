@@ -184,6 +184,10 @@ export function guitarShape(name: string): number[] | null {
   const base = name.split('/')[0];
   if (OPEN_SHAPES[base]) return OPEN_SHAPES[base];
   const chord = parseChord(name);
+  if (chord.quality === 'dim') {
+    const offset = (chord.root - pitchClass('B') + 12) % 12;
+    return OPEN_SHAPES.Bdim.map((fret) => (fret < 0 ? fret : fret + offset));
+  }
   const eShape = E_SHAPES[chord.quality];
   const aShape = A_SHAPES[chord.quality];
   if (!eShape && !aShape) return null;

@@ -76,6 +76,11 @@ describe('theory', () => {
     expect(guitarShape('Bb')).toEqual([-1, 1, 3, 3, 3, 1]);
   });
 
+  it('guitarShape transposes diminished triads', () => {
+    expect(guitarShape('C#dim')).toEqual([-1, 4, 5, 6, 5, -1]);
+    expect(guitarShape('E♯dim')).toEqual([-1, 8, 9, 10, 9, -1]);
+  });
+
   it('displayName', () => {
     expect(displayName('Bb')).toBe('B♭');
     expect(displayName('C#')).toBe('C♯');
