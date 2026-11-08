@@ -308,6 +308,12 @@ button.on {
 .wk.on {
   fill: var(--acc);
 }
+.wk.characteristic,
+.bk.characteristic {
+  fill: #ec4899;
+  stroke: #9d174d;
+  stroke-width: 1.5;
+}
 .bk {
   fill: var(--bk);
 }

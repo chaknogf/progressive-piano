@@ -160,6 +160,37 @@ try {
   assert.equal(initial.firstCardLabel, 'I, C, Mayor, Casa');
   assert.ok(initial.keyboard && initial.guitar, 'El acorde inicial debe mostrar teclado y diagrama de guitarra.');
 
+  const modes = await evaluate(`({
+    cards: document.querySelectorAll('[data-mode-card]').length,
+    formula: document.querySelector('#mode-formula')?.textContent,
+    characteristic: Boolean(document.querySelector('#mp .characteristic'))
+  })`);
+  assert.equal(modes.cards, 7);
+  assert.equal(modes.formula, '1 – 2 – 3 – 4 – 5 – 6 – 7');
+  assert.ok(modes.characteristic, 'La nota característica debe distinguirse en el teclado.');
+
+  await evaluate(`document.querySelector('[data-play-melody="0"]').click()`);
+  await new Promise((resolve) => setTimeout(resolve, 180));
+  const melody = await evaluate(`({
+    pressed: document.querySelector('[data-play-melody="0"]').getAttribute('aria-pressed'),
+    stopEnabled: !document.querySelector('#melody-stop').disabled,
+    status: document.querySelector('#melody-status').textContent,
+    activeKeys: document.querySelectorAll('#melody-keyboard .wk.on, #melody-keyboard .bk.on').length
+  })`);
+  assert.equal(melody.pressed, 'true');
+  assert.ok(melody.stopEnabled);
+  assert.match(melody.status, /Lidio:/);
+  assert.equal(melody.activeKeys, 1, 'El teclado debe iluminar la nota que está sonando.');
+  await evaluate(`document.querySelector('#melody-stop').click()`);
+  const stoppedMelody = await evaluate(`({
+    pressed: document.querySelector('[data-play-melody="0"]').getAttribute('aria-pressed'),
+    stopDisabled: document.querySelector('#melody-stop').disabled,
+    status: document.querySelector('#melody-status').textContent
+  })`);
+  assert.equal(stoppedMelody.pressed, 'false');
+  assert.ok(stoppedMelody.stopDisabled);
+  assert.match(stoppedMelody.status, /terminó o se detuvo/);
+
   await evaluate(`(() => {
     window.__oscillatorStarts = 0;
     const Audio = window.AudioContext || window.webkitAudioContext;

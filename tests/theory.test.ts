@@ -40,6 +40,8 @@ describe('theory', () => {
     expect(parseChord('Bm7♭5')).toEqual({ root: 11, quality: 'm7b5', bass: null });
     expect(chordNotes('Fº')).toEqual([5, 8, 11]);
     expect(chordNotes('Bm7♭5')).toEqual([11, 14, 17, 21]);
+    expect(chordNotes('Csus2')).toEqual([0, 2, 7]);
+    expect(chordNotes('Gsus4')).toEqual([7, 12, 14]);
   });
 
   it('spells diatonic triads with the correct scale letters and qualities', () => {

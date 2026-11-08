@@ -13,6 +13,7 @@ import FxLab from "../components/FxLab.astro";
 import Fretboard from "../components/Fretboard.astro";
 import Beats from "../components/Beats.astro";
 import ChordsByKey from "../components/ChordsByKey.astro";
+import CircleOfFifths from "../components/CircleOfFifths.astro";
 import { SITE_NAME, SITE_SUBTITLE } from "../data/site";
 import Logo from "../components/Logo.astro";
 ---
@@ -143,6 +144,7 @@ import Logo from "../components/Logo.astro";
     usados en la música popular son I, IV, V y vi.
   </p>
   <BaseChords />
+  <CircleOfFifths />
 
   <h2 id="s3">3. Catálogo de progresiones</h2>
   <ProgressionCatalog />
@@ -186,56 +188,10 @@ import Logo from "../components/Logo.astro";
     solo cambia la altura. Se suele asociar las tonalidades agudas con brillo y las
     graves con peso, pero eso es más registro y tradición que una propiedad de la
     tonalidad. Elige una tónica y recorre los modos, del más luminoso al más oscuro.
+    Estas asociaciones son puntos de partida: el ritmo, el registro, el timbre y el
+    contexto de la melodía también cambian cómo percibimos la música.
   </p>
   <Emotions />
-  <div class="box">
-    <h3>Guía rápida: emoción → recurso</h3>
-    <div class="scroll">
-      <table>
-        <tr><th>Emoción</th><th>Recurso</th><th>Ejemplo</th></tr>
-        <tr
-          ><td>Alegría, luz</td><td>Mayor (jónico) o lidio</td><td
-            >C – F – G – C</td
-          ></tr
-        >
-        <tr
-          ><td>Tristeza, nostalgia</td><td>Menor natural (eólico)</td><td
-            >Am – F – C – G</td
-          ></tr
-        >
-        <tr
-          ><td>Melancolía con esperanza</td><td>Dórico</td><td
-            >Am – D – Am – G</td
-          ></tr
-        >
-        <tr
-          ><td>Heroico, rockero</td><td>Mixolidio (♭VII)</td><td
-            >C – B♭ – F – C</td
-          ></tr
-        >
-        <tr
-          ><td>Oscuridad, tensión</td><td>Frigio / cadencia andaluza</td><td
-            >Am – G – F – E</td
-          ></tr
-        >
-        <tr
-          ><td>Misterio, ensueño</td><td>Lidio (♯4)</td><td
-            >Cmaj7 – D – Cmaj7 – D</td
-          ></tr
-        >
-        <tr
-          ><td>Melancolía romántica</td><td>IV menor (intercambio modal)</td><td
-            >C – Am – F – Fm</td
-          ></tr
-        >
-        <tr
-          ><td>Inquietud extrema</td><td>Locrio (poco usado)</td><td
-            >Bdim – C – Dm – Bdim</td
-          ></tr
-        >
-      </table>
-    </div>
-  </div>
 
   <h2 id="s7">7. Consejos de interpretación</h2>
   <Tips />

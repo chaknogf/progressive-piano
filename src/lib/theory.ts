@@ -5,7 +5,7 @@ const PITCH_CLASS: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9
 const SCALE_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 export const FLAT_NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
-export type Quality = '' | 'm' | '7' | 'm7' | 'maj7' | 'dim7' | 'm7b5' | 'sus4' | 'dim';
+export type Quality = '' | 'm' | '7' | 'm7' | 'maj7' | 'dim7' | 'm7b5' | 'sus2' | 'sus4' | 'dim';
 
 export const INTERVALS: Record<string, number[]> = {
   '': [0, 4, 7],
@@ -15,6 +15,7 @@ export const INTERVALS: Record<string, number[]> = {
   maj7: [0, 4, 7, 11],
   dim7: [0, 3, 6, 9],
   m7b5: [0, 3, 6, 10],
+  sus2: [0, 2, 7],
   sus4: [0, 5, 7],
   dim: [0, 3, 6],
 };
@@ -153,7 +154,7 @@ export function noteNames(notes: number[]): string[] {
   return notes.map((n) => NOTE_LETTERS[((n % 12) + 12) % 12]);
 }
 
-export function keyboardSvg(notes: number[], lo?: number, hi?: number): string {
+export function keyboardSvg(notes: number[], lo?: number, hi?: number, characteristic?: number): string {
   const low = lo ?? Math.floor(Math.min(...notes) / 12) * 12;
   const high = hi ?? Math.ceil((Math.max(...notes) + 1) / 12) * 12;
   const WHITE = 22;
@@ -165,15 +166,16 @@ export function keyboardSvg(notes: number[], lo?: number, hi?: number): string {
   for (let semitone = low; semitone < high; semitone++) {
     const pc = ((semitone % 12) + 12) % 12;
     const on = pressed.has(semitone);
+    const isCharacteristic = semitone === characteristic;
     if (whiteKeys.includes(pc)) {
-      whites += `<rect x="${i * WHITE}" y="0" width="${WHITE}" height="84" class="wk${on ? ' on' : ''}" role="img" aria-label="${NOTE_NAMES[pc]}"/>`;
+      whites += `<rect x="${i * WHITE}" y="0" width="${WHITE}" height="84" class="wk${on ? ' on' : ''}${isCharacteristic ? ' characteristic' : ''}" role="img" aria-label="${NOTE_NAMES[pc]}${isCharacteristic ? ', nota característica' : ''}"/>`;
       if (on) whites += `<text x="${i * WHITE + WHITE / 2}" y="76" class="t">${NOTE_NAMES[pc]}</text>`;
       i++;
     } else {
-      blacks += `<rect x="${i * WHITE - 7}" y="0" width="14" height="50" class="bk${on ? ' on' : ''}" role="img" aria-label="${NOTE_NAMES[pc]}"/>`;
+      blacks += `<rect x="${i * WHITE - 7}" y="0" width="14" height="50" class="bk${on ? ' on' : ''}${isCharacteristic ? ' characteristic' : ''}" role="img" aria-label="${NOTE_NAMES[pc]}${isCharacteristic ? ', nota característica' : ''}"/>`;
     }
   }
-  return `<svg viewBox="0 0 ${i * WHITE} 86" class="kb" aria-label="Teclado de piano">${whites}${blacks}</svg>`;
+  return `<svg viewBox="0 0 ${i * WHITE} 86" class="kb" role="img" aria-label="Teclado de piano">${whites}${blacks}</svg>`;
 }
 
 export const OPEN_SHAPES: Record<string, number[]> = {
