@@ -19,27 +19,47 @@ const levelSections: [string, string][] = [
 ];
 ---
 
-<nav id="nav">
-  <!-- <div class="level-group">
-    <span>Nivel</span>
-    {levelSections.map(([id, label]) => (
-      <button type="button" data-go={id} class="level-btn">{label}</button>
-    ))}
-  </div> -->
-  {
-    sections.map(([id, label]) => (
-      <button type="button" data-go={id}>
-        {label}
-      </button>
-    ))
-  }
+<nav id="nav" aria-label="Secciones del manual">
+  <div class="nav-heading">
+    <span class="nav-kicker">Explorar</span>
+    <span class="nav-hint">Desliza para ver más</span>
+  </div>
+  <div class="nav-scroller">
+    {
+      sections.map(([id, label], index) => (
+        <button type="button" data-go={id} aria-label={`Ir a ${label}`} class={index === 0 ? "is-active" : ""}>
+          <span class="nav-index">{String(index + 1).padStart(2, "0")}</span>
+          <span>{label}</span>
+        </button>
+      ))
+    }
+  </div>
 </nav>
 <script>
   import { $ } from "../lib/dom";
   const nav = $("#nav");
+  const buttons = Array.from(nav?.querySelectorAll<HTMLButtonElement>("button") ?? []);
+  const sections = buttons
+    .map((button) => document.getElementById(button.dataset.go ?? ""))
+    .filter((section): section is HTMLElement => Boolean(section));
+
   nav?.addEventListener("click", (event) => {
     const target = event.target as HTMLElement | null;
-    const id = target?.closest("button")?.dataset.go;
-    if (id) document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    const button = target?.closest<HTMLButtonElement>("button");
+    const id = button?.dataset.go;
+    if (!id) return;
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      buttons.forEach((button) => button.classList.toggle("is-active", button.dataset.go === visible.target.id));
+    },
+    { rootMargin: "-18% 0px -66% 0px", threshold: [0.1, 0.4, 0.8] },
+  );
+  sections.forEach((section) => observer.observe(section));
 </script>

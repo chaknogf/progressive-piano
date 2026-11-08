@@ -27,6 +27,9 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? SITE_URL).href;
     <meta name="author" content={SITE_NAME} />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#fbf8f3" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_ES" />
     <meta property="og:url" content={canonicalUrl} />
