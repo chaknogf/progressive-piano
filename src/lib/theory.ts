@@ -2,6 +2,7 @@ export const NOTE_NAMES = ['Do', 'Do♯', 'Re', 'Re♯', 'Mi', 'Fa', 'Fa♯', 'S
 export const NOTE_LETTERS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 const PITCH_CLASS: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+const SCALE_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 export const FLAT_NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 export type Quality = '' | 'm' | '7' | 'm7' | 'maj7' | 'dim7' | 'm7b5' | 'sus4' | 'dim';
@@ -24,15 +25,68 @@ export interface ParsedChord {
   bass: number | null;
 }
 
+export type ScaleMode = 'major' | 'minor';
+export type TriadQuality = 'major' | 'minor' | 'diminished';
+export const DIATONIC_KEYS: Record<ScaleMode, readonly string[]> = {
+  major: ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'],
+  minor: ['A', 'E', 'B', 'F#', 'C#', 'G#', 'Eb', 'Bb', 'F', 'C', 'G', 'D'],
+};
+
+export interface DiatonicChord {
+  degree: string;
+  quality: TriadQuality;
+  name: string;
+  root: string;
+}
+
+const DIATONIC_SCALES: Record<ScaleMode, { intervals: number[]; qualities: TriadQuality[]; degrees: string[] }> = {
+  major: {
+    intervals: [0, 2, 4, 5, 7, 9, 11],
+    qualities: ['major', 'minor', 'minor', 'major', 'major', 'minor', 'diminished'],
+    degrees: ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'],
+  },
+  minor: {
+    intervals: [0, 2, 3, 5, 7, 8, 10],
+    qualities: ['minor', 'diminished', 'major', 'minor', 'minor', 'major', 'major'],
+    degrees: ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'],
+  },
+};
+
+/** Build the seven diatonic triads with letter spelling derived from the scale. */
+export function diatonicChords(tonic: string, mode: ScaleMode): DiatonicChord[] {
+  const normalizedTonic = tonic.replaceAll('♯', '#').replaceAll('♭', 'b');
+  const tonicMatch = /^([A-G])([#b]?)$/.exec(normalizedTonic);
+  if (!tonicMatch) throw new Error(`Tonalidad no válida: ${tonic}`);
+
+  const tonicLetter = tonicMatch[1];
+  const tonicLetterIndex = SCALE_LETTERS.indexOf(tonicLetter);
+  const tonicPitch = pitchClass(normalizedTonic);
+  const scale = DIATONIC_SCALES[mode];
+
+  return scale.intervals.map((interval, index) => {
+    const letter = SCALE_LETTERS[(tonicLetterIndex + index) % SCALE_LETTERS.length];
+    const expectedPitch = (tonicPitch + interval) % 12;
+    const naturalPitch = PITCH_CLASS[letter];
+    let alteration = (expectedPitch - naturalPitch + 12) % 12;
+    if (alteration > 6) alteration -= 12;
+    const accidental = alteration > 0 ? '♯'.repeat(alteration) : '♭'.repeat(-alteration);
+    const root = `${letter}${accidental}`;
+    const quality = scale.qualities[index];
+    const suffix = quality === 'minor' ? 'm' : quality === 'diminished' ? 'dim' : '';
+
+    return { degree: scale.degrees[index], quality, name: `${root}${suffix}`, root };
+  });
+}
+
 export function pitchClass(token: string): number {
   const base = PITCH_CLASS[token[0]];
   if (base === undefined) return 0;
-  const accidental = token[1] === '#' ? 1 : token[1] === 'b' ? -1 : 0;
+  const accidental = token[1] === '#' || token[1] === '♯' ? 1 : token[1] === 'b' || token[1] === '♭' ? -1 : 0;
   return (((base + accidental) % 12) + 12) % 12;
 }
 
 export function parseChord(name: string): ParsedChord {
-  const match = /^([A-G][b#]?)([^/]*)(?:\/([A-G][b#]?))?$/.exec(name);
+  const match = /^([A-G][b#♭♯]?)([^/]*)(?:\/([A-G][b#♭♯]?))?$/.exec(name);
   if (!match) return { root: 0, quality: '', bass: null };
   return {
     root: pitchClass(match[1]),

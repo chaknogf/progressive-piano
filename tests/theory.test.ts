@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PROGRESSIONS } from '../src/data/progressions';
-import { chordNotes, degreeToChord, displayName, guitarShape, noteNames, parseChord } from '../src/lib/theory';
+import { chordNotes, degreeToChord, diatonicChords, DIATONIC_KEYS, displayName, guitarShape, noteNames, parseChord } from '../src/lib/theory';
 
 const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11];
 const ROMAN_INDEX: Record<string, number> = { I: 0, II: 1, III: 2, IV: 3, V: 4, VI: 5, VII: 6 };
@@ -25,6 +25,40 @@ describe('theory', () => {
   it('parseChord', () => {
     expect(parseChord('Cmaj7')).toEqual({ root: 0, quality: 'maj7', bass: null });
     expect(parseChord('G/B')).toEqual({ root: 7, quality: '', bass: 11 });
+    expect(parseChord('E♭m')).toEqual({ root: 3, quality: 'm', bass: null });
+    expect(parseChord('F♯')).toEqual({ root: 6, quality: '', bass: null });
+  });
+
+  it('spells diatonic triads with the correct scale letters and qualities', () => {
+    const cases = [
+      ['F#', 'major', ['F♯', 'G♯m', 'A♯m', 'B', 'C♯', 'D♯m', 'E♯dim']],
+      ['Db', 'major', ['D♭', 'E♭m', 'Fm', 'G♭', 'A♭', 'B♭m', 'Cdim']],
+      ['C', 'major', ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim']],
+      ['A', 'minor', ['Am', 'Bdim', 'C', 'Dm', 'Em', 'F', 'G']],
+      ['Eb', 'minor', ['E♭m', 'Fdim', 'G♭', 'A♭m', 'B♭m', 'C♭', 'D♭']],
+      ['F#', 'minor', ['F♯m', 'G♯dim', 'A', 'Bm', 'C♯m', 'D', 'E']],
+    ] as const;
+
+    for (const [tonic, mode, expected] of cases) {
+      expect(diatonicChords(tonic, mode).map((chord) => chord.name)).toEqual(expected);
+    }
+
+    expect(diatonicChords('C', 'major').map(({ degree, quality }) => [degree, quality])).toEqual([
+      ['I', 'major'], ['ii', 'minor'], ['iii', 'minor'], ['IV', 'major'], ['V', 'major'], ['vi', 'minor'], ['vii°', 'diminished'],
+    ]);
+    expect(diatonicChords('A', 'minor').map(({ degree, quality }) => [degree, quality])).toEqual([
+      ['i', 'minor'], ['ii°', 'diminished'], ['III', 'major'], ['iv', 'minor'], ['v', 'minor'], ['VI', 'major'], ['VII', 'major'],
+    ]);
+  });
+
+  it('offers the specified twelve major and minor keys', () => {
+    expect(DIATONIC_KEYS.major).toEqual(['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F']);
+    expect(DIATONIC_KEYS.minor).toEqual(['A', 'E', 'B', 'F#', 'C#', 'G#', 'Eb', 'Bb', 'F', 'C', 'G', 'D']);
+    for (const mode of ['major', 'minor'] as const) {
+      for (const tonic of DIATONIC_KEYS[mode]) {
+        expect(diatonicChords(tonic, mode), `${tonic} ${mode}`).toHaveLength(7);
+      }
+    }
   });
 
   it('chordNotes Am inversion 1', () => {

@@ -296,6 +296,40 @@ code {
 ul {
   padding-left: 1.2em;
 }
+.source-note {
+  margin-top: 1.2em;
+  color: var(--mut);
+  font-size: 0.82rem;
+}
+.source-note a {
+  color: inherit;
+  text-underline-offset: 0.18em;
+}
+.mini-challenge fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.mini-challenge legend {
+  width: 100%;
+  margin-bottom: 8px;
+}
+.mini-challenge label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.mini-challenge input {
+  accent-color: var(--acc);
+}
+.mini-challenge [data-vi-answer] {
+  flex-basis: 100%;
+  margin-bottom: 0;
+}
 [hidden] {
   display: none !important;
 }
