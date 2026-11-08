@@ -10,7 +10,6 @@ import Emotions from '../components/Emotions.astro';
 import Tips from '../components/Tips.astro';
 import SynthLab from '../components/SynthLab.astro';
 import Logo from '../components/Logo.astro';
-import PracticePlayer from '../components/PracticePlayer.astro';
 import Fretboard from '../components/Fretboard.astro';
 import Beats from '../components/Beats.astro';
 ---
@@ -19,31 +18,10 @@ import Beats from '../components/Beats.astro';
     <Logo />
     <div>
       <h1>progressive-music</h1>
-      <p class="lead">Manual de Progresiones Armónicas para Piano y Guitarra</p>
+      <p class="lead">De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra. Toca cualquier acorde para ver su teclado y su diagrama de guitarra, y escúchalo.</p>
     </div>
   </div>
-  <p>De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra. Toca cualquier acorde para ver su teclado y su diagrama de guitarra, y escúchalo.</p>
   <Nav />
-
-  <h2 id="start">Empieza aquí</h2>
-  <div class="progress-bar"><div class="progress-fill" id="startProgress" style="width:0%"></div></div>
-  <div class="grid">
-    <div class="cd step" data-step="1"><span class="tg">Paso 1</span><h3>Toca C, G, Am y F</h3><p>Toca cada acorde y observa el teclado y el diagrama de guitarra.</p><button class="step-done" type="button" data-step="1">Marcar como hecho</button></div>
-    <div class="cd step" data-step="2"><span class="tg">Paso 2</span><h3>Tu primera progresión: C – G – Am – F</h3><p>La progresión más usada del pop. Tócala en bloque y luego arpegiada.</p><button class="step-done" type="button" data-step="2">Marcar como hecho</button></div>
-    <div class="cd step" data-step="3"><span class="tg">Paso 3</span><h3>Cambia de acorde a tiempo</h3><p>Usa el metrónomo y cambia de acorde en cada compás.</p><button class="step-done" type="button" data-step="3">Marcar como hecho</button></div>
-    <div class="cd step" data-step="4"><span class="tg">Paso 4</span><h3>Tu primera canción</h3><p>Elige una progresión del catálogo y toca la canción completa.</p><button class="step-done" type="button" data-step="4">Marcar como hecho</button></div>
-  </div>
-  <p class="mut" id="startStatus"></p>
-
-  <h3>Glosario</h3>
-  <div class="chips">
-    <button class="gloss" type="button" data-term="triada">Tríada</button>
-    <button class="gloss" type="button" data-term="grado">Grado</button>
-    <button class="gloss" type="button" data-term="inversion">Inversión</button>
-    <button class="gloss" type="button" data-term="intercambio">Intercambio modal</button>
-    <button class="gloss" type="button" data-term="voicing">Voicing</button>
-  </div>
-  <div class="box" id="glossBox" hidden><p id="glossText"></p></div>
 
   <h2 id="s1">1. Cómo leer una progresión</h2>
   <p>Hay dos lenguajes. <b>Por nombre</b> (C – Am – F – G) te dice las notas exactas. <b>Por grados</b> (números romanos) funciona en cualquier tono: mayúsculas (I, IV, V) = acorde mayor; minúsculas (ii, vi) = menor.</p>
@@ -100,229 +78,47 @@ import Beats from '../components/Beats.astro';
   <Tips />
 
   <h2 id="s8">8. Del acorde al sonido: síntesis, efectos y DAW</h2>
-  <p>Del papel al altavoz: cómo se construye, se mezcla y se graba el sonido de un acorde.</p>
-
-  <h3>A. Ecualización (EQ)</h3>
-  <p>Filtra y esculpe el espectro: elimina lo que molesta y realza lo que brilla.</p>
+  <p>Una progresión es la partitura; el <b>sonido</b> se moldea con ecualización, efectos y síntesis. Los controles de la sección C cambian el timbre de todo el manual: pruébalos y vuelve a escuchar cualquier progresión.</p>
+  <h3>A. Ecualización (EQ): moldear el espectro</h3>
+  <p>La ecualización no crea frecuencias nuevas: solo ajusta el volumen de las que ya existen.</p>
   <div class="box">
-    <svg viewBox="0 0 420 160" class="kb" role="img" aria-label="Curva de ecualización con HPF, campana y high shelf">
-      <line x1="30" y1="130" x2="400" y2="130" class="ln"/>
-      <line x1="30" y1="20" x2="30" y2="130" class="ln"/>
-      <text x="20" y="25" class="sn">dB</text>
-      <text x="395" y="145" class="sn">Hz</text>
-      <path d="M30,120 C60,120 70,125 90,128 C110,130 120,90 160,70 C200,50 240,60 280,80 C320,95 360,70 400,60" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
-      <text x="55" y="145" class="sn">HPF 80–100</text>
-      <text x="150" y="60" class="sn">Campana 200–5k</text>
-      <text x="330" y="55" class="sn">Shelf &gt;8k</text>
+    <svg viewBox="0 0 400 120" class="kb" style="max-width:520px" role="img" aria-label="Curva de ecualización con filtro paso alto, campana y high shelf">
+      <line x1="10" y1="60" x2="390" y2="60" class="ln"/>
+      <path d="M10 105 C40 105 50 62 80 60 L140 60 C165 60 170 28 200 28 C230 28 235 60 260 60 L300 60 C330 60 335 38 365 38 L390 38" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
+      <text x="75" y="100" class="sn">HPF 80–100 Hz</text>
+      <text x="200" y="18" class="sn">Campana 200 Hz–5 kHz (Gain + Q)</text>
+      <text x="340" y="28" class="sn">High shelf &gt;8 kHz</text>
     </svg>
-    <div class="scroll">
-      <table>
-        <tr><th>Control</th><th>Rango</th><th>Qué hace</th><th>Ejemplo piano / synth</th></tr>
-        <tr><td>HPF</td><td>80–100 Hz</td><td>Corta graves que ensucian</td><td>Piano: quita retumbo de la sala</td></tr>
-        <tr><td>Gain (campana)</td><td>±6 dB</td><td>Realza o atenúa una banda</td><td>Synth: +3 dB a 2 kHz para presencia</td></tr>
-        <tr><td>Q</td><td>0.5–4</td><td>Ancho de la campana</td><td>Piano: Q bajo para suavidad</td></tr>
-        <tr><td>High shelf</td><td>&gt;8 kHz</td><td>Brillo o aire</td><td>Synth: +2 dB para chispa</td></tr>
-      </table>
-    </div>
   </div>
-
-  <h3>B. Reverb</h3>
-  <div class="box">
-    <ul>
-      <li><b>Pre-delay:</b> 10–30 ms. Separa el ataque seco de la cola; más pre-delay = más claridad.</li>
-      <li><b>Decay:</b> room o placa 0,8–1,5 s; hall o ambient 2,5–4 s.</li>
-      <li><b>Wet/dry:</b> mezcla entre señal original (dry) y procesada (wet). En mezcla final, suele bastar 15–30 % wet.</li>
-    </ul>
+  <div class="scroll">
+    <table>
+      <tr><th>Control</th><th>Función</th><th>Ejemplo en piano / synth</th></tr>
+      <tr><td><b>HPF / Low Cut</b></td><td>Corta las frecuencias por debajo del umbral elegido.</td><td>HPF a 80–100 Hz en la mano derecha del piano o en pads, para no ensuciar el bajo ni el sub-bajo.</td></tr>
+      <tr><td><b>Gain</b></td><td>Sube (+dB) o baja (–dB) la banda seleccionada.</td><td>+2 dB en 3–5 kHz da ataque y presencia al piano en un arreglo denso.</td></tr>
+      <tr><td><b>Q (ancho de banda)</b></td><td>Qué tan ancha o estrecha es la campana.</td><td>Q alto (estrecho) para localizar y recortar resonancias molestas (p. ej. 400 Hz “encajonado”); Q bajo (ancho) para realces suaves y musicales.</td></tr>
+      <tr><td><b>Low / High Shelf</b></td><td>Sube o baja todo el espectro desde una frecuencia hacia arriba o abajo.</td><td>High shelf a 10 kHz (+3 dB) da “aire” a pianos eléctricos (Rhodes, DX7).</td></tr>
+    </table>
   </div>
-
-  <h3>C. Sintetizador sustractivo</h3>
-  <div class="box">
-    <svg viewBox="0 0 420 80" class="kb" role="img" aria-label="Cadena de síntesis sustractiva: oscilador, filtro y amplificador">
-      <rect x="20" y="20" width="100" height="40" rx="8" class="cd" fill="var(--card)"/>
-      <text x="70" y="45" class="sn" text-anchor="middle">Oscilador</text>
-      <rect x="160" y="20" width="100" height="40" rx="8" class="cd" fill="var(--card)"/>
-      <text x="210" y="45" class="sn" text-anchor="middle">Filtro (VCF)</text>
-      <rect x="300" y="20" width="100" height="40" rx="8" class="cd" fill="var(--card)"/>
-      <text x="350" y="45" class="sn" text-anchor="middle">Amplificador (VCA)</text>
-      <line x1="120" y1="40" x2="160" y2="40" class="ln"/>
-      <line x1="260" y1="40" x2="300" y2="40" class="ln"/>
-    </svg>
-    <p>El oscilador genera la forma de onda; el filtro (VCF) recorta armónicos; el amplificador (VCA) aplica la envolvente ADSR. La cadena clásica es <b>Oscilador → Filtro → Amplificador</b>.</p>
-  </div>
-
-  <h3>D. MIDI y DAW</h3>
-  <div class="box">
-    <ul>
-      <li><b>Note On / Note Off:</b> enciende y apaga una nota con su número (0–127).</li>
-      <li><b>Velocity:</b> fuerza del golpe, de 0 a 127; afecta volumen y timbre.</li>
-      <li><b>Pitch bend:</b> desafinación continua (rueda de modulación).</li>
-      <li><b>CC1 (Modulation):</b> control continuo asignable (vibrato, filtro, etc.).</li>
-    </ul>
-    <p class="mut"><b>Flujo de grabación MIDI en el DAW:</b> teclado MIDI → interfaz → pista MIDI → instrumento virtual → audio → mezcla → exportación.</p>
-  </div>
-
+  <h3 style="margin-top:1.4em">B. Efectos esenciales: reverb</h3>
+  <ul>
+    <li><b>Reverb:</b> recrea la acústica de un espacio físico.</li>
+    <li><b>Pre-delay (10–30 ms):</b> separa el sonido seco del inicio de la reverb y evita que la interpretación pierda definición.</li>
+    <li><b>Decay / RT60:</b> duración de la cola. <i>Placa o Room (0,8–1,5 s)</i>: pianos rítmicos y pop. <i>Hall o Ambient (2,5–4 s)</i>: baladas, ambient y música cinematográfica.</li>
+    <li><b>Wet / Dry:</b> proporción de señal procesada frente a la señal directa.</li>
+  </ul>
+  <h3>C. Arquitectura de un sintetizador sustractivo</h3>
+  <p>Se genera el sonido con una forma de onda base y se esculpe con un filtro y una envolvente:</p>
   <SynthLab />
-
-  <h2 id="practice">Práctica</h2>
-  <PracticePlayer />
+  <h3 style="margin-top:1.4em">D. Controladores MIDI y flujo en el DAW</h3>
+  <p><b>MIDI</b> (Musical Instrument Digital Interface) no transmite audio, solo datos de interpretación:</p>
+  <ul>
+    <li><b>Note On / Note Off:</b> qué tecla tocaste y cuándo la soltaste.</li>
+    <li><b>Velocity (0–127):</b> con qué fuerza presionaste la tecla; afecta al volumen y, en muchos sintetizadores, a la apertura del filtro.</li>
+    <li><b>Pitch Bend / Modulation Wheel (CC1):</b> la rueda desafina las notas o controla la intensidad del vibrato o del filtro.</li>
+  </ul>
+  <div class="box hl"><b>En el DAW</b> (Ableton, FL Studio, Logic, Reaper): graba los datos MIDI en una pista de instrumento para corregir notas o cambiar el sonido por completo (piano, synth, cuerdas) sin volver a tocar la pieza.</div>
 
   <Fretboard />
 
   <Beats />
-
-  <h2 id="rhythm">Ritmo y compás</h2>
-  <p>Pulso, tempo y compás: la misma progresión cambia de carácter según cómo la acentúes.</p>
-  <div class="box">
-    <h3>Secuenciador (8 pasos)</h3>
-    <div class="row" id="seqControls">
-      <label>Tempo <input type="range" id="seqBpm" min="40" max="200" value="90"/> <span id="seqBpmV">90</span> BPM</label>
-      <label>Compás
-        <select id="seqSig"><option value="4">4/4</option><option value="3">3/4</option><option value="6">6/8</option></select>
-      </label>
-      <button id="seqPlay" type="button">▶ Reproducir</button>
-      <button id="seqStop" type="button">■ Detener</button>
-    </div>
-    <div class="seq-grid" id="seqGrid"></div>
-    <p class="mut">Haz clic en un paso para alternar acento fuerte/débil/silencio. El acorde actual se resalta.</p>
-  </div>
-  <div class="grid">
-    <div class="cd"><h3>Guitarra: rasgueo</h3><p class="mut">Patrón base: ↓ ↓↑ ↑↓↑. Acentúa el primer tiempo y deja respirar el 4.</p></div>
-    <div class="cd"><h3>Piano: acompañamiento</h3><p class="mut">Bajo en el tiempo 1, acorde en 2 y 3; en 6/8, bajo en 1 y acorde en 3.</p></div>
-  </div>
-  <div class="box">
-    <h3>Ejercicio: C – Am – F – G en distintos compases</h3>
-    <p class="mut">Escucha la misma progresión en 4/4, 3/4 y 6/8 para sentir la diferencia.</p>
-    <div class="row">
-      <button type="button" id="ex44">▶ 4/4</button>
-      <button type="button" id="ex34">▶ 3/4</button>
-      <button type="button" id="ex68">▶ 6/8</button>
-    </div>
-  </div>
-
-  <script>
-    const seqGrid = document.getElementById('seqGrid');
-    const seqBpm = document.getElementById('seqBpm') as HTMLInputElement | null;
-    const seqBpmV = document.getElementById('seqBpmV');
-    const seqSig = document.getElementById('seqSig') as HTMLSelectElement | null;
-    const seqPlay = document.getElementById('seqPlay');
-    const seqStop = document.getElementById('seqStop');
-    let steps = Array(8).fill(0); // 0 off, 1 weak, 2 strong
-    let playing = false;
-    let timer: number | null = null;
-
-    function renderSeq() {
-      if (!seqGrid) return;
-      seqGrid.innerHTML = steps.map((v, i) => `<button class="seq-step ${v === 2 ? 'strong' : v === 1 ? 'weak' : ''}" data-i="${i}" type="button">${i + 1}</button>`).join('');
-    }
-    seqGrid?.addEventListener('click', (e) => {
-      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.seq-step');
-      if (!btn) return;
-      const i = Number(btn.dataset.i);
-      steps[i] = (steps[i] + 1) % 3;
-      renderSeq();
-    });
-    seqBpm?.addEventListener('input', () => { if (seqBpmV) seqBpmV.textContent = seqBpm.value; });
-    renderSeq();
-
-    seqPlay?.addEventListener('click', () => {
-      if (playing) return;
-      playing = true;
-      let i = 0;
-      const tick = () => {
-        if (!playing) return;
-        document.querySelectorAll('.seq-step').forEach((el, idx) => el.classList.toggle('current', idx === i));
-        i = (i + 1) % 8;
-        const bpm = Number(seqBpm?.value ?? 90);
-        const sig = Number(seqSig?.value ?? 4);
-        const beatMs = (60000 / bpm) * (sig === 6 ? 0.5 : 1);
-        timer = window.setTimeout(tick, beatMs);
-      };
-      tick();
-    });
-    seqStop?.addEventListener('click', () => {
-      playing = false;
-      if (timer) clearTimeout(timer);
-      document.querySelectorAll('.seq-step').forEach((el) => el.classList.remove('current'));
-    });
-
-    async function playProg(sig: number) {
-      const { playSequence } = await import('../lib/audio');
-      const { chordNotes } = await import('../lib/theory');
-      const gap = sig === 6 ? 0.15 : 0.25;
-      const len = sig === 3 ? 1.0 : 1.2;
-      playSequence(['C', 'Am', 'F', 'G'].map((n) => chordNotes(n)), gap, len);
-    }
-    document.getElementById('ex44')?.addEventListener('click', () => playProg(4));
-    document.getElementById('ex34')?.addEventListener('click', () => playProg(3));
-    document.getElementById('ex68')?.addEventListener('click', () => playProg(6));
-  </script>
-  <style>
-    .seq-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin: 10px 0; }
-    .seq-step { min-height: 44px; border-radius: 8px; border: 1px solid var(--bd); background: var(--card); cursor: pointer; }
-    .seq-step.strong { background: var(--acc); color: #fff; border-color: var(--acc); }
-    .seq-step.weak { background: var(--acc2); }
-    .seq-step.current { outline: 2px solid var(--fg); }
-    .progress-bar { height: 8px; background: var(--bd); border-radius: 999px; overflow: hidden; margin: 8px 0 14px; }
-    .progress-fill { height: 100%; background: linear-gradient(135deg, #f97316, #ec4899, #8b5cf6); transition: width .3s; }
-  </style>
-
-  <script>
-    const GLOSSARY: Record<string, string> = {
-      triada: 'Tríada: acorde de tres notas (fundamental, tercera y quinta).',
-      grado: 'Grado: posición de un acorde dentro de la escala (I, ii, iii...).',
-      inversion: 'Inversión: reordenar las notas de un acorde poniendo otra que no sea la fundamental en el bajo.',
-      intercambio: 'Intercambio modal: tomar un acorde de un modo paralelo (ej. IV menor en mayor).',
-      voicing: 'Voicing: distribución de las notas de un acorde entre las manos o registros.',
-    };
-    const glossBox = document.getElementById('glossBox');
-    const glossText = document.getElementById('glossText');
-    document.querySelectorAll<HTMLButtonElement>('.gloss').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const term = btn.dataset.term ?? '';
-        if (glossText) glossText.textContent = GLOSSARY[term] ?? '';
-        if (glossBox) glossBox.hidden = false;
-      });
-    });
-
-    const KEY = 'cadencia:start';
-    function loadProgress(): Set<string> {
-      try {
-        const raw = localStorage.getItem(KEY);
-        return new Set(raw ? JSON.parse(raw) : []);
-      } catch {
-        return new Set();
-      }
-    }
-    function saveProgress(set: Set<string>) {
-      try { localStorage.setItem(KEY, JSON.stringify([...set])); } catch {}
-    }
-    const done = loadProgress();
-    const progressFill = document.getElementById('startProgress') as HTMLElement | null;
-    const status = document.getElementById('startStatus');
-    function updateProgress() {
-      const pct = (done.size / 4) * 100;
-      if (progressFill) progressFill.style.width = pct + '%';
-      if (status) status.textContent = done.size === 4 ? '¡Completado! Ya puedes seguir con el catálogo.' : `${done.size} de 4 pasos completados.`;
-      document.querySelectorAll<HTMLButtonElement>('.step-done').forEach((btn) => {
-        const step = btn.dataset.step ?? '';
-        if (done.has(step)) {
-          btn.textContent = '✓ Hecho';
-          btn.classList.add('on');
-        }
-      });
-    }
-    document.querySelectorAll<HTMLButtonElement>('.step-done').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const step = btn.dataset.step ?? '';
-        done.add(step);
-        saveProgress(done);
-        updateProgress();
-      });
-    });
-    updateProgress();
-  </script>
-  <style>
-    .progress-bar { height: 8px; background: var(--bd); border-radius: 999px; overflow: hidden; margin: 8px 0 14px; }
-    .progress-fill { height: 100%; background: linear-gradient(135deg, #f97316, #ec4899, #8b5cf6); transition: width .3s; }
-  </style>
 </Layout>

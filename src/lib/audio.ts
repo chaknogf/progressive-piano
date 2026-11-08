@@ -14,7 +14,7 @@ export interface SynthConfig {
 
 const DEFAULT_CONFIG: SynthConfig = {
   waveform: 'triangle',
-  adsr: { attack: 0.02, decay: 0.1, sustain: 0.6, release: 0.3 },
+  adsr: { attack: 0.02, decay: 0.3, sustain: 0.3, release: 0.6 },
 };
 
 let config: SynthConfig = { ...DEFAULT_CONFIG, adsr: { ...DEFAULT_CONFIG.adsr } };
@@ -63,16 +63,17 @@ function scheduleNoteImpl(semitone: number, when: number, duration: number): voi
   const { waveform, adsr } = getConfig();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
-  osc.type = waveform;
-  osc.frequency.value = freq(semitone);
+  const peak = 0.14;
   const attackEnd = when + Math.max(0.001, adsr.attack);
   const decayEnd = attackEnd + Math.max(0.001, adsr.decay);
-  const releaseEnd = when + duration + Math.max(0.001, adsr.release);
-  gain.gain.cancelScheduledValues(when);
-  gain.gain.setValueAtTime(0.0001, when);
-  gain.gain.exponentialRampToValueAtTime(1, attackEnd);
-  gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, adsr.sustain), decayEnd);
-  gain.gain.setValueAtTime(Math.max(0.0001, adsr.sustain), when + duration);
+  const holdEnd = when + Math.max(duration, adsr.attack + adsr.decay);
+  const releaseEnd = holdEnd + Math.max(0.001, adsr.release);
+  osc.type = waveform;
+  osc.frequency.value = freq(semitone);
+  gain.gain.setValueAtTime(0, when);
+  gain.gain.linearRampToValueAtTime(peak, attackEnd);
+  gain.gain.linearRampToValueAtTime(peak * adsr.sustain + 0.0001, decayEnd);
+  gain.gain.setValueAtTime(peak * adsr.sustain + 0.0001, holdEnd);
   gain.gain.exponentialRampToValueAtTime(0.0001, releaseEnd);
   osc.connect(gain);
   gain.connect(ctx.destination);
@@ -117,8 +118,8 @@ function syncGlobal() {
 syncGlobal();
 
 export const PRESETS: Record<string, SynthConfig> = {
-  Piano: { waveform: 'triangle', adsr: { attack: 0.01, decay: 0.3, sustain: 0.4, release: 0.6 } },
-  Órgano: { waveform: 'square', adsr: { attack: 0.02, decay: 0.1, sustain: 0.8, release: 0.1 } },
-  Cuerdas: { waveform: 'sawtooth', adsr: { attack: 0.25, decay: 0.2, sustain: 0.7, release: 0.8 } },
-  Flauta: { waveform: 'sine', adsr: { attack: 0.1, decay: 0.15, sustain: 0.6, release: 0.4 } },
+  Piano: { waveform: 'triangle', adsr: { attack: 0.005, decay: 0.6, sustain: 0.2, release: 0.5 } },
+  Pad: { waveform: 'sawtooth', adsr: { attack: 1.2, decay: 0.5, sustain: 0.8, release: 1.5 } },
+  Bajo: { waveform: 'square', adsr: { attack: 0.01, decay: 0.2, sustain: 0.6, release: 0.15 } },
+  Lead: { waveform: 'sawtooth', adsr: { attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.3 } },
 };
