@@ -163,8 +163,8 @@ button.on {
   letter-spacing: 0.06em;
 }
 .gr {
-  font-family: Georgia, serif;
-  font-style: italic;
+  font-family: inherit;
+  font-style: normal;
   color: var(--mut);
   margin: 0.2em 0;
 }

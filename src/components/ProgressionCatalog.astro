@@ -1,50 +1,46 @@
 ---
 import { CATEGORIES, PROGRESSIONS } from '../data/progressions';
+import DegreeLine from './DegreeLine.astro';
+import { displayNote } from '../lib/theory';
 ---
-<div class="row" id="flt"></div>
-<div class="grid" id="cat"></div>
+
+<div class="row" id="flt">
+  <button class="f on" type="button" data-c="" aria-pressed="true">Todas</button>
+  {Object.entries(CATEGORIES).map(([key, label]) => (
+    <button class="f" type="button" data-c={key} aria-pressed="false">{label}</button>
+  ))}
+</div>
+<div class="grid" id="cat">
+  {PROGRESSIONS.map((item) => (
+    <article class="cd" data-c={item.category}>
+      <span class="tg">{CATEGORIES[item.category]}</span>
+      <h3>{item.title}</h3>
+      <p class="gr"><DegreeLine degrees={item.degrees} /></p>
+      <div class="chips">
+        {item.chords.map((chord) => <button class="ch" type="button" data-n={chord}>{displayNote(chord)}</button>)}
+      </div>
+      <p>{item.description}</p>
+      {item.songs && <p class="sg">♪ {item.songs}</p>}
+      {item.sources?.length && <p class="sg">Fuentes: {item.sources.map((source, index) => <>{index > 0 && ' · '}<a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></>)}</p>}
+      <div class="v"></div>
+      <button class="pp" type="button" data-ch={item.chords.join(' ')}>▶ Tocar progresión</button>
+    </article>
+  ))}
+</div>
+
 <script>
-  import { CATEGORIES, PROGRESSIONS } from '../data/progressions';
-  import { displayNote } from '../lib/theory';
   import { must } from '../lib/dom';
 
   const filterRow = must(document.getElementById('flt'), '#flt');
-  filterRow.innerHTML = [
-    '<button class="f on" type="button" data-c="" aria-pressed="true">Todas</button>',
-    ...Object.entries(CATEGORIES).map(
-      ([key, label]) => `<button class="f" type="button" data-c="${key}" aria-pressed="false">${label}</button>`,
-    ),
-  ].join('');
-
-  const grid = must(document.getElementById('cat'), '#cat');
-  grid.innerHTML = PROGRESSIONS.map(
-    (item) => `
-      <article class="cd" data-c="${item.category}">
-        <span class="tg">${CATEGORIES[item.category]}</span>
-        <h3>${item.title}</h3>
-        <p class="gr">${item.degrees}</p>
-        <div class="chips">
-          ${item.chords
-            .map((chord) => `<button class="ch" type="button" data-n="${chord}">${displayNote(chord)}</button>`)
-            .join('')}
-        </div>
-        <p>${item.description}</p>
-        <p class="sg">♪ ${item.songs}</p>
-        <div class="v"></div>
-        <button class="pp" type="button" data-ch="${item.chords.join(' ')}">▶ Tocar progresión</button>
-      </article>`,
-  ).join('');
-
-  document.getElementById('flt')?.addEventListener('click', (event) => {
+  filterRow.addEventListener('click', (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.f');
     if (!button) return;
-    document.querySelectorAll<HTMLButtonElement>('.f').forEach((candidate) => {
+    filterRow.querySelectorAll<HTMLButtonElement>('.f').forEach((candidate) => {
       candidate.classList.toggle('on', candidate === button);
       candidate.setAttribute('aria-pressed', String(candidate === button));
     });
     document.querySelectorAll<HTMLElement>('#cat .cd').forEach((card) => {
-      card.style.display =
-        !button.dataset.c || card.dataset.c === button.dataset.c ? '' : 'none';
+      card.style.display = !button.dataset.c || card.dataset.c === button.dataset.c ? '' : 'none';
     });
   });
 </script>

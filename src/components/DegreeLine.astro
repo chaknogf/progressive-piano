@@ -1,0 +1,32 @@
+---
+interface Props {
+  degrees: string;
+}
+
+const { degrees } = Astro.props;
+const parts = degrees.split(/\s*(–|→)\s*/).filter(Boolean);
+---
+
+<span class="degree-line" aria-label={degrees}>
+  {parts.map((part) => {
+    if (part === '–' || part === '→') {
+      return <span class="degree-separator" aria-hidden="true">{'\u2009'}{part}{'\u2009'}</span>;
+    }
+
+    const match = /^(♭|♯)?([ivIV]+)(.*)$/.exec(part);
+    if (!match) return <span class="degree-token">{part}</span>;
+    return (
+      <span class="degree-token">
+        <span class="degree-accidental" aria-hidden="true">{match[1] || '\u00a0'}</span>
+        <span>{match[2]}{match[3]}</span>
+      </span>
+    );
+  })}
+</span>
+
+<style>
+  .degree-line { display: inline-flex; align-items: baseline; flex-wrap: wrap; font: inherit; font-style: normal; }
+  .degree-token { display: inline-grid; grid-template-columns: 0.7em auto; font-style: normal; }
+  .degree-accidental { text-align: center; }
+  .degree-separator { white-space: pre; }
+</style>
