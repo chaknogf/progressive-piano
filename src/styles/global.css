@@ -347,6 +347,15 @@ ul {
   outline: 2px solid var(--fg);
   outline-offset: 1px;
 }
+.bc2 {
+  font-size: 0.62rem;
+  text-align: center;
+  color: var(--mut);
+}
+.bc2.bb {
+  font-weight: 700;
+  color: var(--fg);
+}
 .bn {
   background: var(--acc2);
   border-color: var(--acc);

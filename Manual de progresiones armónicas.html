@@ -1,2823 +1,531 @@
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <title>Manual de progresiones armónicas</title>
-    <style>
-      :root {
-        --bg: #fbf8f3;
-        --fg: #241f1a;
-        --mut: #6d6458;
-        --card: #fff;
-        --bd: #e4dccf;
-        --acc: #c2410c;
-        --acc2: #fde6d8;
-        --wk: #fff;
-        --bk: #2a2420;
-        color-scheme: light;
-        box-sizing: border-box;
-        padding-top: env(safe-area-inset-top, 0px);
-        padding-bottom: env(safe-area-inset-bottom, 0px);
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme="light"]) {
-          --bg: #17130f;
-          --fg: #f1e9dd;
-          --mut: #a89d8e;
-          --card: #221c16;
-          --bd: #3a3128;
-          --acc: #f97316;
-          --acc2: #3a2416;
-          --wk: #efe7da;
-          --bk: #0e0b08;
-          color-scheme: dark;
-        }
-      }
-      :root[data-theme="dark"] {
-        --bg: #17130f;
-        --fg: #f1e9dd;
-        --mut: #a89d8e;
-        --card: #221c16;
-        --bd: #3a3128;
-        --acc: #f97316;
-        --acc2: #3a2416;
-        --wk: #efe7da;
-        --bk: #0e0b08;
-        color-scheme: dark;
-      }
-      html {
-        scroll-padding-top: env(safe-area-inset-top, 0px);
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--fg);
-        font:
-          16px/1.6 system-ui,
-          -apple-system,
-          "Segoe UI",
-          sans-serif;
-      }
-      main {
-        max-width: 980px;
-        margin: 0 auto;
-        padding: 20px 16px 60px;
-      }
-      h1,
-      h2,
-      h3,
-      h4 {
-        font-family: Georgia, "Times New Roman", serif;
-        line-height: 1.2;
-        margin: 0 0 0.4em;
-      }
-      h1 {
-        font-size: 2.2rem;
-        background: linear-gradient(135deg, #f97316, #ec4899 50%, #8b5cf6);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-      h2 {
-        font-size: 1.6rem;
-        margin-top: 2.2em;
-        padding-top: 0.6em;
-        border-top: 2px solid var(--acc);
-      }
-      h3 {
-        font-size: 1.15rem;
-      }
-      h4 {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--mut);
-        font-family: system-ui;
-      }
-      .lead {
-        color: var(--mut);
-        font-size: 1.05rem;
-      }
-      nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin: 16px 0;
-      }
-      button,
-      select {
-        font: inherit;
-        color: var(--fg);
-        background: var(--card);
-        border: 1px solid var(--bd);
-        border-radius: 999px;
-        padding: 6px 14px;
-        cursor: pointer;
-      }
-      button:hover {
-        border-color: var(--acc);
-      }
-      .on,
-      button.on {
-        background: var(--acc);
-        border-color: var(--acc);
-        color: #fff;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 14px;
-      }
-      .cd,
-      .box {
-        background: var(--card);
-        border: 1px solid var(--bd);
-        border-radius: 14px;
-        padding: 16px;
-      }
-      .box {
-        margin: 14px 0;
-      }
-      .box.hl {
-        background: var(--acc2);
-        border-color: var(--acc);
-      }
-      .tg {
-        font-size: 0.72rem;
-        color: var(--acc);
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-      }
-      .gr {
-        font-family: Georgia, serif;
-        font-style: italic;
-        color: var(--mut);
-        margin: 0.2em 0;
-      }
-      .chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin: 8px 0;
-      }
-      .ch {
-        border-radius: 8px;
-        font-weight: 700;
-        padding: 4px 10px;
-      }
-      .sg {
-        font-size: 0.88rem;
-        color: var(--mut);
-      }
-      .vw {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        align-items: flex-start;
-        margin: 10px 0;
-      }
-      .vw > div:first-child {
-        flex: 1 1 220px;
-        min-width: 0;
-      }
-      .kb {
-        width: 100%;
-        max-width: 380px;
-        height: auto;
-        display: block;
-      }
-      .gt {
-        width: 120px;
-        height: auto;
-        display: block;
-      }
-      .nn {
-        margin: 2px 0;
-        font-size: 0.85rem;
-        color: var(--mut);
-      }
-      .mut {
-        color: var(--mut);
-        font-size: 0.85rem;
-      }
-      .wk {
-        fill: var(--wk);
-        stroke: var(--bd);
-      }
-      .wk.on {
-        fill: var(--acc);
-      }
-      .bk {
-        fill: var(--bk);
-      }
-      .bk.on {
-        fill: var(--acc);
-        stroke: var(--bk);
-      }
-      .t {
-        font: 8px system-ui;
-        fill: #fff;
-        text-anchor: middle;
-      }
-      .ln {
-        stroke: var(--mut);
-        stroke-width: 1;
-      }
-      .nut {
-        stroke: var(--fg);
-        stroke-width: 4;
-      }
-      .o {
-        fill: none;
-        stroke: var(--fg);
-        stroke-width: 1.5;
-      }
-      .d {
-        fill: var(--acc);
-      }
-      .g,
-      .sn,
-      .fn {
-        font: 11px system-ui;
-        fill: var(--mut);
-        text-anchor: middle;
-      }
-      .sn {
-        font-size: 9px;
-      }
-      .fn {
-        text-anchor: start;
-        font-weight: 700;
-        fill: var(--acc);
-      }
-      .row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: center;
-        margin: 8px 0;
-      }
-      table {
-        border-collapse: collapse;
-        width: 100%;
-        font-size: 0.92rem;
-      }
-      td,
-      th {
-        border: 1px solid var(--bd);
-        padding: 6px 10px;
-        text-align: left;
-      }
-      th {
-        background: var(--acc2);
-      }
-      .scroll {
-        overflow-x: auto;
-      }
-      code {
-        background: var(--acc2);
-        padding: 1px 6px;
-        border-radius: 5px;
-      }
-      ul {
-        padding-left: 1.2em;
-      }
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manual de progresiones armónicas</title>
+<style>
+:root{--bg:#fbf8f3;--fg:#241f1a;--mut:#6d6458;--card:#fff;--bd:#e4dccf;--acc:#c2410c;--acc2:#fde6d8;--wk:#fff;--bk:#2a2420;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17130f;--fg:#f1e9dd;--mut:#a89d8e;--card:#221c16;--bd:#3a3128;--acc:#f97316;--acc2:#3a2416;--wk:#efe7da;--bk:#0e0b08;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17130f;--fg:#f1e9dd;--mut:#a89d8e;--card:#221c16;--bd:#3a3128;--acc:#f97316;--acc2:#3a2416;--wk:#efe7da;--bk:#0e0b08;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:20px 16px 60px}
+h1,h2,h3,h4{font-family:Georgia,"Times New Roman",serif;line-height:1.2;margin:0 0 .4em}
+h1{font-size:2.2rem;background:linear-gradient(135deg,#f97316,#ec4899 50%,#8b5cf6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}h2{font-size:1.6rem;margin-top:2.2em;padding-top:.6em;border-top:2px solid var(--acc)}h3{font-size:1.15rem}h4{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);font-family:system-ui}
+.lead{color:var(--mut);font-size:1.05rem}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+button,select{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--bd);border-radius:999px;padding:6px 14px;cursor:pointer}
+button:hover{border-color:var(--acc)}
+.on,button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.cd,.box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
+.box{margin:14px 0}.box.hl{background:var(--acc2);border-color:var(--acc)}
+.tg{font-size:.72rem;color:var(--acc);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.gr{font-family:Georgia,serif;font-style:italic;color:var(--mut);margin:.2em 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.ch{border-radius:8px;font-weight:700;padding:4px 10px}
+.sg{font-size:.88rem;color:var(--mut)}
+.vw{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin:10px 0}
+.vw>div:first-child{flex:1 1 220px;min-width:0}
+.kb{width:100%;max-width:380px;height:auto;display:block}
+.gt{width:120px;height:auto;display:block}
+.nn{margin:2px 0;font-size:.85rem;color:var(--mut)}
+.mut{color:var(--mut);font-size:.85rem}
+.wk{fill:var(--wk);stroke:var(--bd)}.wk.on{fill:var(--acc)}.bk{fill:var(--bk)}.bk.on{fill:var(--acc);stroke:var(--bk)}
+.t{font:8px system-ui;fill:#fff;text-anchor:middle}
+.ln{stroke:var(--mut);stroke-width:1}.nut{stroke:var(--fg);stroke-width:4}
+.o{fill:none;stroke:var(--fg);stroke-width:1.5}.d{fill:var(--acc)}
+.g,.sn,.fn{font:11px system-ui;fill:var(--mut);text-anchor:middle}.sn{font-size:9px}.fn{text-anchor:start;font-weight:700;fill:var(--acc)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+td,th{border:1px solid var(--bd);padding:6px 10px;text-align:left}th{background:var(--acc2)}
+.scroll{overflow-x:auto}
+code{background:var(--acc2);padding:1px 6px;border-radius:5px}
+ul{padding-left:1.2em}
 
-      :root {
-        --wood: #ead6b8;
-        --str: #7a6f60;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme="light"]) {
-          --wood: #4a3524;
-          --str: #c9bba6;
-        }
-      }
-      :root[data-theme="dark"] {
-        --wood: #4a3524;
-        --str: #c9bba6;
-      }
-      [hidden] {
-        display: none !important;
-      }
-      .sim label {
-        display: flex;
-        flex-direction: column;
-        font-size: 0.78rem;
-        color: var(--mut);
-        gap: 3px;
-      }
-      .sim select {
-        border-radius: 10px;
-      }
-      .seg {
-        display: flex;
-        gap: 6px;
-        margin: 8px 0;
-      }
-      .fb {
-        overflow-x: auto;
-        border: 1px solid var(--bd);
-        border-radius: 14px;
-        background: var(--card);
-        padding: 8px;
-      }
-      .fb svg {
-        display: block;
-        min-width: 780px;
-        width: 100%;
-        height: auto;
-      }
-      #frd {
-        color: var(--acc);
-        font-weight: 700;
-        min-height: 1.5em;
-        margin: 6px 0;
-      }
-      .wood {
-        fill: var(--wood);
-      }
-      .fr {
-        stroke: var(--mut);
-        stroke-width: 2;
-        opacity: 0.6;
-      }
-      .st {
-        stroke: var(--str);
-      }
-      .mk {
-        fill: var(--mut);
-        opacity: 0.35;
-      }
-      .dim {
-        fill: var(--bg);
-        opacity: 0.6;
-      }
-      .cap {
-        fill: var(--acc);
-      }
-      .rt {
-        fill: var(--acc);
-      }
-      .nt {
-        fill: var(--card);
-        stroke: var(--acc);
-        stroke-width: 2;
-      }
-      .ho {
-        fill: none;
-        stroke: var(--acc);
-        stroke-width: 2.5;
-      }
-      .ring {
-        fill: none;
-        stroke: var(--acc);
-        stroke-width: 3;
-      }
-      .xw,
-      .xt,
-      .xf,
-      .xs,
-      .xh {
-        font: 700 10px system-ui;
-        text-anchor: middle;
-      }
-      .xw {
-        fill: #fff;
-      }
-      .xt {
-        fill: var(--fg);
-      }
-      .xf {
-        fill: var(--mut);
-        font-weight: 400;
-        font-size: 11px;
-      }
-      .xs {
-        fill: var(--fg);
-        font-size: 11px;
-      }
-      .xh {
-        font-size: 22px;
-        fill: var(--mut);
-      }
-      .gh {
-        fill: none;
-        stroke: var(--acc);
-        stroke-width: 3;
-        stroke-dasharray: 5 4;
-      }
-      #pm {
-        position: fixed;
-        inset: 0;
-        z-index: 100;
-        background: var(--bg);
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px
-          calc(env(safe-area-inset-bottom, 0px) + 8px);
-      }
-      #pm[hidden] {
-        display: none;
-      }
-      .pt {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .pt b {
-        font:
-          1.05rem Georgia,
-          serif;
-      }
-      .pbody {
-        flex: 1;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .pw {
-        flex: 1;
-        min-height: 0;
-      }
-      .pw svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-      .pside {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      @media (orientation: landscape) {
-        .pbody {
-          flex-direction: row;
-        }
-        .pside {
-          width: 46%;
-          justify-content: center;
-        }
-      }
-      .fg {
-        border: 2px solid var(--c);
-        border-radius: 14px;
-        min-width: 64px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        line-height: 1.1;
-        padding: 6px 8px;
-      }
-      .fg small {
-        font-size: 0.65rem;
-        color: var(--mut);
-      }
-      .fg.on {
-        background: var(--c);
-        border-color: var(--c);
-        color: #fff;
-      }
-      .fg.on small {
-        color: #fff;
-      }
-      #pmm {
-        min-height: 2.6em;
-        font-size: 0.92rem;
-        margin: 0;
-      }
-      #pmm.ok {
-        color: #15803d;
-        font-weight: 700;
-      }
+:root{--wood:#ead6b8;--str:#7a6f60}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--wood:#4a3524;--str:#c9bba6}}:root[data-theme="dark"]{--wood:#4a3524;--str:#c9bba6}
+[hidden]{display:none!important}
+.sim label{display:flex;flex-direction:column;font-size:.78rem;color:var(--mut);gap:3px}.sim select{border-radius:10px}.seg{display:flex;gap:6px;margin:8px 0}
+.fb{overflow-x:auto;border:1px solid var(--bd);border-radius:14px;background:var(--card);padding:8px}.fb svg{display:block;min-width:780px;width:100%;height:auto}
+#frd{color:var(--acc);font-weight:700;min-height:1.5em;margin:6px 0}
+.wood{fill:var(--wood)}.fr{stroke:var(--mut);stroke-width:2;opacity:.6}.st{stroke:var(--str)}.mk{fill:var(--mut);opacity:.35}.dim{fill:var(--bg);opacity:.6}.cap{fill:var(--acc)}
+.rt{fill:var(--acc)}.nt{fill:var(--card);stroke:var(--acc);stroke-width:2}.ho{fill:none;stroke:var(--acc);stroke-width:2.5}.ring{fill:none;stroke:var(--acc);stroke-width:3}
+.xw,.xt,.xf,.xs,.xh{font:700 10px system-ui;text-anchor:middle}.xw{fill:#fff}.xt{fill:var(--fg)}.xf{fill:var(--mut);font-weight:400;font-size:11px}.xs{fill:var(--fg);font-size:11px}.xh{font-size:22px;fill:var(--mut)}
+.gh{fill:none;stroke:var(--acc);stroke-width:3;stroke-dasharray:5 4}
+#pm{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;gap:6px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 8px)}#pm[hidden]{display:none}
+.pt{display:flex;gap:10px;align-items:center;justify-content:space-between}.pt b{font:1.05rem Georgia,serif}
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}.pw{flex:1;min-height:0}.pw svg{width:100%;height:100%;display:block}.pside{display:flex;flex-direction:column;gap:6px}
+@media(orientation:landscape){.pbody{flex-direction:row}.pside{width:46%;justify-content:center}}
+.fg{border:2px solid var(--c);border-radius:14px;min-width:64px;display:flex;flex-direction:column;align-items:center;line-height:1.1;padding:6px 8px}.fg small{font-size:.65rem;color:var(--mut)}.fg.on{background:var(--c);border-color:var(--c);color:#fff}.fg.on small{color:#fff}
+#pmm{min-height:2.6em;font-size:.92rem;margin:0}#pmm.ok{color:#15803d;font-weight:700}
 
-      .seg {
-        flex-wrap: wrap;
-      }
-      .sq {
-        display: grid;
-        grid-template-columns: 72px repeat(16, minmax(0, 1fr));
-        gap: 3px;
-        align-items: center;
-        margin: 10px 0;
-      }
-      .bl {
-        font-size: 0.7rem;
-        color: var(--mut);
-        line-height: 1.1;
-      }
-      .cl {
-        height: 30px;
-        min-height: 0;
-        min-width: 0;
-        padding: 0;
-        border-radius: 5px;
-        border: 1px solid var(--bd);
-        background: var(--card);
-      }
-      .cl.b {
-        border-left: 2px solid var(--mut);
-      }
-      .cl.on {
-        background: var(--acc);
-        border-color: var(--acc);
-      }
-      .cl.cur {
-        outline: 2px solid var(--fg);
-        outline-offset: 1px;
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <h1>Manual de progresiones armónicas</h1>
-      <p class="lead">
-        De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y
-        baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y
-        guitarra. Toca cualquier acorde para ver su teclado y su diagrama de
-        guitarra, y escúchalo.
-      </p>
-      <nav id="nav"></nav>
+.seg{flex-wrap:wrap}
+.sq{display:grid;grid-template-columns:72px repeat(16,minmax(0,1fr));gap:3px;align-items:center;margin:10px 0}
+.bl{font-size:.7rem;color:var(--mut);line-height:1.1}
+.cl{height:30px;min-height:0;min-width:0;padding:0;border-radius:5px;border:1px solid var(--bd);background:var(--card)}
+.cl.b{border-left:2px solid var(--mut)}.cl.on{background:var(--acc);border-color:var(--acc)}.cl.cur{outline:2px solid var(--fg);outline-offset:1px}
 
-      <h2 id="s1">1. Cómo leer una progresión</h2>
-      <p>
-        Hay dos lenguajes. <b>Por nombre</b> (C – Am – F – G) te dice las notas
-        exactas. <b>Por grados</b> (números romanos) funciona en cualquier tono:
-        mayúsculas (I, IV, V) = acorde mayor; minúsculas (ii, vi) = menor.
-      </p>
-      <div class="box hl">
-        <b>Regla de oro:</b> I – vi – IV – V en Do mayor es C – Am – F – G; en
-        Sol mayor, los mismos grados son G – Em – C – D. Los grados no cambian
-        de función, solo la nota raíz.
-      </div>
-      <div class="box tool">
-        <h3>Transpositor</h3>
-        <div class="row">
-          <label
-            >Tonalidad
-            <select id="key"></select></label
-          ><label
-            >Progresión
-            <select id="pre">
-              <option>I – V – vi – IV</option>
-              <option>vi – IV – I – V</option>
-              <option>I – vi – IV – V</option>
-              <option>ii – V – I</option>
-            </select></label
-          >
-        </div>
-        <p class="gr" id="degs"></p>
-        <div class="chips" id="tr"></div>
-        <div class="v"></div>
-      </div>
-      <h4>Cómo leer los diagramas</h4>
-      <ul>
-        <li>
-          <b>Piano:</b> las teclas naranjas son las que se pulsan; el nombre
-          aparece en las blancas.
-        </li>
-        <li>
-          <b>Guitarra:</b> cuerdas de izquierda a derecha: E (grave), A, D, G,
-          B, e (aguda). ✕ = no se toca; ○ = al aire; ● = dedo en ese traste. Si
-          el acorde está lejos de la cejuela, se indica el número de traste.
-        </li>
-      </ul>
+.bc2{font-size:.62rem;text-align:center;color:var(--mut)}.bc2.bb{font-weight:700;color:var(--fg)}
+</style></head><body><main>
+<h1>Manual de progresiones armónicas</h1>
+<p class="lead">De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra. Toca cualquier acorde para ver su teclado y su diagrama de guitarra, y escúchalo.</p>
+<nav id="nav"></nav>
 
-      <h2 id="s2">2. Los siete grados de Do mayor</h2>
-      <p>
-        Una tríada son tres notas apiladas: fundamental, tercera y quinta. Cada
-        nota de la escala de Do mayor construye un acorde: son los siete grados.
-        I, IV y V son mayores; ii, iii y vi son menores; vii° es disminuido. Los
-        cuatro más usados en la música popular son I, IV, V y vi.
-      </p>
-      <div class="grid" id="base"></div>
+<h2 id="s1">1. Cómo leer una progresión</h2>
+<p>Hay dos lenguajes. <b>Por nombre</b> (C – Am – F – G) te dice las notas exactas. <b>Por grados</b> (números romanos) funciona en cualquier tono: mayúsculas (I, IV, V) = acorde mayor; minúsculas (ii, vi) = menor.</p>
+<div class="box hl"><b>Regla de oro:</b> I – vi – IV – V en Do mayor es C – Am – F – G; en Sol mayor, los mismos grados son G – Em – C – D. Los grados no cambian de función, solo la nota raíz.</div>
+<div class="box tool"><h3>Transpositor</h3>
+<div class="row"><label>Tonalidad <select id="key"></select></label><label>Progresión <select id="pre"><option>I – V – vi – IV</option><option>vi – IV – I – V</option><option>I – vi – IV – V</option><option>ii – V – I</option></select></label></div>
+<p class="gr" id="degs"></p><div class="chips" id="tr"></div><div class="v"></div></div>
+<h4>Cómo leer los diagramas</h4>
+<ul><li><b>Piano:</b> las teclas naranjas son las que se pulsan; el nombre aparece en las blancas.</li>
+<li><b>Guitarra:</b> cuerdas de izquierda a derecha: E (grave), A, D, G, B, e (aguda). ✕ = no se toca; ○ = al aire; ● = dedo en ese traste. Si el acorde está lejos de la cejuela, se indica el número de traste.</li></ul>
 
-      <h2 id="s3">3. Catálogo de progresiones</h2>
-      <div class="row" id="flt"></div>
-      <div class="grid" id="cat"></div>
+<h2 id="s2">2. Los siete grados de Do mayor</h2>
+<p>Una tríada son tres notas apiladas: fundamental, tercera y quinta. Cada nota de la escala de Do mayor construye un acorde: son los siete grados. I, IV y V son mayores; ii, iii y vi son menores; vii° es disminuido. Los cuatro más usados en la música popular son I, IV, V y vi.</p>
+<div class="grid" id="base"></div>
 
-      <h2 id="s4">4. Inversiones y conducción de voces</h2>
-      <p>
-        Las inversiones evitan que el piano suene como bloques rígidos: la mano
-        se queda en una zona cómoda y solo se mueve lo mínimo. Según la nota que
-        pongas en el bajo, el acorde cambia de posición.
-      </p>
-      <div class="box">
-        <div class="row">
-          <label
-            >Acorde
-            <select id="ic">
-              <option>C</option>
-              <option>Am</option>
-              <option>F</option>
-              <option>G</option>
-              <option>Dm</option>
-              <option>Em</option>
-            </select></label
-          >
-          <button class="iv on" data-i="0">Fundamental</button
-          ><button class="iv" data-i="1">1.ª inversión</button
-          ><button class="iv" data-i="2">2.ª inversión</button>
-        </div>
-        <p class="mut" id="idesc"></p>
-        <div id="iv"></div>
-      </div>
-      <ul>
-        <li><b>Fundamental:</b> la raíz abajo (Do – Mi – Sol).</li>
-        <li>
-          <b>1.ª inversión:</b> la tercera al bajo (Mi – Sol – Do): suena dulce
-          y abierta.
-        </li>
-        <li>
-          <b>2.ª inversión:</b> la quinta al bajo (Sol – Do – Mi): pide
-          resolución, ideal antes de un acorde importante.
-        </li>
-      </ul>
-      <div class="box hl">
-        <b>Regla del ancla común:</b> si dos acordes comparten notas (C y Am
-        comparten Do y Mi), deja esos dedos quietos y mueve solo el que
-        cambia.<br /><b>Divide el trabajo:</b> mano izquierda = solo la nota
-        fundamental; mano derecha = inversiones en la zona media/aguda, en
-        bloque o arpegio. Así no saturas los graves.
-      </div>
+<h2 id="s3">3. Catálogo de progresiones</h2>
+<div class="row" id="flt"></div>
+<div class="grid" id="cat"></div>
 
-      <h2 id="s5">5. Ejercicio: arpegios con mínima distancia</h2>
-      <p>
-        Progresión I – vi – IV – V (C – Am – F – G). Mano izquierda: solo la
-        raíz, una octava abajo. Mano derecha: las inversiones de abajo, sin
-        saltos.
-      </p>
-      <div class="grid" id="ex"></div>
-      <div class="box">
-        <h3>Secuencia de notas (patrón 4/4)</h3>
-        <div class="scroll">
-          <table>
-            <tr>
-              <th>Compás</th>
-              <th>Acorde</th>
-              <th>Voicing (mano derecha)</th>
-              <th>Pulso 1 · 2 · 3 · 4</th>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>C</td>
-              <td>Fundamental</td>
-              <td>Do(izq) · Mi · Sol · Do</td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Am</td>
-              <td>1.ª inversión</td>
-              <td>La(izq) · Mi · La · Do</td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>F</td>
-              <td>2.ª inversión</td>
-              <td>Fa(izq) · Do · Fa · La</td>
-            </tr>
-            <tr>
-              <td>4</td>
-              <td>G</td>
-              <td>1.ª inversión</td>
-              <td>Sol(izq) · Si · Re · Sol</td>
-            </tr>
-          </table>
-        </div>
-        <p class="mut">
-          Pulso 1: bajo (izquierda) + primera nota del arpegio; pulsos 2 a 4:
-          las tres notas siguientes, subiendo.
-        </p>
-        <div class="row"><button id="pex">▶ Escuchar el ejercicio</button></div>
-      </div>
-      <ul>
-        <li>
-          <b>Muñeca relajada:</b> un giro circular suave, no golpes rígidos con
-          los dedos.
-        </li>
-        <li>
-          <b>Pedal de resonancia:</b> pulsa ligeramente y cámbialo en el primer
-          tiempo de cada compás para que no se empasten los sonidos.
-        </li>
-      </ul>
+<h2 id="s4">4. Inversiones y conducción de voces</h2>
+<p>Las inversiones evitan que el piano suene como bloques rígidos: la mano se queda en una zona cómoda y solo se mueve lo mínimo. Según la nota que pongas en el bajo, el acorde cambia de posición.</p>
+<div class="box"><div class="row"><label>Acorde <select id="ic"><option>C</option><option>Am</option><option>F</option><option>G</option><option>Dm</option><option>Em</option></select></label>
+<button class="iv on" data-i="0">Fundamental</button><button class="iv" data-i="1">1.ª inversión</button><button class="iv" data-i="2">2.ª inversión</button></div>
+<p class="mut" id="idesc"></p><div id="iv"></div></div>
+<ul><li><b>Fundamental:</b> la raíz abajo (Do – Mi – Sol).</li><li><b>1.ª inversión:</b> la tercera al bajo (Mi – Sol – Do): suena dulce y abierta.</li><li><b>2.ª inversión:</b> la quinta al bajo (Sol – Do – Mi): pide resolución, ideal antes de un acorde importante.</li></ul>
+<div class="box hl"><b>Regla del ancla común:</b> si dos acordes comparten notas (C y Am comparten Do y Mi), deja esos dedos quietos y mueve solo el que cambia.<br><b>Divide el trabajo:</b> mano izquierda = solo la nota fundamental; mano derecha = inversiones en la zona media/aguda, en bloque o arpegio. Así no saturas los graves.</div>
 
-      <h2 id="s6">6. Emociones: modos y tonalidades</h2>
-      <p>
-        La emoción de una armonía depende sobre todo del <b>modo</b> (qué notas
-        tiene la escala), no de la tonalidad concreta: Do mayor y Re mayor
-        transmiten lo mismo, solo cambia la altura. Se suele asociar las
-        tonalidades agudas con brillo y las graves con peso, pero eso es más
-        registro y tradición que una propiedad de la tonalidad. Elige una tónica
-        y recorre los modos, del más luminoso al más oscuro.
-      </p>
-      <div class="cd mdp">
-        <div class="row">
-          <label
-            >Tónica
-            <select id="mk"></select
-          ></label>
-        </div>
-        <div class="row" id="mb"></div>
-        <div
-          style="
-            height: 8px;
-            border-radius: 4px;
-            background: linear-gradient(
-              90deg,
-              #fbbf24,
-              #fb923c,
-              #a855f7,
-              #1e1b4b
-            );
-          "
-        ></div>
-        <div
-          class="row mut"
-          style="justify-content: space-between; margin-top: 2px"
-        >
-          <span>Más luminoso</span><span>Más oscuro</span>
-        </div>
-        <h3 id="mt"></h3>
-        <p id="md"></p>
-        <p class="gr" id="mg"></p>
-        <h4>Escala en el piano</h4>
-        <div id="mp"></div>
-        <h4>Progresión de ejemplo (toca un acorde)</h4>
-        <div class="chips" id="mc"></div>
-        <div class="v"></div>
-        <div class="row">
-          <button id="msc">▶ Escala</button
-          ><button id="mpr">▶ Progresión</button>
-        </div>
-      </div>
-      <div class="box">
-        <h3>Guía rápida: emoción → recurso</h3>
-        <div class="scroll">
-          <table>
-            <tr>
-              <th>Emoción</th>
-              <th>Recurso</th>
-              <th>Ejemplo</th>
-            </tr>
-            <tr>
-              <td>Alegría, luz</td>
-              <td>Mayor (jónico) o lidio</td>
-              <td>C – F – G – C</td>
-            </tr>
-            <tr>
-              <td>Tristeza, nostalgia</td>
-              <td>Menor natural (eólico)</td>
-              <td>Am – F – C – G</td>
-            </tr>
-            <tr>
-              <td>Melancolía con esperanza</td>
-              <td>Dórico</td>
-              <td>Am – D – Am – G</td>
-            </tr>
-            <tr>
-              <td>Heroico, rockero</td>
-              <td>Mixolidio (♭VII)</td>
-              <td>C – B♭ – F – C</td>
-            </tr>
-            <tr>
-              <td>Oscuridad, tensión</td>
-              <td>Frigio / cadencia andaluza</td>
-              <td>Am – G – F – E</td>
-            </tr>
-            <tr>
-              <td>Misterio, ensueño</td>
-              <td>Lidio (♯4)</td>
-              <td>Cmaj7 – D – Cmaj7 – D</td>
-            </tr>
-            <tr>
-              <td>Melancolía romántica</td>
-              <td>IV menor (intercambio modal)</td>
-              <td>C – Am – F – Fm</td>
-            </tr>
-            <tr>
-              <td>Inquietud extrema</td>
-              <td>Locrio (poco usado)</td>
-              <td>Bdim – C – Dm – Bdim</td>
-            </tr>
-          </table>
-        </div>
-      </div>
+<h2 id="s5">5. Ejercicio: arpegios con mínima distancia</h2>
+<p>Progresión I – vi – IV – V (C – Am – F – G). Mano izquierda: solo la raíz, una octava abajo. Mano derecha: las inversiones de abajo, sin saltos.</p>
+<div class="grid" id="ex"></div>
+<div class="box"><h3>Secuencia de notas (patrón 4/4)</h3><div class="scroll"><table>
+<tr><th>Compás</th><th>Acorde</th><th>Voicing (mano derecha)</th><th>Pulso 1 · 2 · 3 · 4</th></tr>
+<tr><td>1</td><td>C</td><td>Fundamental</td><td>Do(izq) · Mi · Sol · Do</td></tr>
+<tr><td>2</td><td>Am</td><td>1.ª inversión</td><td>La(izq) · Mi · La · Do</td></tr>
+<tr><td>3</td><td>F</td><td>2.ª inversión</td><td>Fa(izq) · Do · Fa · La</td></tr>
+<tr><td>4</td><td>G</td><td>1.ª inversión</td><td>Sol(izq) · Si · Re · Sol</td></tr></table></div>
+<p class="mut">Pulso 1: bajo (izquierda) + primera nota del arpegio; pulsos 2 a 4: las tres notas siguientes, subiendo.</p>
+<div class="row"><button id="pex">▶ Escuchar el ejercicio</button></div></div>
+<ul><li><b>Muñeca relajada:</b> un giro circular suave, no golpes rígidos con los dedos.</li><li><b>Pedal de resonancia:</b> pulsa ligeramente y cámbialo en el primer tiempo de cada compás para que no se empasten los sonidos.</li></ul>
 
-      <h2 id="s7">7. Consejos de interpretación</h2>
-      <div class="grid">
-        <div class="cd">
-          <h3>Guitarra</h3>
-          <ul>
-            <li>
-              Si el F con cejilla cuesta, usa capo en el traste 2 o 4 y toca
-              formas abiertas (G – D – Em – C).
-            </li>
-            <li>
-              Urbano/pop moderno: voicings de 2–3 cuerdas, arpegios rápidos y
-              capo en trastes 2 a 5.
-            </li>
-            <li>
-              Latina y flamenca: rasgueos secos y cejilla para el golpe
-              percusivo.
-            </li>
-            <li>
-              Electrónica: delay y chorus convierten una progresión simple en un
-              tapiz sonoro.
-            </li>
-          </ul>
-        </div>
-        <div class="cd">
-          <h3>Piano</h3>
-          <ul>
-            <li>Desde los 90, añade extensiones: maj7, add9, sus2/sus4.</li>
-            <li>
-              Clásico: independencia de manos, arpegios amplios a la izquierda y
-              melodía a la derecha.
-            </li>
-            <li>
-              Salsa/bolero: la izquierda entrena los contratiempos, imitando el
-              contrabajo y el montuno.
-            </li>
-          </ul>
-        </div>
-        <div class="cd">
-          <h3>Jazz y baladas</h3>
-          <ul>
-            <li>
-              Estilo Sinatra: cambia tríadas por acordes de 4 notas (Cmaj7, Dm7,
-              G7, Am7); voicings sin quinta; arpegios sutiles que imitan los
-              vientos de una big band.
-            </li>
-            <li>
-              Baladas 80s/90s: acordes add9 (Cadd9, Fadd9) para el brillo
-              cristalino de estudio.
-            </li>
-          </ul>
-        </div>
-      </div>
-      <h2 id="s8">8. Del acorde al sonido: síntesis, efectos y DAW</h2>
-      <p>
-        Una progresión es la partitura; el <b>sonido</b> se moldea con
-        ecualización, efectos y síntesis. Los controles de la sección C cambian
-        el timbre de todo el manual: pruébalos y vuelve a escuchar cualquier
-        progresión.
-      </p>
-      <h3>A. Ecualización (EQ): moldear el espectro</h3>
-      <p>
-        La ecualización no crea frecuencias nuevas: solo ajusta el volumen de
-        las que ya existen.
-      </p>
-      <div class="box">
-        <svg viewBox="0 0 400 120" class="kb" style="max-width: 520px">
-          <line x1="10" y1="60" x2="390" y2="60" class="ln" />
-          <path
-            d="M10 105 C40 105 50 62 80 60 L140 60 C165 60 170 28 200 28 C230 28 235 60 260 60 L300 60 C330 60 335 38 365 38 L390 38"
-            fill="none"
-            stroke="var(--acc)"
-            stroke-width="2.5"
-          />
-          <text x="75" y="100" class="sn">HPF 80–100 Hz</text>
-          <text x="200" y="18" class="sn">Campana 200 Hz–5 kHz (Gain + Q)</text>
-          <text x="340" y="28" class="sn">High shelf &gt;8 kHz</text>
-        </svg>
-      </div>
-      <div class="scroll">
-        <table>
-          <tr>
-            <th>Control</th>
-            <th>Función</th>
-            <th>Ejemplo en piano / synth</th>
-          </tr>
-          <tr>
-            <td><b>HPF / Low Cut</b></td>
-            <td>Corta las frecuencias por debajo del umbral elegido.</td>
-            <td>
-              HPF a 80–100 Hz en la mano derecha del piano o en pads, para no
-              ensuciar el bajo ni el sub-bajo.
-            </td>
-          </tr>
-          <tr>
-            <td><b>Gain</b></td>
-            <td>Sube (+dB) o baja (–dB) la banda seleccionada.</td>
-            <td>
-              +2 dB en 3–5 kHz da ataque y presencia al piano en un arreglo
-              denso.
-            </td>
-          </tr>
-          <tr>
-            <td><b>Q (ancho de banda)</b></td>
-            <td>Qué tan ancha o estrecha es la campana.</td>
-            <td>
-              Q alto (estrecho) para localizar y recortar resonancias molestas
-              (p. ej. 400 Hz “encajonado”); Q bajo (ancho) para realces suaves y
-              musicales.
-            </td>
-          </tr>
-          <tr>
-            <td><b>Low / High Shelf</b></td>
-            <td>
-              Sube o baja todo el espectro desde una frecuencia hacia arriba o
-              abajo.
-            </td>
-            <td>
-              High shelf a 10 kHz (+3 dB) da “aire” a pianos eléctricos (Rhodes,
-              DX7).
-            </td>
-          </tr>
-        </table>
-      </div>
-      <h3 style="margin-top: 1.4em">B. Efectos esenciales: reverb</h3>
-      <ul>
-        <li><b>Reverb:</b> recrea la acústica de un espacio físico.</li>
-        <li>
-          <b>Pre-delay (10–30 ms):</b> separa el sonido seco del inicio de la
-          reverb y evita que la interpretación pierda definición.
-        </li>
-        <li>
-          <b>Decay / RT60:</b> duración de la cola.
-          <i>Placa o Room (0,8–1,5 s)</i>: pianos rítmicos y pop.
-          <i>Hall o Ambient (2,5–4 s)</i>: baladas, ambient y música
-          cinematográfica.
-        </li>
-        <li>
-          <b>Wet / Dry:</b> proporción de señal procesada frente a la señal
-          directa.
-        </li>
-      </ul>
-      <h3>C. Arquitectura de un sintetizador sustractivo</h3>
-      <p>
-        Se genera el sonido con una forma de onda base y se esculpe con un
-        filtro y una envolvente:
-      </p>
-      <div class="row" style="font-weight: 700">
-        <span class="box" style="margin: 0; text-align: center"
-          >Oscilador<br /><small class="mut">forma de onda</small></span
-        >→<span class="box" style="margin: 0; text-align: center"
-          >Filtro (VCF)<br /><small class="mut"
-            >frecuencia de corte</small
-          ></span
-        >→<span class="box" style="margin: 0; text-align: center"
-          >Amplificador (VCA)<br /><small class="mut"
-            >envolvente ADSR</small
-          ></span
-        >
-      </div>
-      <div class="grid">
-        <div class="cd">
-          <h4>1. Osciladores · elige el timbre</h4>
-          <div class="row" id="wf"></div>
-          <svg viewBox="0 0 300 80" class="kb" id="wsv"></svg>
-          <ul>
-            <li>
-              <b>Seno:</b> onda pura, sin armónicos superiores. Sub-bajo,
-              flautas sintéticas.
-            </li>
-            <li>
-              <b>Sierra:</b> todos los armónicos (pares e impares); brillante y
-              rasgante. Leads, pads de synth-pop 80s, super-saws.
-            </li>
-            <li>
-              <b>Cuadrada:</b> armónicos impares; sonido hueco, de videojuego
-              retro o clarinete. Bajos synthwave.
-            </li>
-            <li>
-              <b>Triangular:</b> suave, con pocos armónicos. Pianos eléctricos
-              simples, bajos sutiles.
-            </li>
-          </ul>
-        </div>
-        <div class="cd">
-          <h4>2. Envolvente ADSR · moldea el volumen</h4>
-          <div class="row" id="pr"></div>
-          <svg viewBox="0 0 300 80" class="kb" id="env"></svg>
-          <label class="mut" style="display: block"
-            >Attack <b id="va"></b> s<input
-              type="range"
-              id="ra"
-              min="0.005"
-              max="2"
-              step="0.005"
-              style="width: 100%"
-          /></label>
-          <label class="mut" style="display: block"
-            >Decay <b id="vd"></b> s<input
-              type="range"
-              id="rd"
-              min="0.01"
-              max="2"
-              step="0.01"
-              style="width: 100%"
-          /></label>
-          <label class="mut" style="display: block"
-            >Sustain <b id="vs"></b
-            ><input
-              type="range"
-              id="rs"
-              min="0"
-              max="1"
-              step="0.01"
-              style="width: 100%"
-          /></label>
-          <label class="mut" style="display: block"
-            >Release <b id="vr"></b> s<input
-              type="range"
-              id="rr"
-              min="0.05"
-              max="3"
-              step="0.01"
-              style="width: 100%"
-          /></label>
-          <ul>
-            <li>
-              <b>Attack:</b> tiempo hasta el volumen máximo (corto en pianos y
-              bajos; largo en pads atmosféricos).
-            </li>
-            <li><b>Decay:</b> tiempo en caer del pico al nivel de sostén.</li>
-            <li>
-              <b>Sustain:</b> nivel constante mientras la tecla sigue
-              presionada.
-            </li>
-            <li><b>Release:</b> tiempo en extinguirse tras soltar la tecla.</li>
-          </ul>
-          <button id="ps">▶ Probar con C – Am – F – G</button>
-        </div>
-      </div>
-      <h3 style="margin-top: 1.4em">D. Controladores MIDI y flujo en el DAW</h3>
-      <p>
-        <b>MIDI</b> (Musical Instrument Digital Interface) no transmite audio,
-        solo datos de interpretación:
-      </p>
-      <ul>
-        <li>
-          <b>Note On / Note Off:</b> qué tecla tocaste y cuándo la soltaste.
-        </li>
-        <li>
-          <b>Velocity (0–127):</b> con qué fuerza presionaste la tecla; afecta
-          al volumen y, en muchos sintetizadores, a la apertura del filtro.
-        </li>
-        <li>
-          <b>Pitch Bend / Modulation Wheel (CC1):</b> la rueda desafina las
-          notas o controla la intensidad del vibrato o del filtro.
-        </li>
-      </ul>
-      <div class="box hl">
-        <b>En el DAW</b> (Ableton, FL Studio, Logic, Reaper): graba los datos
-        MIDI en una pista de instrumento para corregir notas o cambiar el sonido
-        por completo (piano, synth, cuerdas) sin volver a tocar la pieza.
-      </div>
+<h2 id="s6">6. Emociones: modos y tonalidades</h2>
+<p>La emoción de una armonía depende sobre todo del <b>modo</b> (qué notas tiene la escala), no de la tonalidad concreta: Do mayor y Re mayor transmiten lo mismo, solo cambia la altura. Se suele asociar las tonalidades agudas con brillo y las graves con peso, pero eso es más registro y tradición que una propiedad de la tonalidad. Elige una tónica y recorre los modos, del más luminoso al más oscuro.</p>
+<div class="cd mdp"><div class="row"><label>Tónica <select id="mk"></select></label></div>
+<div class="row" id="mb"></div>
+<div style="height:8px;border-radius:4px;background:linear-gradient(90deg,#fbbf24,#fb923c,#a855f7,#1e1b4b)"></div>
+<div class="row mut" style="justify-content:space-between;margin-top:2px"><span>Más luminoso</span><span>Más oscuro</span></div>
+<h3 id="mt"></h3><p id="md"></p><p class="gr" id="mg"></p>
+<h4>Escala en el piano</h4><div id="mp"></div>
+<h4>Progresión de ejemplo (toca un acorde)</h4><div class="chips" id="mc"></div><div class="v"></div>
+<div class="row"><button id="msc">▶ Escala</button><button id="mpr">▶ Progresión</button></div></div>
+<div class="box"><h3>Guía rápida: emoción → recurso</h3><div class="scroll"><table>
+<tr><th>Emoción</th><th>Recurso</th><th>Ejemplo</th></tr>
+<tr><td>Alegría, luz</td><td>Mayor (jónico) o lidio</td><td>C – F – G – C</td></tr>
+<tr><td>Tristeza, nostalgia</td><td>Menor natural (eólico)</td><td>Am – F – C – G</td></tr>
+<tr><td>Melancolía con esperanza</td><td>Dórico</td><td>Am – D – Am – G</td></tr>
+<tr><td>Heroico, rockero</td><td>Mixolidio (♭VII)</td><td>C – B♭ – F – C</td></tr>
+<tr><td>Oscuridad, tensión</td><td>Frigio / cadencia andaluza</td><td>Am – G – F – E</td></tr>
+<tr><td>Misterio, ensueño</td><td>Lidio (♯4)</td><td>Cmaj7 – D – Cmaj7 – D</td></tr>
+<tr><td>Melancolía romántica</td><td>IV menor (intercambio modal)</td><td>C – Am – F – Fm</td></tr>
+<tr><td>Inquietud extrema</td><td>Locrio (poco usado)</td><td>Bdim – C – Dm – Bdim</td></tr></table></div></div>
 
-      <h2 id="s9">9. Simulador de trastes y práctica de dedos</h2>
-      <p>
-        Explora el mástil: toca cualquier casilla para oír la nota y muestra
-        escalas o acordes sobre él. Cambia la afinación o pon un capo y mira
-        cómo se mueve todo.
-      </p>
-      <div class="sim">
-        <div class="seg" id="fm">
-          <button data-m="0">Libre</button
-          ><button data-m="1" class="on">Escala</button
-          ><button data-m="2">Acorde</button>
-        </div>
-        <div class="row">
-          <label
-            >Afinación
-            <select id="ftu"></select
-          ></label>
-          <label
-            >Capo
-            <select id="fcp"></select
-          ></label>
-          <label id="fgr"
-            >Tónica
-            <select id="frt"></select
-          ></label>
-          <label id="fgs"
-            >Escala
-            <select id="fsc"></select
-          ></label>
-          <label id="fgq"
-            >Acorde
-            <select id="fcq"></select
-          ></label>
-          <label
-            >Etiquetas
-            <select id="flb">
-              <option value="0">Notas</option>
-              <option value="1">Grados</option>
-            </select></label
-          >
-          <button id="fact">▶ Tocar escala</button>
-        </div>
-        <div
-          class="fb"
-          id="fb"
-          role="img"
-          aria-label="Mástil de guitarra con 15 trastes"
-        ></div>
-        <p id="frd" aria-live="polite"></p>
-        <p id="finf"></p>
-      </div>
-      <div class="box hl">
-        <h3>🖐 Práctica de dedos</h3>
-        <p>
-          Un mástil vertical a pantalla completa: eliges un acorde, colocas tú
-          mismo los dedos y la página te dice si está bien.
-        </p>
-        <button id="fpm" class="on">Abrir práctica a pantalla completa</button>
-      </div>
-      <ul>
-        <li>
-          <b>1.</b> Elige un dedo abajo (1 índice, 2 medio, 3 anular, 4 meñique)
-          y toca la casilla donde va. Hay un dedo por cuerda; el índice puede
-          repetirse para hacer una cejilla.
-        </li>
-        <li>
-          <b>2.</b> Toca el símbolo sobre cada cuerda para alternar ○ (al aire)
-          y ✕ (no se toca).
-        </li>
-        <li>
-          <b>3.</b> Pulsa <i>Comprobar</i>: las cuerdas incorrectas se marcan en
-          rojo. Si lo necesitas, <i>Pista</i> muestra la respuesta con los
-          números de dedo.
-        </li>
-      </ul>
+<h2 id="s7">7. Consejos de interpretación</h2>
+<div class="grid">
+<div class="cd"><h3>Guitarra</h3><ul><li>Si el F con cejilla cuesta, usa capo en el traste 2 o 4 y toca formas abiertas (G – D – Em – C).</li><li>Urbano/pop moderno: voicings de 2–3 cuerdas, arpegios rápidos y capo en trastes 2 a 5.</li><li>Latina y flamenca: rasgueos secos y cejilla para el golpe percusivo.</li><li>Electrónica: delay y chorus convierten una progresión simple en un tapiz sonoro.</li></ul></div>
+<div class="cd"><h3>Piano</h3><ul><li>Desde los 90, añade extensiones: maj7, add9, sus2/sus4.</li><li>Clásico: independencia de manos, arpegios amplios a la izquierda y melodía a la derecha.</li><li>Salsa/bolero: la izquierda entrena los contratiempos, imitando el contrabajo y el montuno.</li></ul></div>
+<div class="cd"><h3>Jazz y baladas</h3><ul><li>Estilo Sinatra: cambia tríadas por acordes de 4 notas (Cmaj7, Dm7, G7, Am7); voicings sin quinta; arpegios sutiles que imitan los vientos de una big band.</li><li>Baladas 80s/90s: acordes add9 (Cadd9, Fadd9) para el brillo cristalino de estudio.</li></ul></div>
+</div>
+<h2 id="s8">8. Del acorde al sonido: síntesis, efectos y DAW</h2>
+<p>Una progresión armónica es la partitura, el mapa; el <b>sonido</b> es el vehículo. Dos productores pueden tocar exactamente los mismos acordes C – Am – F – G, pero si uno usa un piano de cola con una reverb íntima y el otro una sierra de sintetizador brillante, las emociones serán opuestas. Aquí aprenderás a esculpir el timbre con ecualización, reverberación, síntesis sustractiva y MIDI. Todo lo que muevas se oye en los acordes de este manual.</p>
+<div class="box hl"><h3>Experimento: mismos acordes, emociones opuestas</h3><div class="row"><button id="xa" class="on">▶ A · Piano íntimo</button><button id="xb" class="on">▶ B · Sierra brillante</button></div><p class="mut" style="margin:0">Ambos tocan C – Am – F – G. Fíjate en qué cambia: forma de onda, envolvente, ecualización y espacio. Después ajusta los controles de abajo y compara.</p></div>
 
-      <h2 id="s10">10. Ritmo y percusión: beats por género</h2>
-      <p>
-        La percusión define la energía, la cadencia y el movimiento de un track.
-        Cada elemento ocupa un lugar en el espectro de frecuencias y en el
-        compás.
-      </p>
-      <div class="scroll">
-        <table>
-          <tr>
-            <th>Instrumento</th>
-            <th>Función y rango</th>
-            <th>Mejor momento para usarlo</th>
-          </tr>
-          <tr>
-            <td><b>Kick (bombo)</b></td>
-            <td>Cimiento grave (20–100 Hz): peso y pulso principal.</td>
-            <td>Inicio de los compases y acentos fuertes.</td>
-          </tr>
-          <tr>
-            <td><b>Snare (caja)</b></td>
-            <td>
-              Ancla de frecuencia media (200 Hz–2 kHz): responde al kick en los
-              tiempos débiles (backbeat).
-            </td>
-            <td>Tiempos 2 y 4 (o el 3 en trap).</td>
-          </tr>
-          <tr>
-            <td><b>Clap (palmas)</b></td>
-            <td>Alternativa o capa de la caja.</td>
-            <td>Coros o secciones que piden más brillo.</td>
-          </tr>
-          <tr>
-            <td><b>Hi-hat cerrado</b></td>
-            <td>Agudos (5–18 kHz): marca la subdivisión y el groove.</td>
-            <td>Estrofas, para mantener el control del tempo.</td>
-          </tr>
-          <tr>
-            <td><b>Hi-hat abierto</b></td>
-            <td>Apertura de energía y elevación.</td>
-            <td>Contratiempo del coro, para dar soltura.</td>
-          </tr>
-          <tr>
-            <td><b>Congas / bongós</b></td>
-            <td>Relleno orgánico en medios-agudos; síncopa y movimiento.</td>
-            <td>Afrobeat, salsa, funk y house, para llenar huecos.</td>
-          </tr>
-          <tr>
-            <td><b>Toms</b></td>
-            <td>Percusión tonal dinámica (grave, medio, agudo).</td>
-            <td>
-              Fills al final de 4 u 8 compases y build-ups antes de un drop.
-            </td>
-          </tr>
-          <tr>
-            <td><b>Rimshot / sidestick</b></td>
-            <td>Percusión suave de bajo impacto.</td>
-            <td>
-              Estrofas tranquilas o baladas, donde una caja completa sería
-              agresiva.
-            </td>
-          </tr>
-        </table>
-      </div>
-      <h3 style="margin-top: 1.4em">Secuenciador de beats</h3>
-      <p>
-        Cada columna es una semicorchea; las líneas gruesas marcan los 4 tiempos
-        del compás. Elige un género, activa o apaga casillas y juega con el
-        tempo y el swing. Con “Con acordes” suena además una progresión, con el
-        timbre que hayas elegido en la sección 8.
-      </p>
-      <div class="sim">
-        <div class="seg" id="bg"></div>
-        <div class="row">
-          <button id="bp" class="on">▶ Reproducir</button>
-          <label
-            >Tempo <b id="bv"></b> BPM<input
-              type="range"
-              id="bt"
-              min="60"
-              max="180"
-          /></label>
-          <label
-            >Swing <b id="bw"></b> %<input
-              type="range"
-              id="bs"
-              min="0"
-              max="50"
-          /></label>
-          <label style="flex-direction: row; align-items: center; gap: 6px"
-            ><input type="checkbox" id="bc" /> Con acordes</label
-          >
-          <button id="bx">Limpiar</button>
-        </div>
-        <div class="sq" id="bgrid"></div>
-        <p class="mut" id="bch"></p>
-      </div>
-      <div class="box hl" id="bn"></div>
-      <h3 style="margin-top: 1.4em">
-        Armonía y percusión: la radiografía por género
-      </h3>
-      <p>
-        Cada género combina un tipo de acordes con un tipo de beat. Toca los
-        acordes para ver su teclado y su diapasón.
-      </p>
-      <div class="grid" id="bcards"></div>
-    </main>
-    <div id="pm" hidden role="dialog" aria-label="Práctica de dedos">
-      <div class="pt">
-        <button id="pmx">✕ Cerrar</button><b>Práctica de dedos</b
-        ><select id="pmc" aria-label="Acorde"></select>
-      </div>
-      <div id="pmt"></div>
-      <div class="pbody">
-        <div class="pw">
-          <svg
-            id="pmv"
-            viewBox="0 0 350 440"
-            role="img"
-            aria-label="Mástil vertical para colocar los dedos"
-          ></svg>
-        </div>
-        <div class="pside">
-          <div class="row" id="pmf"></div>
-          <p id="pmm"></p>
-          <div class="row">
-            <button id="pmk" class="on">Comprobar</button
-            ><button id="pmh">Pista</button><button id="pml">Limpiar</button
-            ><button id="pms">▶ Acorde</button
-            ><button id="pmn">Siguiente ▸</button>
-          </div>
-        </div>
-      </div>
-    </div>
+<h3 style="margin-top:1.4em">A. Ecualización (EQ): moldear el espectro</h3>
+<p>La ecualización no crea frecuencias nuevas: <b>solo ajusta el volumen de las que ya existen</b>. En una mezcla cada instrumento compite por el mismo espacio de aire; sin EQ los graves se empastan y las melodías chocan entre sí. Piensa en tres zonas: <i>corte de graves</i> (limpia el barro del bajo), <i>cuerpo y medios</i> (200 Hz – 5 kHz, donde viven el cuerpo y el ataque) y <i>brillo y aire</i> (por encima de 8 kHz).</p>
+<div class="grid">
+<div class="cd"><h4>Prueba el EQ · curva en vivo</h4><svg id="eqv" viewBox="0 0 300 110" class="kb" style="max-width:100%" role="img" aria-label="Curva de ecualización"></svg><div id="fxe"></div></div>
+<div class="cd"><h4>Los 4 controles clave</h4><ul>
+<li><b>HPF (Low Cut):</b> corta de forma radical todo lo que está por debajo del umbral. Aplícalo a 80–100 Hz en la mano derecha del piano o en pads: ese grave le pertenece al bombo y al bajo, y si lo dejas la mezcla suena sucia, barrosa y opaca.</li>
+<li><b>Gain:</b> sube (+dB) o baja (–dB) una zona. Si el piano suena apagado en una mezcla densa, busca con una campana entre 3 y 5 kHz y sube +2 dB: ahí está el ataque de los martillos contra las cuerdas.</li>
+<li><b>Q (ancho de banda):</b> Q alto (estrecho, como una aguja) para cazar una resonancia molesta, como un zumbido metálico alrededor de 400 Hz. Q bajo (ancho, como una colina) para cambios musicales suaves, como calentar el rango medio-bajo.</li>
+<li><b>Low / High Shelf:</b> eleva o atenúa todo el espectro por encima o por debajo de una frecuencia. Un high shelf desde 10 kHz con +3 dB da aire, brillo cristalino y atmósfera moderna a un Rhodes o un DX7.</li></ul></div></div>
 
-    <script>
-      const $ = (s, e = document) => e.querySelector(s),
-        $$ = (s, e = document) => [...e.querySelectorAll(s)];
-      const N = [
-          "Do",
-          "Do♯",
-          "Re",
-          "Re♯",
-          "Mi",
-          "Fa",
-          "Fa♯",
-          "Sol",
-          "Sol♯",
-          "La",
-          "La♯",
-          "Si",
-        ],
-        PC = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 },
-        FL = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
-      const IV = {
-        "": [0, 4, 7],
-        m: [0, 3, 7],
-        7: [0, 4, 7, 10],
-        m7: [0, 3, 7, 10],
-        maj7: [0, 4, 7, 11],
-        dim7: [0, 3, 6, 9],
-        m7b5: [0, 3, 6, 10],
-        sus4: [0, 5, 7],
-        dim: [0, 3, 6],
-      };
-      const pc = (s) =>
-        (PC[s[0]] + (s[1] == "#" ? 1 : s[1] == "b" ? -1 : 0) + 12) % 12;
-      function parse(n) {
-        const m = n.match(/^([A-G][b#]?)([^\/]*)(?:\/([A-G][b#]?))?$/);
-        return { r: pc(m[1]), q: m[2], b: m[3] ? pc(m[3]) : null };
-      }
-      const dn = (n) =>
-        n
-          .replace(/^([A-G])b/, "$1♭")
-          .replace(/\/([A-G])b/, "/$1♭")
-          .replace(/#/g, "♯")
-          .replace("b5", "♭5");
-      function notes(n, inv = 0) {
-        const c = parse(n);
-        let a = IV[c.q].map((i) => c.r + i);
-        for (let i = 0; i < inv; i++) a[i] += 12;
-        a.sort((x, y) => x - y);
-        if (c.b != null) {
-          let b = c.b;
-          while (b >= a[0]) b -= 12;
-          a.unshift(b);
-        }
-        return a;
-      }
-      function kb(nt, lo, hi) {
-        lo = lo ?? Math.floor(Math.min(...nt) / 12) * 12;
-        hi = hi ?? Math.ceil((Math.max(...nt) + 1) / 12) * 12;
-        const W = 22,
-          S = new Set(nt);
-        let w = "",
-          b = "",
-          i = 0;
-        for (let s = lo; s < hi; s++) {
-          const p = ((s % 12) + 12) % 12,
-            on = S.has(s);
-          if ([0, 2, 4, 5, 7, 9, 11].includes(p)) {
-            w +=
-              `<rect x="${i * W}" y="0" width="${W}" height="84" class="wk${on ? " on" : ""}"/>` +
-              (on
-                ? `<text x="${i * W + W / 2}" y="76" class="t">${N[p]}</text>`
-                : "");
-            i++;
-          } else
-            b += `<rect x="${i * W - 7}" y="0" width="14" height="50" class="bk${on ? " on" : ""}"/>`;
-        }
-        return `<svg viewBox="0 0 ${i * W} 86" class="kb">${w}${b}</svg>`;
-      }
-      const OP = {
-        Bdim: [-1, 2, 3, 4, 3, -1],
-        C: [-1, 3, 2, 0, 1, 0],
-        Am: [-1, 0, 2, 2, 1, 0],
-        G: [3, 2, 0, 0, 0, 3],
-        F: [1, 3, 3, 2, 1, 1],
-        Dm: [-1, -1, 0, 2, 3, 1],
-        Em: [0, 2, 2, 0, 0, 0],
-        E: [0, 2, 2, 1, 0, 0],
-        D: [-1, -1, 0, 2, 3, 2],
-        A: [-1, 0, 2, 2, 2, 0],
-        G7: [3, 2, 0, 0, 0, 1],
-        E7: [0, 2, 0, 1, 0, 0],
-        D7: [-1, -1, 0, 2, 1, 2],
-        Cmaj7: [-1, 3, 2, 0, 0, 0],
-        Fmaj7: [-1, -1, 3, 2, 1, 0],
-        Am7: [-1, 0, 2, 0, 1, 0],
-        Dm7: [-1, -1, 0, 2, 1, 1],
-        Em7: [0, 2, 0, 0, 0, 0],
-      };
-      const TE = {
-          "": [0, 2, 2, 1, 0, 0],
-          m: [0, 2, 2, 0, 0, 0],
-          7: [0, 2, 0, 1, 0, 0],
-          m7: [0, 2, 0, 0, 0, 0],
-          maj7: [0, 2, 1, 1, 0, 0],
-        },
-        TA = {
-          "": [-1, 0, 2, 2, 2, 0],
-          m: [-1, 0, 2, 2, 1, 0],
-          7: [-1, 0, 2, 0, 2, 0],
-          m7: [-1, 0, 2, 0, 1, 0],
-          maj7: [-1, 0, 2, 1, 2, 0],
-        };
-      function shape(n) {
-        const c = parse(n),
-          k = n.split("/")[0];
-        if (OP[k]) return OP[k];
-        const e = (c.r + 8) % 12,
-          a = (c.r + 3) % 12;
-        const t =
-          TA[c.q] && (a < e || !TE[c.q])
-            ? [TA[c.q], a]
-            : TE[c.q]
-              ? [TE[c.q], e]
-              : null;
-        return t && t[0].map((x) => (x < 0 ? x : x + t[1]));
-      }
-      function gt(f) {
-        if (!f)
-          return '<p class="mut">Sin diagrama de guitarra (forma poco común).</p>';
-        const p = f.filter((x) => x > 0),
-          mn = p.length ? Math.min(...p) : 1,
-          mx = p.length ? Math.max(...p) : 1,
-          base = mx <= 4 ? 1 : mn;
-        let s = "";
-        for (let i = 0; i < 6; i++)
-          s += `<line x1="${22 + i * 18}" y1="30" x2="${22 + i * 18}" y2="140" class="ln"/><text x="${22 + i * 18}" y="154" class="sn">${"EADGBe"[i]}</text>`;
-        for (let j = 0; j <= 5; j++)
-          s += `<line x1="22" y1="${30 + j * 22}" x2="112" y2="${30 + j * 22}" class="${j == 0 && base == 1 ? "nut" : "ln"}"/>`;
-        f.forEach((x, i) => {
-          const cx = 22 + i * 18;
-          if (x < 0) s += `<text x="${cx}" y="22" class="g">✕</text>`;
-          else if (x == 0)
-            s += `<circle cx="${cx}" cy="18" r="4.5" class="o"/>`;
-          else
-            s += `<circle cx="${cx}" cy="${30 + (x - base) * 22 + 11}" r="7.5" class="d"/>`;
-        });
-        if (base > 1) s += `<text x="116" y="45" class="fn">${base}</text>`;
-        return `<svg viewBox="0 0 140 160" class="gt">${s}</svg>`;
-      }
-      let AC;
-      const ENV = { a: 0.02, d: 0.3, s: 0.3, r: 0.6 };
-      let WV = "triangle";
-      function tone(f, t, d) {
-        const o = AC.createOscillator(),
-          g = AC.createGain(),
-          { a, d: dc, s, r } = ENV,
-          p = 0.14,
-          h = Math.max(d, a + dc);
-        o.type = WV;
-        o.frequency.value = f;
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(p, t + a);
-        g.gain.linearRampToValueAtTime(p * s + 0.0001, t + a + dc);
-        g.gain.setValueAtTime(p * s + 0.0001, t + h);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + h + r);
-        o.connect(g);
-        g.connect(AC.destination);
-        o.start(t);
-        o.stop(t + h + r + 0.05);
-      }
-      function play(seq, gap, len) {
-        try {
-          AC = AC || new (window.AudioContext || window.webkitAudioContext)();
-          let t = AC.currentTime + 0.05;
-          seq.forEach((a) => {
-            a.forEach((s, i) => tone(261.63 * 2 ** (s / 12), t + i * gap, 1.1));
-            t += len;
-          });
-        } catch (e) {}
-      }
-      function view(el, n, inv = 0, po = false) {
-        const nt = notes(n, inv),
-          c = parse(n);
-        el.innerHTML = `<div class="vw"><div><h4>Piano · ${dn(n)}</h4>${kb(nt)}<p class="nn">${nt.map((s) => N[((s % 12) + 12) % 12]).join(" – ")}</p></div>${po ? "" : `<div><h4>Guitarra</h4>${gt(shape(n))}${c.b != null ? '<p class="mut">Bajo en otra nota: se muestra el acorde base.</p>' : ""}</div>`}</div><button class="pl">▶ Escuchar</button>`;
-        $(".pl", el).onclick = () => play([nt], 0, 1.5);
-      }
-      const CAT = {
-        pop: "Pop y rock 80s–hoy",
-        act: "Música actual",
-        cla: "Clásica y romántica",
-        ele: "Electrónica",
-        lat: "Latina",
-        jaz: "Sinatra / jazz",
-        bal: "Baladas en inglés",
-      };
-      const P = [
-        [
-          "pop",
-          "El bucle antémico",
-          "I – V – vi – IV",
-          "C G Am F",
-          "Don’t Stop Believin’ (Journey), With Or Without You (U2), Someone Like You (Adele), Despacito",
-          "La reina del pop desde los 80: equilibrio perfecto entre tensión y resolución.",
-        ],
-        [
-          "pop",
-          "Épica menor",
-          "vi – IV – I – V",
-          "Am F C G",
-          "Zombie (The Cranberries), Complicated (Avril Lavigne), Apologize (OneRepublic)",
-          "Empieza en el relativo menor: más sombría, nostálgica y dramática.",
-        ],
-        [
-          "pop",
-          "Cadencia andaluza",
-          "i – ♭VII – ♭VI – V",
-          "Am G F E",
-          "Sultans of Swing (Dire Straits), Smooth (Santana), Hips Don’t Lie (Shakira)",
-          "Bajo descendente con gran tensión dramática.",
-        ],
-        [
-          "pop",
-          "R&B / neo-soul ii–V–I",
-          "ii – V – I",
-          "Dm7 G7 Cmaj7",
-          "Sunday Morning (Maroon 5), Bruno Mars, Alicia Keys, Daniel Caesar",
-          "Armonía de jazz con séptimas y novenas.",
-        ],
-        [
-          "pop",
-          "Mixolidia / power",
-          "I – ♭VII – IV – I",
-          "C Bb F C",
-          "Sweet Child O’ Mine (Guns N’ Roses), Clocks (Coldplay), Born in the U.S.A. (Springsteen)",
-          "El ♭VII (intercambio modal) da una sonoridad heroica.",
-        ],
-        [
-          "pop",
-          "Bajo descendente",
-          "I – V/VII – vi – V – IV – I/III – ii – V",
-          "C G/B Am G F C/E Dm G",
-          "Tears in Heaven (Clapton), Perfect (Ed Sheeran)",
-          "Para piano y guitarra acústica: el bajo baja paso a paso.",
-        ],
-        [
-          "act",
-          "Bucle urbano / reguetón",
-          "i – ♭VI – ♭VII",
-          "Am F G",
-          "Bad Bunny, Rauw Alejandro, Rosalía, Karol G, Billie Eilish",
-          "Tres acordes en bucle continuo que sostienen el ritmo.",
-        ],
-        [
-          "act",
-          "Royal Road (J-Pop)",
-          "IV – V – iii – vi",
-          "Fmaj7 G7 Em7 Am",
-          "Anime openings, baladas K-Pop, Olivia Rodrigo",
-          "Resolución suspendida, nostálgica y brillante.",
-        ],
-        [
-          "act",
-          "Grunge / alt-rock 90s",
-          "I – ♭III – IV – ♭VI",
-          "C Eb F Ab",
-          "In Bloom y Lithium (Nirvana), Say It Ain’t So (Weezer)",
-          "Acordes prestados del modo menor dan peso y dinamismo.",
-        ],
-        [
-          "act",
-          "Variante Creep",
-          "I – III – IV – iv",
-          "C E F Fm",
-          "Creep (Radiohead)",
-          "El IV mayor pasa a menor: un giro agridulce célebre.",
-        ],
-        [
-          "act",
-          "Plagal / indie pop",
-          "IV – I – vi – V",
-          "F C Am G",
-          "Riptide (Vance Joy), As It Was (Harry Styles), Clairo, Mac DeMarco",
-          "Oscila entre F y C: ambiente etéreo y relajado.",
-        ],
-        [
-          "act",
-          "Neo-soul / lofi",
-          "vi7 – ii7 – V7 – Imaj7",
-          "Am7 Dm7 G7 Cmaj7",
-          "SZA, Frank Ocean, Tyler, The Creator, Steve Lacy",
-          "Un acorde secundario añade tensión elegante.",
-        ],
-        [
-          "act",
-          "El Canon",
-          "I – V – vi – iii – IV – I – IV – V",
-          "C G Am Em F C F G",
-          "Memories (Maroon 5), Graduation (Vitamin C), Basket Case (Green Day)",
-          "Basada en Pachelbel: la balada romántica por excelencia.",
-        ],
-        [
-          "cla",
-          "Cadencia ii – V – I",
-          "ii – V – I",
-          "Dm G7 C",
-          "Bach, Mozart, Beethoven, Chopin",
-          "Pilar de la música clásica para cerrar frases (a menudo precedida de I 6/4 – V7 – I).",
-        ],
-        [
-          "cla",
-          "Círculo de quintas",
-          "iii – vi – ii – V – I",
-          "Em Am Dm G7 C",
-          "Bach, Vivaldi; base de Hey Jude (The Beatles)",
-          "Cada acorde cae una quinta.",
-        ],
-        [
-          "cla",
-          "Giro romántico",
-          "I – vi – IV – iv",
-          "C Am F Fm",
-          "Chopin, Liszt, Tchaikovsky",
-          "El IV menor aporta melancolía puramente romántica.",
-        ],
-        [
-          "ele",
-          "Trance / EDM anthem",
-          "vi – IV – I – V",
-          "Am F C G",
-          "Armin van Buuren, Tiësto, Avicii",
-          "Euforia masiva en build-ups y drops.",
-        ],
-        [
-          "ele",
-          "Deep house",
-          "i7 – iv7",
-          "Am7 Dm7",
-          "Disclosure, Ben Böhmer",
-          "Dos acordes con séptimas en bucle: cálido y bailable.",
-        ],
-        [
-          "ele",
-          "Synthwave",
-          "I – ♭VII – vi – ♭VI",
-          "C Bb Am Ab",
-          "The Midnight, Kavinsky (Nightcall)",
-          "Nostalgia futurista de los 80.",
-        ],
-        [
-          "lat",
-          "Tumbao de salsa",
-          "i7 – IV7",
-          "Am7 D7",
-          "Héctor Lavoe, Celia Cruz, Marc Anthony",
-          "Base de la salsa sobre un groove sincopado.",
-        ],
-        [
-          "lat",
-          "Bolero",
-          "I – Idim7 – ii7 – V7",
-          "C C#dim7 Dm7 G7",
-          "Luis Miguel, Armando Manzanero, Los Panchos",
-          "El dim7 de paso conecta acordes cromáticamente.",
-        ],
-        [
-          "lat",
-          "Rumba flamenca",
-          "i – ♭VII – ♭VI – V",
-          "Am G F E",
-          "Gipsy Kings, Estopa, Shakira, Juanes",
-          "Cadencia andaluza: motor de la rumba y el pop latino.",
-        ],
-        [
-          "jaz",
-          "Jazz romántico",
-          "vi7 – ii7 – V7 – Imaj7 – IVmaj7 – viiø7 – III7",
-          "Am7 Dm7 G7 Cmaj7 Fmaj7 Bm7b5 E7",
-          "Fly Me to the Moon, Autumn Leaves, All the Things You Are",
-          "Dominantes secundarias y extensiones; voicings sin quinta.",
-        ],
-        [
-          "jaz",
-          "Puente AABA",
-          "Imaj7 – I♯dim7 – ii7 – V7 → IVmaj7 – iv7 – Imaj7",
-          "Cmaj7 C#dim7 Dm7 G7 Fmaj7 Fm7 Cmaj7",
-          "My Way, Night and Day, Unforgettable",
-          "El puente pasa al subdominante menor para dramatizar.",
-        ],
-        [
-          "bal",
-          "Lamento romántico",
-          "I – V/VII – vi – V – IV – I/III – ii7 – V7",
-          "C G/B Am C/G F C/E Dm7 G7",
-          "Careless Whisper, Right Here Waiting, Against All Odds",
-          "El bajo desciende mientras la tónica se sostiene.",
-        ],
-        [
-          "bal",
-          "Gran poder vocal",
-          "I – V – vi – IV → ii7 – V7sus4 – V7 – I",
-          "C G Am F Dm7 Gsus4 G7 C",
-          "I Will Always Love You, My Heart Will Go On, I Don’t Want to Miss a Thing",
-          "Suspensión sus4 justo antes del clímax.",
-        ],
-        [
-          "bal",
-          "Piano-pop minimalista",
-          "I – vi – IV – V",
-          "C Am F G",
-          "Someone Like You (Adele), Stay With Me (Sam Smith), All of Me (John Legend)",
-          "Cuatro acordes: la voz lleva la dinámica.",
-        ],
-        [
-          "bal",
-          "Retro-soul en 6/8",
-          "I – iii – IV – iv",
-          "C Em F Fm",
-          "Perfect (Ed Sheeran), When I Was Your Man (Bruno Mars)",
-          "Compás de 6/8 con sabor R&B clásico.",
-        ],
-      ];
-      $("#cat").innerHTML = P.map(
-        ([c, t, g, ch, s, d]) =>
-          `<article class="cd" data-c="${c}"><span class="tg">${CAT[c]}</span><h3>${t}</h3><p class="gr">${g}</p><div class="chips">${ch
-            .split(" ")
-            .map((x) => `<button class="ch" data-n="${x}">${dn(x)}</button>`)
-            .join(
-              "",
-            )}</div><p>${d}</p><p class="sg">♪ ${s}</p><div class="v"></div><button class="pp" data-ch="${ch}">▶ Tocar progresión</button></article>`,
-      ).join("");
-      $("#flt").innerHTML = ['<button class="f on" data-c="">Todas</button>']
-        .concat(
-          Object.entries(CAT).map(
-            ([k, v]) => `<button class="f" data-c="${k}">${v}</button>`,
-          ),
-        )
-        .join("");
-      const D = { I: 0, II: 1, III: 2, IV: 3, V: 4, VI: 5, VII: 6 },
-        SC = [0, 2, 4, 5, 7, 9, 11];
-      function dg(s, k) {
-        const m = s.trim().match(/^(♭?)([ivIV]+)$/);
-        return (
-          FL[(k + SC[D[m[2].toUpperCase()]] - (m[1] ? 1 : 0) + 12) % 12] +
-          (m[2] === m[2].toLowerCase() ? "m" : "")
-        );
-      }
-      $("#key").innerHTML = FL.map(
-        (n, i) => `<option value="${i}">${dn(n)} mayor</option>`,
-      ).join("");
-      function tr() {
-        const k = +$("#key").value,
-          ds = $("#pre").value.split(/\s*–\s*/);
-        $("#degs").textContent = $("#pre").value;
-        $("#tr").innerHTML = ds
-          .map((d) => {
-            const n = dg(d, k);
-            return `<button class="ch" data-n="${n}">${dn(n)}</button>`;
-          })
-          .join("");
-        $(".tool .v").innerHTML = "";
-      }
-      $("#key").onchange = $("#pre").onchange = tr;
-      tr();
-      [
-        ["C", "I", "Tónica"],
-        ["Dm", "ii", "Supertónica"],
-        ["Em", "iii", "Mediante"],
-        ["F", "IV", "Subdominante"],
-        ["G", "V", "Dominante"],
-        ["Am", "vi", "Superdominante (relativo menor)"],
-        ["Bdim", "vii°", "Sensible"],
-      ].forEach(([n, g, f]) => {
-        const d = document.createElement("div");
-        d.className = "cd";
-        d.innerHTML = `<span class="tg">Grado ${g} · ${f}</span><h3>${dn(n)}</h3><div class="v"></div>`;
-        $("#base").append(d);
-        view($(".v", d), n);
-      });
-      const ID = [
-        "Fundamental: la raíz está abajo.",
-        "1.ª inversión: la tercera pasa al bajo.",
-        "2.ª inversión: la quinta pasa al bajo.",
-      ];
-      let inv = 0;
-      function ri() {
-        view($("#iv"), $("#ic").value, inv, true);
-        $("#idesc").textContent = ID[inv];
-      }
-      $$(".iv").forEach(
-        (b) =>
-          (b.onclick = () => {
-            inv = +b.dataset.i;
-            $$(".iv").forEach((x) => x.classList.toggle("on", x === b));
-            ri();
-          }),
-      );
-      $("#ic").onchange = ri;
-      ri();
-      const EX = [
-        ["C", "Fundamental", [0, 4, 7]],
-        ["Am", "1.ª inversión", [0, 4, 9]],
-        ["F", "2.ª inversión", [0, 5, 9]],
-        ["G", "1.ª inversión", [-1, 2, 7]],
-      ];
-      $("#ex").innerHTML = EX.map(
-        ([n, t, a]) =>
-          `<div class="cd"><h3>${n} · ${t}</h3>${kb(a, -12, 12)}<p class="nn">${a.map((s) => N[((s % 12) + 12) % 12]).join(" – ")}</p></div>`,
-      ).join("");
-      $("#pex").onclick = () =>
-        play(
-          [
-            [-12, 4, 7, 12],
-            [-15, 4, 9, 12],
-            [-19, 0, 5, 9],
-            [-17, -1, 2, 7],
-          ],
-          0.3,
-          1.5,
-        );
-      document.addEventListener("click", (e) => {
-        const b = e.target.closest("button");
-        if (!b) return;
-        if (b.classList.contains("ch")) {
-          const h = b.closest(".cd,.tool");
-          $$(".ch", h).forEach((x) => x.classList.toggle("on", x === b));
-          view($(".v", h), b.dataset.n);
-        } else if (b.classList.contains("pp"))
-          play(
-            b.dataset.ch.split(" ").map((n) => notes(n)),
-            0,
-            1.2,
-          );
-        else if (b.classList.contains("f")) {
-          $$(".f").forEach((x) => x.classList.toggle("on", x === b));
-          $$("#cat .cd").forEach(
-            (c) =>
-              (c.style.display =
-                !b.dataset.c || c.dataset.c === b.dataset.c ? "" : "none"),
-          );
-        }
-      });
-      const MD = [
-        [
-          "lidio",
-          "Lidio",
-          [0, 2, 4, 6, 7, 9, 11],
-          "Asombro, sueño, magia",
-          "Como el mayor pero con la 4.ª aumentada (♯4): flota y suena fantástico, sin pesadez.",
-          "I – II – I – II",
-          [
-            [0, "maj7"],
-            [2, ""],
-            [0, "maj7"],
-            [2, ""],
-          ],
-        ],
-        [
-          "jonico",
-          "Jónico (mayor)",
-          [0, 2, 4, 5, 7, 9, 11],
-          "Alegría, luz, estabilidad",
-          "La escala mayor: brillante y resuelta, la base del pop festivo.",
-          "I – IV – V – I",
-          [
-            [0, ""],
-            [5, ""],
-            [7, ""],
-            [0, ""],
-          ],
-        ],
-        [
-          "mixo",
-          "Mixolidio",
-          [0, 2, 4, 5, 7, 9, 10],
-          "Heroico, relajado, rockero",
-          "Mayor con 7.ª menor (♭7): el ♭VII da un aire heroico o nostálgico.",
-          "I – ♭VII – IV – I",
-          [
-            [0, ""],
-            [10, ""],
-            [5, ""],
-            [0, ""],
-          ],
-        ],
-        [
-          "dorico",
-          "Dórico",
-          [0, 2, 3, 5, 7, 9, 10],
-          "Melancolía con esperanza, “cool”",
-          "Menor con 6.ª mayor: triste pero no hundido; muy usado en jazz, funk y soul.",
-          "i – IV – i – ♭VII",
-          [
-            [0, "m"],
-            [5, ""],
-            [0, "m"],
-            [10, ""],
-          ],
-        ],
-        [
-          "eolico",
-          "Eólico (menor natural)",
-          [0, 2, 3, 5, 7, 8, 10],
-          "Tristeza, nostalgia, drama",
-          "La escala menor natural: sombría e introspectiva. La épica menor Am – F – C – G vive aquí.",
-          "i – ♭VI – ♭III – ♭VII",
-          [
-            [0, "m"],
-            [8, ""],
-            [3, ""],
-            [10, ""],
-          ],
-        ],
-        [
-          "frigio",
-          "Frigio",
-          [0, 1, 3, 5, 7, 8, 10],
-          "Oscuridad, tensión, dramatismo",
-          "Menor con 2.ª menor (♭2): el semitono sobre la tónica da un color oscuro, flamenco y metalero.",
-          "i – ♭II – i – ♭VII",
-          [
-            [0, "m"],
-            [1, ""],
-            [0, "m"],
-            [10, ""],
-          ],
-        ],
-        [
-          "locrio",
-          "Locrio",
-          [0, 1, 3, 5, 6, 8, 10],
-          "Inestabilidad, inquietud",
-          "Su 5.ª es disminuida: la tónica es un acorde disminuido y nunca termina de asentarse.",
-          "i° – ♭II – ♭iii – i°",
-          [
-            [0, "dim"],
-            [1, ""],
-            [3, "m"],
-            [0, "dim"],
-          ],
-        ],
-      ];
-      let mi = 1,
-        MS = [],
-        MC = [];
-      $("#mk").innerHTML = FL.map(
-        (n, i) => `<option value="${i}">${dn(n)}</option>`,
-      ).join("");
-      $("#mb").innerHTML = MD.map(
-        (m, i) =>
-          `<button class="mm${i == 1 ? " on" : ""}" data-i="${i}">${m[1]}</button>`,
-      ).join("");
-      function rm() {
-        const m = MD[mi],
-          k = +$("#mk").value;
-        MS = m[2].map((s) => k + s).concat(k + 12);
-        MC = m[6].map(([o, q]) => FL[(k + o) % 12] + q);
-        $("#mt").textContent = `${dn(FL[k])} ${m[1]}`;
-        $("#md").innerHTML = `<b>${m[3]}.</b> ${m[4]}`;
-        $("#mg").textContent = `Grados: ${m[5]}`;
-        $("#mp").innerHTML =
-          kb(MS) + `<p class="nn">${MS.map((s) => N[s % 12]).join(" – ")}</p>`;
-        $("#mc").innerHTML = MC.map(
-          (n) => `<button class="ch" data-n="${n}">${dn(n)}</button>`,
-        ).join("");
-        $(".mdp .v").innerHTML = "";
-      }
-      $$(".mm").forEach(
-        (b) =>
-          (b.onclick = () => {
-            mi = +b.dataset.i;
-            $$(".mm").forEach((x) => x.classList.toggle("on", x === b));
-            rm();
-          }),
-      );
-      $("#mk").onchange = rm;
-      $("#msc").onclick = () =>
-        play(
-          MS.map((s) => [s]),
-          0,
-          0.35,
-        );
-      $("#mpr").onclick = () =>
-        play(
-          MC.map((n) => notes(n)),
-          0,
-          1.2,
-        );
-      rm();
-      const WS = [
-          ["sine", "Seno"],
-          ["sawtooth", "Sierra"],
-          ["square", "Cuadrada"],
-          ["triangle", "Triangular"],
-        ],
-        PR = [
-          ["Piano", "triangle", 0.005, 0.6, 0.2, 0.5],
-          ["Pad", "sawtooth", 1.2, 0.5, 0.8, 1.5],
-          ["Bajo", "square", 0.01, 0.2, 0.6, 0.15],
-          ["Lead", "sawtooth", 0.01, 0.1, 0.7, 0.3],
-        ];
-      function wp(t) {
-        let d = "";
-        for (let x = 0; x <= 300; x++) {
-          const p = (x / 150) % 1,
-            y =
-              t == "sine"
-                ? Math.sin(p * 6.2832)
-                : t == "sawtooth"
-                  ? 2 * p - 1
-                  : t == "square"
-                    ? p < 0.5
-                      ? 1
-                      : -1
-                    : 4 * Math.abs(p - 0.5) - 1;
-          d += (x ? "L" : "M") + x + " " + (40 - y * 30).toFixed(1);
-        }
-        return d;
-      }
-      function ws() {
-        $("#wf").innerHTML = WS.map(
-          ([v, n]) =>
-            `<button class="wb${v == WV ? " on" : ""}" data-v="${v}">${n}</button>`,
-        ).join("");
-        $("#wsv").innerHTML =
-          `<path d="${wp(WV)}" fill="none" stroke="var(--acc)" stroke-width="2"/>`;
-        const { a, d, s, r } = ENV,
-          k = 300 / (a + d + 0.4 + r),
-          y = 70 - 60 * s;
-        $("#env").innerHTML =
-          `<polygon points="0,70 ${a * k},10 ${(a + d) * k},${y} ${(a + d + 0.4) * k},${y} 300,70" fill="var(--acc2)" stroke="var(--acc)" stroke-width="2"/>`;
-        ["a", "d", "s", "r"].forEach((x) => {
-          $("#r" + x).value = ENV[x];
-          $("#v" + x).textContent = ENV[x];
-        });
-      }
-      $("#wf").onclick = (e) => {
-        const v = e.target.dataset.v;
-        if (v) {
-          WV = v;
-          ws();
-        }
-      };
-      ["a", "d", "s", "r"].forEach(
-        (x) =>
-          ($("#r" + x).oninput = (e) => {
-            ENV[x] = +e.target.value;
-            ws();
-          }),
-      );
-      $("#pr").innerHTML = PR.map(
-        ([n], i) => `<button data-i="${i}">${n}</button>`,
-      ).join("");
-      $("#pr").onclick = (e) => {
-        const p = PR[e.target.dataset.i];
-        if (p) {
-          WV = p[1];
-          [ENV.a, ENV.d, ENV.s, ENV.r] = p.slice(2);
-          ws();
-        }
-      };
-      $("#ps").onclick = () =>
-        play(
-          ["C", "Am", "F", "G"].map((n) => notes(n)),
-          0,
-          1.4,
-        );
-      ws();
+<h3 style="margin-top:1.4em">B. Efectos esenciales: espacio, movimiento y profundidad</h3>
+<p>Un sonido seco y sin efectos suena plano y digital: los efectos le dan contexto dimensional. La <b>reverb</b> recrea las reflexiones de las ondas sonoras rebotando en paredes, techo y suelo de una habitación.</p>
+<div class="grid">
+<div class="cd"><h4>Prueba la reverb · pre-delay y cola</h4><svg id="rvv" viewBox="0 0 300 70" class="kb" style="max-width:100%" role="img" aria-label="Pre-delay y cola de la reverb"></svg><div id="fxr"></div><div class="row" id="fxp"></div><button id="pfx">▶ Escuchar C – Am – F – G</button><p class="mut">Los efectos de esta sección actúan sobre los acordes del sintetizador (no sobre la guitarra ni la batería).</p></div>
+<div class="cd"><h4>Cómo se usa</h4><ul>
+<li><b>Pre-delay (10–30 ms):</b> el pequeño retraso antes de que empiece la cola. Con 0 ms la reverb se traga el ataque del acorde y la interpretación pierde definición rítmica; con unos 20 ms pasa primero el golpe seco de la nota y luego llega el espacio.</li>
+<li><b>Decay / RT60:</b> duración de la cola. <i>Placa o room (0,8–1,5 s)</i>: pianos rítmicos, pop dinámico o funk; da presencia sin ensuciar el siguiente acorde. <i>Hall o ambient (2,5–4 s)</i>: baladas lentas, intros ambientales y música cinematográfica, donde los acordes flotan.</li>
+<li><b>Wet / Dry:</b> dry es el sonido original limpio; wet, la señal procesada. En un piano principal mantén el wet entre un 15 % y un 30 % para no alejarlo al fondo de la mezcla.</li></ul></div></div>
 
-      (() => {
-        const DG = [
-          "1",
-          "♭2",
-          "2",
-          "♭3",
-          "3",
-          "4",
-          "♯4",
-          "5",
-          "♭6",
-          "6",
-          "♭7",
-          "7",
-        ];
-        const TU = [
-          ["Estándar (E A D G B e)", [40, 45, 50, 55, 59, 64]],
-          ["Drop D", [38, 45, 50, 55, 59, 64]],
-          ["Medio tono abajo", [39, 44, 49, 54, 58, 63]],
-          ["DADGAD", [38, 45, 50, 55, 57, 62]],
-          ["Open G", [38, 43, 50, 55, 59, 62]],
-          ["Open D", [38, 45, 50, 54, 57, 62]],
-        ];
-        const SCL = [
-          ["Mayor", [0, 2, 4, 5, 7, 9, 11]],
-          ["Menor natural", [0, 2, 3, 5, 7, 8, 10]],
-          ["Pentatónica menor", [0, 3, 5, 7, 10]],
-          ["Pentatónica mayor", [0, 2, 4, 7, 9]],
-          ["Blues", [0, 3, 5, 6, 7, 10]],
-          ["Dórico", [0, 2, 3, 5, 7, 9, 10]],
-          ["Mixolidio", [0, 2, 4, 5, 7, 9, 10]],
-          ["Frigio", [0, 1, 3, 5, 7, 8, 10]],
-        ];
-        const CQ = [
-          ["Mayor", "", [0, 4, 7]],
-          ["Menor", "m", [0, 3, 7]],
-          ["Séptima (7)", "7", [0, 4, 7, 10]],
-          ["Menor 7 (m7)", "m7", [0, 3, 7, 10]],
-          ["Mayor 7 (maj7)", "maj7", [0, 4, 7, 11]],
-        ];
-        const S = {
-            tu: 0,
-            capo: 0,
-            mode: 1,
-            root: 0,
-            sc: 0,
-            cq: 0,
-            lab: 0,
-            sel: null,
-          },
-          NF = 15,
-          X = (f) => 56 + 1500 * (1 - 2 ** (-f / 12)),
-          CX = (f) => (f ? (X(f - 1) + X(f)) / 2 : 30),
-          Y = (s) => 34 + (5 - s) * 34;
-        function shp() {
-          if (S.tu) return null;
-          const q = CQ[S.cq][1],
-            n = FL[S.root] + q;
-          if (OP[n]) return OP[n];
-          const e = (S.root + 8) % 12,
-            a = (S.root + 3) % 12,
-            t = a < e ? [TA[q], a] : [TE[q], e];
-          return t[0].map((x) => (x < 0 ? x : x + t[1]));
-        }
-        function pl(m, t = 0) {
-          AC = AC || new (window.AudioContext || window.webkitAudioContext)();
-          if (AC.state == "suspended") AC.resume();
-          const f = 440 * 2 ** ((m - 69) / 12),
-            sr = AC.sampleRate,
-            n = (sr * 2) | 0,
-            p = Math.max(2, Math.round(sr / f)),
-            b = AC.createBuffer(1, n, sr),
-            d = b.getChannelData(0);
-          for (let i = 0; i < p; i++) d[i] = Math.random() * 2 - 1;
-          for (let i = p + 1; i < n; i++)
-            d[i] = 0.4985 * (d[i - p] + d[i - p - 1]);
-          const o = AC.createBufferSource(),
-            g = AC.createGain();
-          g.gain.value = 0.5;
-          o.buffer = b;
-          o.connect(g);
-          g.connect(AC.destination);
-          o.start(AC.currentTime + t);
-        }
-        const mark = (s, f, t, k) =>
-          `<circle cx="${CX(f)}" cy="${Y(s)}" r="11" class="${k}"/><text x="${CX(f)}" y="${Y(s) + 4}" class="${k == "rt" ? "xw" : "xt"}">${t}</text>`;
-        function draw() {
-          const T = TU[S.tu][1],
-            c = S.capo;
-          let g = `<rect x="56" y="18" width="${X(NF) - 56}" height="168" class="wood"/>`;
-          for (let f = 1; f <= NF; f++)
-            g += `<line x1="${X(f)}" y1="18" x2="${X(f)}" y2="186" class="fr"/><text x="${CX(f)}" y="206" class="xf">${f}</text>`;
-          g += `<line x1="56" y1="18" x2="56" y2="186" class="nut"/>`;
-          [3, 5, 7, 9, 15].forEach(
-            (f) => (g += `<circle cx="${CX(f)}" cy="102" r="5" class="mk"/>`),
-          );
-          [68, 136].forEach(
-            (v) => (g += `<circle cx="${CX(12)}" cy="${v}" r="5" class="mk"/>`),
-          );
-          for (let s = 0; s < 6; s++)
-            g += `<line x1="56" y1="${Y(s)}" x2="${X(NF)}" y2="${Y(s)}" class="st" stroke-width="${1 + s * 0.35}"/>`;
-          if (c)
-            g += `<rect x="0" y="14" width="${X(c) - 12}" height="176" class="dim"/><rect x="${X(c) - 12}" y="12" width="9" height="180" rx="4" class="cap"/>`;
-          for (let s = 0; s < 6; s++)
-            g += `<text x="10" y="${Y(s) + 4}" class="xs">${N[(T[s] + c) % 12]}</text>`;
-          if (S.mode == 1) {
-            const st = SCL[S.sc][1];
-            for (let s = 0; s < 6; s++)
-              for (let f = c; f <= NF; f++) {
-                const m = T[s] + f,
-                  iv = (m - S.root + 120) % 12;
-                if (st.includes(iv))
-                  g += mark(s, f, S.lab ? DG[iv] : N[m % 12], iv ? "nt" : "rt");
-              }
-          } else if (S.mode == 2) {
-            const sh = shp();
-            if (sh) {
-              const sr = (S.root + c) % 12;
-              sh.forEach((r, s) => {
-                if (r < 0) {
-                  g += `<text x="30" y="${Y(s) + 4}" class="xf">✕</text>`;
-                  return;
-                }
-                const a = r ? r + c : c;
-                if (a > NF) return;
-                const iv = (T[s] + a - sr + 120) % 12;
-                g += mark(
-                  s,
-                  a,
-                  S.lab ? DG[iv] : N[(T[s] + a) % 12],
-                  r ? (iv ? "nt" : "rt") : "ho",
-                );
-              });
-            }
-          }
-          if (S.sel) {
-            const { s, f } = S.sel;
-            if (S.mode == 0) g += mark(s, f, N[(T[s] + f) % 12], "rt");
-            g += `<circle cx="${CX(f)}" cy="${Y(s)}" r="15" class="ring"/>`;
-          }
-          for (let s = 0; s < 6; s++)
-            for (let f = c; f <= NF; f++) {
-              const x = f ? X(f - 1) : 4,
-                w = f ? X(f) - X(f - 1) : 52;
-              g += `<rect x="${x}" y="${Y(s) - 17}" width="${w}" height="34" fill="transparent" data-s="${s}" data-f="${f}"/>`;
-            }
-          $("#fb").innerHTML = `<svg viewBox="0 0 960 216">${g}</svg>`;
-          inf();
-          rdo();
-        }
-        function rdo() {
-          const T = TU[S.tu][1];
-          if (!S.sel) {
-            $("#frd").textContent = "Toca un traste para oírlo.";
-            return;
-          }
-          const { s, f } = S.sel,
-            m = T[s] + f;
-          $("#frd").textContent =
-            `Cuerda ${6 - s} · ${f ? "traste " + f : "al aire"} → ${N[m % 12]}${Math.floor(m / 12) - 1}`;
-        }
-        function inf() {
-          let t = "Modo libre: toca cualquier casilla del mástil.";
-          if (S.mode == 1)
-            t = `<b>${N[S.root]} ${SCL[S.sc][0]}</b>: ${SCL[S.sc][1].map((i) => N[(S.root + i) % 12]).join(" – ")}`;
-          else if (S.mode == 2) {
-            if (S.tu)
-              t =
-                "Las formas de acorde están pensadas para la afinación estándar.";
-            else {
-              const q = CQ[S.cq],
-                sr = (S.root + S.capo) % 12;
-              t =
-                `<b>Forma de ${dn(FL[S.root] + q[1])}</b>` +
-                (S.capo
-                  ? ` con capo en el traste ${S.capo}: suena ${dn(FL[sr] + q[1])}`
-                  : "") +
-                ` — notas: ${q[2].map((i) => N[(sr + i) % 12]).join(" – ")}`;
-            }
-          }
-          $("#finf").innerHTML = t;
-        }
-        function ui() {
-          $("#fgr").hidden = S.mode == 0;
-          $("#fgs").hidden = S.mode != 1;
-          $("#fgq").hidden = S.mode != 2;
-          $("#fact").hidden = S.mode == 0;
-          $("#fact").textContent = S.mode == 1 ? "▶ Tocar escala" : "▶ Rasgueo";
-          document
-            .querySelectorAll("#fm button")
-            .forEach((b) => b.classList.toggle("on", +b.dataset.m == S.mode));
-        }
-        const opt = (a, f) =>
-          a.map((x, i) => `<option value="${i}">${f(x, i)}</option>`).join("");
-        $("#ftu").innerHTML = opt(TU, (x) => x[0]);
-        $("#fcp").innerHTML = opt([...Array(8)], (_, i) =>
-          i ? "Traste " + i : "Sin capo",
-        );
-        $("#frt").innerHTML = opt(N, (x) => x);
-        $("#fsc").innerHTML = opt(SCL, (x) => x[0]);
-        $("#fcq").innerHTML = opt(CQ, (x) => x[0]);
-        const bind = (id, k, r) =>
-          ($(id).onchange = (e) => {
-            S[k] = +e.target.value;
-            if (r) S.sel = null;
-            draw();
-          });
-        bind("#ftu", "tu", 1);
-        bind("#fcp", "capo", 1);
-        bind("#frt", "root");
-        bind("#fsc", "sc");
-        bind("#fcq", "cq");
-        bind("#flb", "lab");
-        $("#fm").onclick = (e) => {
-          const m = e.target.dataset.m;
-          if (m != null) {
-            S.mode = +m;
-            S.sel = null;
-            ui();
-            draw();
-          }
-        };
-        $("#fb").onclick = (e) => {
-          const r = e.target.closest("[data-s]");
-          if (!r) return;
-          const s = +r.dataset.s,
-            f = +r.dataset.f;
-          S.sel = { s, f };
-          pl(TU[S.tu][1][s] + f);
-          draw();
-        };
-        $("#fact").onclick = () => {
-          if (S.mode == 1) {
-            const b = 40 + ((S.root + 8) % 12);
-            SCL[S.sc][1].concat(12).forEach((i, k) => pl(b + i, k * 0.28));
-          } else if (S.mode == 2) {
-            const f = shp();
-            if (f)
-              f.forEach((r, s) => {
-                if (r >= 0)
-                  pl(TU[0][1][s] + (r ? r + S.capo : S.capo), s * 0.05);
-              });
-          }
-        };
-        ui();
-        draw();
-        /* Práctica de dedos */
-        const PC = [
-          ["Em", [0, 2, 2, 0, 0, 0], [0, 2, 3, 0, 0, 0], "Mi menor"],
-          ["Am", [-1, 0, 2, 2, 1, 0], [0, 0, 2, 3, 1, 0], "La menor"],
-          ["E", [0, 2, 2, 1, 0, 0], [0, 2, 3, 1, 0, 0], "Mi mayor"],
-          ["A", [-1, 0, 2, 2, 2, 0], [0, 0, 1, 2, 3, 0], "La mayor"],
-          ["D", [-1, -1, 0, 2, 3, 2], [0, 0, 0, 1, 3, 2], "Re mayor"],
-          ["C", [-1, 3, 2, 0, 1, 0], [0, 3, 2, 0, 1, 0], "Do mayor"],
-          ["G", [3, 2, 0, 0, 0, 3], [2, 1, 0, 0, 0, 3], "Sol mayor"],
-          ["Dm", [-1, -1, 0, 2, 3, 1], [0, 0, 0, 2, 3, 1], "Re menor"],
-          ["G7", [3, 2, 0, 0, 0, 1], [3, 2, 0, 0, 0, 1], "Sol séptima"],
-          [
-            "F",
-            [1, 3, 3, 2, 1, 1],
-            [1, 3, 4, 2, 1, 1],
-            "Fa mayor (con cejilla)",
-          ],
-        ];
-        const FC = ["", "#f97316", "#ec4899", "#8b5cf6", "#0ea5e9"],
-          FN = ["", "Índice", "Medio", "Anular", "Meñique"],
-          T0 = TU[0][1];
-        const P2 = {
-          ci: 0,
-          fi: 1,
-          m: Array(6).fill(null),
-          mu: Array(6).fill(false),
-          bad: [],
-          hint: 0,
-        };
-        function msg(t, ok) {
-          $("#pmm").textContent = t;
-          $("#pmm").className = ok ? "ok" : "";
-        }
-        function rs() {
-          P2.m = Array(6).fill(null);
-          P2.mu = Array(6).fill(false);
-          P2.bad = [];
-          P2.hint = 0;
-          msg("Elige un dedo, toca una casilla del mástil y pulsa Comprobar.");
-          pv();
-        }
-        function pv() {
-          const [nm, fr, fi] = PC[P2.ci];
-          $("#pmt").innerHTML = `Forma <b>${dn(nm)}</b> — ${PC[P2.ci][3]}`;
-          let g = `<rect x="24" y="50" width="302" height="350" class="wood"/>`;
-          P2.bad.forEach(
-            (s) =>
-              (g += `<rect x="${50 + s * 52 - 26}" y="4" width="52" height="400" rx="8" fill="#dc2626" opacity=".18"/>`),
-          );
-          for (let r = 0; r <= 5; r++)
-            g += `<line x1="24" y1="${50 + r * 70}" x2="326" y2="${50 + r * 70}" class="${r ? "fr" : "nut"}"/>`;
-          for (let r = 1; r <= 5; r++)
-            g += `<text x="12" y="${50 + r * 70 - 30}" class="xf">${r}</text>`;
-          for (let s = 0; s < 6; s++) {
-            const x = 50 + s * 52;
-            g += `<line x1="${x}" y1="50" x2="${x}" y2="400" class="st" stroke-width="${1 + (5 - s) * 0.4}"/><text x="${x}" y="426" class="xs">${"EADGBe"[s]}</text>`;
-            const e = fr[s],
-              p = P2.m[s];
-            if (P2.hint && e <= 0)
-              g += `<text x="${x}" y="34" class="xh" style="fill:var(--acc)">${e < 0 ? "✕" : "○"}</text>`;
-            else if (!p && !(P2.hint && e > 0))
-              g += `<text x="${x}" y="34" class="xh">${P2.mu[s] ? "✕" : "○"}</text>`;
-            if (P2.hint && e > 0)
-              g += `<circle cx="${x}" cy="${50 + (e - 1) * 70 + 35}" r="22" class="gh"/><text x="${x}" y="${50 + (e - 1) * 70 + 42}" class="xt" style="font-size:18px">${fi[s]}</text>`;
-            if (p)
-              g += `<circle cx="${x}" cy="${50 + (p.f - 1) * 70 + 35}" r="22" fill="${FC[p.fi]}"/><text x="${x}" y="${50 + (p.f - 1) * 70 + 42}" class="xw" style="font-size:18px">${p.fi}</text>`;
-          }
-          for (let s = 0; s < 6; s++) {
-            g += `<rect x="${50 + s * 52 - 26}" y="0" width="52" height="48" fill="transparent" data-h="${s}"/>`;
-            for (let r = 1; r <= 5; r++)
-              g += `<rect x="${50 + s * 52 - 26}" y="${50 + (r - 1) * 70}" width="52" height="70" fill="transparent" data-s="${s}" data-r="${r}"/>`;
-          }
-          $("#pmv").innerHTML = g;
-        }
-        $("#pmv").onclick = (e) => {
-          const t = e.target;
-          P2.bad = [];
-          if (t.dataset.h != null) {
-            const s = +t.dataset.h;
-            P2.m[s] = null;
-            P2.mu[s] = !P2.mu[s];
-          } else if (t.dataset.r != null) {
-            const s = +t.dataset.s,
-              r = +t.dataset.r,
-              p = P2.m[s];
-            if (p && p.f == r) P2.m[s] = null;
-            else {
-              const fi = P2.fi;
-              if (fi > 1) P2.m = P2.m.map((q) => (q && q.fi == fi ? null : q));
-              P2.m[s] = { f: r, fi };
-              P2.mu[s] = false;
-              pl(T0[s] + r);
-            }
-          }
-          msg("");
-          pv();
-        };
-        function fgs() {
-          $("#pmf").innerHTML = [1, 2, 3, 4]
-            .map(
-              (i) =>
-                `<button class="fg${P2.fi == i ? " on" : ""}" data-f="${i}" style="--c:${FC[i]}"><b>${i}</b><small>${FN[i]}</small></button>`,
-            )
-            .join("");
-        }
-        $("#pmf").onclick = (e) => {
-          const b = e.target.closest("[data-f]");
-          if (b) {
-            P2.fi = +b.dataset.f;
-            fgs();
-          }
-        };
-        $("#pmc").innerHTML = opt(PC, (x) => `${x[0]} · ${x[3]}`);
-        $("#pmc").onchange = (e) => {
-          P2.ci = +e.target.value;
-          rs();
-        };
-        $("#pmn").onclick = () => {
-          P2.ci = (P2.ci + 1) % PC.length;
-          $("#pmc").value = P2.ci;
-          rs();
-        };
-        $("#pml").onclick = rs;
-        $("#pmh").onclick = () => {
-          P2.hint = 1 - P2.hint;
-          pv();
-        };
-        const strum = (fr) =>
-          fr.forEach((e, s) => {
-            if (e >= 0) pl(T0[s] + e, s * 0.05);
-          });
-        $("#pms").onclick = () => strum(PC[P2.ci][1]);
-        $("#pmk").onclick = () => {
-          const [nm, fr, fi] = PC[P2.ci],
-            bad = [];
-          for (let s = 0; s < 6; s++) {
-            const e = fr[s],
-              p = P2.m[s];
-            if (
-              e < 0 ? p || !P2.mu[s] : e == 0 ? p || P2.mu[s] : !p || p.f != e
-            )
-              bad.push(s);
-          }
-          P2.bad = bad;
-          pv();
-          if (bad.length) {
-            msg(
-              `Casi: revisa las cuerdas en rojo (${bad.map((s) => 6 - s).join(", ")}). Marca con ✕ las que no se tocan.`,
-            );
-            return;
-          }
-          const wf = [];
-          fr.forEach((e, s) => {
-            if (e > 0 && P2.m[s].fi != fi[s])
-              wf.push(`cuerda ${6 - s}: dedo ${fi[s]}`);
-          });
-          msg(
-            wf.length
-              ? `✓ ¡Posición correcta! Para más comodidad usa ${wf.join("; ")}.`
-              : `✓ ¡Perfecto! Así se toca ${dn(nm)}.`,
-            1,
-          );
-          strum(fr);
-        };
-        $("#fpm").onclick = () => {
-          $("#pm").hidden = false;
-          document.body.style.overflow = "hidden";
-          try {
-            $("#pm").requestFullscreen &&
-              $("#pm")
-                .requestFullscreen()
-                .catch(() => {});
-          } catch (e) {}
-          fgs();
-          rs();
-        };
-        const cl = () => {
-          $("#pm").hidden = true;
-          document.body.style.overflow = "";
-          try {
-            document.fullscreenElement && document.exitFullscreen();
-          } catch (e) {}
-        };
-        $("#pmx").onclick = cl;
-        document.addEventListener("keydown", (e) => {
-          if (e.key == "Escape" && !$("#pm").hidden) cl();
-        });
-      })();
+<h3 style="margin-top:1.4em">C. Arquitectura de un sintetizador sustractivo: ¿cómo nace el sonido?</h3>
+<p>La síntesis sustractiva funciona como una escultura: partes de una onda con un contenido armónico enorme (la piedra) y la recortas con un filtro (el cincel) hasta obtener la forma deseada.</p>
+<div class="row" style="font-weight:700"><span class="box" style="margin:0;text-align:center">Oscilador<br><small class="mut">genera la forma de onda</small></span>→<span class="box" style="margin:0;text-align:center">Filtro (VCF)<br><small class="mut">corta agudos o graves</small></span>→<span class="box" style="margin:0;text-align:center">Amplificador (VCA)<br><small class="mut">volumen y forma ADSR</small></span></div>
+<div class="grid">
+<div class="cd"><h4>1. Osciladores · tu materia prima</h4><div class="row" id="wf"></div><svg viewBox="0 0 300 80" class="kb" id="wsv"></svg>
+<ul><li><b>Seno:</b> la onda más pura, sin armónicos superiores: un sonido redondo y sordo. Sub-bajos profundos, flautas sintéticas y tonos de prueba.</li>
+<li><b>Sierra:</b> contiene todos los armónicos (pares e impares): rica, brillante, afilada y agresiva. Reina de los leads, de los colchones de cuerdas del synth-pop de los 80 y de los bajos gruesos con distorsión.</li>
+<li><b>Cuadrada:</b> solo armónicos impares; timbre hueco y nasal. Bajos de videojuego retro (8 bits), sonidos tipo clarinete y bajos oscuros de synthwave.</li>
+<li><b>Triangular:</b> muy pocos armónicos; un punto medio cálido entre el seno y la cuadrada. Bajos suaves y orgánicos, y emulaciones sencillas de pianos eléctricos vintage.</li></ul></div>
+<div class="cd"><h4>2. Envolvente ADSR · el volumen en el tiempo</h4><div class="row" id="pr"></div><svg viewBox="0 0 300 80" class="kb" id="env"></svg>
+<label class="mut" style="display:block">Attack <b id="va"></b> s<input type="range" id="ra" min="0.005" max="2" step="0.005" style="width:100%"></label>
+<label class="mut" style="display:block">Decay <b id="vd"></b> s<input type="range" id="rd" min="0.01" max="2" step="0.01" style="width:100%"></label>
+<label class="mut" style="display:block">Sustain <b id="vs"></b><input type="range" id="rs" min="0" max="1" step="0.01" style="width:100%"></label>
+<label class="mut" style="display:block">Release <b id="vr"></b> s<input type="range" id="rr" min="0.05" max="3" step="0.01" style="width:100%"></label>
+<ul><li><b>Attack:</b> cuánto tarda en pasar de cero al volumen máximo. Corto (0,01 s): el sonido explota, ideal para pianos, percusiones y bajos. Largo (1 s o más): aparece como una ola que crece, ideal para pads y colchones de acordes.</li>
+<li><b>Decay:</b> cuánto tarda en bajar del pico al nivel de sostén.</li>
+<li><b>Sustain:</b> no es un tiempo sino un nivel de volumen (0–100 %) que se mantiene mientras la tecla sigue presionada.</li>
+<li><b>Release:</b> cuánto tarda en extinguirse al soltar la tecla. Un release largo deja una cola persistente muy elegante en las baladas.</li></ul>
+<button id="ps">▶ Probar con C – Am – F – G</button></div></div>
 
-      (() => {
-        const TR = [
-          "Kick",
-          "Caja / Clap",
-          "Hat cerrado",
-          "Hat abierto",
-          "Conga",
-        ];
-        const GN = [
-          [
-            "House / four-on-the-floor",
-            124,
-            0,
-            [
-              "x...x...x...x...",
-              "....x.......x...",
-              "................",
-              "..x...x...x...x.",
-              "................",
-            ],
-            ["Am7", "Dm7", "Am7", "Dm7"],
-            "Sirve también para techno, synthwave y disco. Kick en los 4 tiempos; clap o caja en el 2 y el 4 (backbeat); hi-hat abierto en el contratiempo (las “y”), la clave del groove house. Los toms casi no van en el patrón: se colocan al final del compás 4 u 8 como fill descendente (agudo → medio → grave) para avisar un cambio de sección.",
-          ],
-          [
-            "Boom bap / hip-hop clásico",
-            90,
-            20,
-            [
-              "x......x.x......",
-              "....x.......x...",
-              "x.x.x.x.x.x.x.x.",
-              "................",
-              "................",
-            ],
-            ["Dm7", "G7", "Cmaj7", "A7"],
-            "Ritmo sincopado con swing. El kick va en el 1, con un segundo kick desplazado antes del 3; la caja es seca y pesada en el 2 y el 4. Congas o bongós en los huecos libres dan textura orgánica.",
-          ],
-          [
-            "Trap / drill",
-            140,
-            0,
-            [
-              "x..x......x.....",
-              "........x.......",
-              "xxxxxxxxxxxxxxxx",
-              "................",
-              "................",
-            ],
-            ["Am", "G", "F", "E"],
-            "130–160 BPM en medio tiempo, dominado por el sub-bajo 808. La caja o el clap cae en el tercer tiempo, no en el 2 y el 4. Los hi-hats llevan el peso creativo: de corcheas a ráfagas de semicorcheas o fusas con pitch rolls. Los rimshots acentúan contra-ritmos antes de la caja.",
-          ],
-          [
-            "Reggaetón / dembow",
-            95,
-            0,
-            [
-              "x...x...x...x...",
-              "...x.x.....x.x..",
-              "................",
-              "................",
-              "................",
-            ],
-            ["C", "G", "Am", "F"],
-            "Kick en los cuatro tiempos y caja, palo o rimshot en un patrón sincopado (el dembow) que da el vaivén característico. Congas y woodblocks rellenan con percusión seca.",
-          ],
-          [
-            "Afrobeat / pop latino",
-            105,
-            0,
-            [
-              "x.....x.....x...",
-              "................",
-              "xxxxxxxxxxxxxxxx",
-              "................",
-              "..x.x..x..x.x..x",
-            ],
-            ["Am", "F", "G", "G"],
-            "Polirritmia orgánica: las congas usan el tumbao (golpe abierto + palma o dedo) en lugar de una caja pesada, y el shaker mantiene el pulso. Las claves marcan el marco temporal (3-2 o 2-3), y los toms se afinan melódicamente para construir el patrón junto al kick.",
-          ],
-          [
-            "Rock / pop",
-            110,
-            0,
-            [
-              "x.......x.......",
-              "....x.......x...",
-              "x.x.x.x.x.x.x.x.",
-              "................",
-              "................",
-            ],
-            ["C", "Bb", "F", "C"],
-            "Kick orgánico en el 1 y el 3 (en el pop bailable, en los cuatro tiempos) y caja brillante en el 2 y el 4. Los toms son la clave de los breaks y fills (del tom agudo al floor tom); el crash abre cada sección y el ride lleva el pulso en las partes intensas.",
-          ],
-        ];
-        let gi = 0,
-          G = [],
-          on = 0,
-          step = 0,
-          bar = 0,
-          bs = 0,
-          tm,
-          NB;
-        const $$$ = (s) => document.querySelectorAll(s);
-        function ac() {
-          AC = AC || new (window.AudioContext || window.webkitAudioContext)();
-          if (AC.state == "suspended") AC.resume();
-          if (!NB) {
-            NB = AC.createBuffer(1, AC.sampleRate, AC.sampleRate);
-            const d = NB.getChannelData(0);
-            for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-          }
-        }
-        function drum(r, t) {
-          const g = AC.createGain();
-          g.connect(AC.destination);
-          if (r == 0 || r == 4) {
-            const o = AC.createOscillator(),
-              k = r == 0;
-            o.frequency.setValueAtTime(k ? 150 : 260, t);
-            o.frequency.exponentialRampToValueAtTime(
-              k ? 42 : 190,
-              t + (k ? 0.12 : 0.1),
-            );
-            g.gain.setValueAtTime(k ? 0.9 : 0.4, t);
-            g.gain.exponentialRampToValueAtTime(0.001, t + (k ? 0.35 : 0.18));
-            o.connect(g);
-            o.start(t);
-            o.stop(t + 0.4);
-            return;
-          }
-          const n = AC.createBufferSource(),
-            f = AC.createBiquadFilter(),
-            d = r == 1 ? 0.2 : r == 2 ? 0.05 : 0.3;
-          n.buffer = NB;
-          f.type = r == 1 ? "bandpass" : "highpass";
-          f.frequency.value = r == 1 ? 1800 : 7000;
-          g.gain.setValueAtTime(r == 1 ? 0.7 : 0.25, t);
-          g.gain.exponentialRampToValueAtTime(0.001, t + d);
-          n.connect(f);
-          f.connect(g);
-          n.start(t);
-          n.stop(t + d + 0.05);
-          if (r == 1) {
-            const o = AC.createOscillator(),
-              h = AC.createGain();
-            o.type = "triangle";
-            o.frequency.setValueAtTime(200, t);
-            h.gain.setValueAtTime(0.3, t);
-            h.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-            o.connect(h);
-            h.connect(AC.destination);
-            o.start(t);
-            o.stop(t + 0.12);
-          }
-        }
-        function cur(k) {
-          $$$("#bgrid .cl").forEach((c) =>
-            c.classList.toggle("cur", +c.dataset.k == k),
-          );
-        }
-        function sched() {
-          const bpm = +$("#bt").value,
-            sw = $("#bs").value / 100,
-            sd = 60 / bpm / 4;
-          while (bs + step * sd < AC.currentTime + 0.15) {
-            const st = step,
-              t = bs + st * sd + (st % 2 ? sw * sd : 0);
-            G.forEach((row, r) => {
-              if (row[st]) drum(r, t);
-            });
-            if (!st && $("#bc").checked)
-              notes(GN[gi][4][bar % 4]).forEach((n) =>
-                tone(261.63 * 2 ** ((n - 12) / 12), t, sd * 15),
-              );
-            setTimeout(
-              () => on && cur(st),
-              Math.max(0, (t - AC.currentTime) * 1000),
-            );
-            if (++step == 16) {
-              step = 0;
-              bs += 16 * sd;
-              bar++;
-            }
-          }
-        }
-        function stop() {
-          on = 0;
-          clearInterval(tm);
-          $("#bp").textContent = "▶ Reproducir";
-          cur(-1);
-        }
-        function load(i) {
-          gi = i;
-          const g = GN[i];
-          G = g[3].map((r) => [...r].map((c) => c == "x"));
-          $("#bt").value = g[1];
-          $("#bs").value = g[2];
-          lab();
-          $("#bg").innerHTML = GN.map(
-            (x, j) =>
-              `<button data-i="${j}" class="${j == i ? "on" : ""}">${x[0]}</button>`,
-          ).join("");
-          $("#bn").innerHTML = `<b>${g[0]}.</b> ${g[5]}`;
-          $("#bch").textContent =
-            `Acordes (un compás cada uno): ${g[4].map(dn).join(" – ")}`;
-          $("#bgrid").innerHTML = TR.map(
-            (n, r) =>
-              `<span class="bl">${n}</span>` +
-              G[r]
-                .map(
-                  (v, k) =>
-                    `<button class="cl${v ? " on" : ""}${k % 4 ? "" : " b"}" data-r="${r}" data-k="${k}" aria-label="${n}, semicorchea ${k + 1}"></button>`,
-                )
-                .join(""),
-          ).join("");
-        }
-        function lab() {
-          $("#bv").textContent = $("#bt").value;
-          $("#bw").textContent = $("#bs").value;
-        }
-        $("#bg").onclick = (e) => {
-          const i = e.target.dataset.i;
-          if (i != null) load(+i);
-        };
-        $("#bgrid").onclick = (e) => {
-          const b = e.target.closest(".cl");
-          if (!b) return;
-          const r = +b.dataset.r,
-            k = +b.dataset.k;
-          G[r][k] = !G[r][k];
-          b.classList.toggle("on", G[r][k]);
-          if (G[r][k] && !on) {
-            ac();
-            drum(r, AC.currentTime);
-          }
-        };
-        $("#bt").oninput = $("#bs").oninput = lab;
-        $("#bp").onclick = () => {
-          if (on) {
-            stop();
-            return;
-          }
-          ac();
-          on = 1;
-          step = 0;
-          bar = 0;
-          bs = AC.currentTime + 0.08;
-          $("#bp").textContent = "■ Detener";
-          tm = setInterval(sched, 25);
-          sched();
-        };
-        $("#bx").onclick = () => {
-          G = G.map((r) => r.map(() => false));
-          $$$("#bgrid .cl").forEach((c) => c.classList.remove("on"));
-        };
-        const CD = [
-          [
-            "Lo-fi (hip-hop, chill, study)",
-            "Dm7 G7 Cmaj7 A7",
-            "Acordes de jazz extendidos (maj7, m9, dominante 11, add9) con conducción de voces muy suave. Progresiones cíclicas y nostálgicas, por ejemplo ii7 – V7 – Imaj7 – VI7.",
-            "Kick profundo y comprimido, de low-end cálido. Caja o rimshot apagado en el 2 y el 4, algo corrido del pulso exacto para sonar humano. Hi-hats lentos con crackle de vinilo y lluvia; sin toms agresivos, a lo sumo shakers o madera de fondo.",
-          ],
-          [
-            "House (deep, tech, progressive)",
-            "Am7 Dm7 Am7 Dm7",
-            "Stabs de piano eléctrico (Rhodes, Wurlitzer) o de sintetizador tipo órgano M1. Acordes de 4 notas con inversiones limpias que entran a contratiempo.",
-            "Four-on-the-floor limpio, con el bajo comprimido por sidechain cada vez que golpea el kick. Clap en el 2 y el 4 con capa brillante y reverb plate corta; hat cerrado en las “y” y hat abierto en el pulso débil para dar aire antes de los drops.",
-          ],
-          [
-            "Tribal / latin house",
-            "Am Bb Am Bb",
-            "Progresiones menores oscuras o modales (frigio, menor armónica), con una nota pedal repetida en el bajo mientras la armonía fluctúa.",
-            "Kick constante en 4/4, pero mandan las congas, bongós y tumbadoras con síncopas hiperactivas. Shakers, whistles y cowbells cortan en medios-altos para crear una atmósfera cálida y de alta energía.",
-          ],
-          [
-            "Electro / synthwave / cyberpunk",
-            "C Bb Am Ab",
-            "Progresiones oscuras, cinemáticas y épicas inspiradas en los 80, con modos eólico y dórico y tríadas con novena añadida.",
-            "Kick electrónico y pesado (estilo TR-808 o LinnDrum). Caja o clap con gated reverb para un sonido enorme y espacial; hats en semicorcheas mecánicas con paneos rápidos y rimshots sintéticos.",
-          ],
-          [
-            "Trap",
-            "Am G F E",
-            "Melodías oscuras y menores (armónicas o frigias) con flautas, pianos de cola tristes o bells con octavador y reversa.",
-            "El 808 manda y se desliza (glide) de nota en nota con saturación armónica. Caja o clap agudo y cortante en el tercer tiempo; hats rápidos e impredecibles, con tresillos y fusas programadas como rolls.",
-          ],
-          [
-            "Reggaetón / urbano",
-            "C G Am F",
-            "Progresiones pop de 4 acordes (I – vi – IV – V o variaciones menores) con plucks suaves, guitarras acústicas procesadas o pianos eléctricos modernos.",
-            "Kick en los cuatro tiempos y el patrón sincopado del dembow, que empuja el cuerpo adelante y atrás. Woodblocks, rimshots y percusión latina digital rellenan los huecos.",
-          ],
-          [
-            "Rock y pop",
-            "C Bb F C",
-            "Pop: I – V – vi – IV, con ganchos melódicos inmediatos. Rock: power chords (raíz y quinta), pentatónicas y modo mixolidio con el ♭VII (de Do mayor a Si bemol mayor) para un sonido crudo y de estadio.",
-            "Batería real: kick en el 1 y el 3 en el rock (cuatro tiempos en el pop bailable) y caja en el 2 y el 4. Los toms hacen los breaks y fills entre estrofa y coro; el crash abre secciones y el ride lleva el pulso en lo intenso.",
-          ],
-        ];
-        $("#bcards").innerHTML = CD.map(
-          ([t, ch, a, b]) =>
-            `<article class="cd"><h3>${t}</h3><div class="chips">${ch
-              .split(" ")
-              .map((x) => `<button class="ch" data-n="${x}">${dn(x)}</button>`)
-              .join(
-                "",
-              )}</div><p><b>Armonía.</b> ${a}</p><p><b>Beat.</b> ${b}</p><div class="v"></div></article>`,
-        ).join("");
-        load(0);
-      })();
-      $("#nav").innerHTML = [
-        ["s1", "Leer"],
-        ["s2", "Acordes"],
-        ["s3", "Catálogo"],
-        ["s4", "Inversiones"],
-        ["s5", "Ejercicio"],
-        ["s6", "Emociones"],
-        ["s7", "Consejos"],
-        ["s8", "Sonido"],
-        ["s9", "Trastes"],
-        ["s10", "Beats"],
-      ]
-        .map(([i, t]) => `<button data-go="${i}">${t}</button>`)
-        .join("");
-      $("#nav").onclick = (e) => {
-        const g = e.target.dataset.go;
-        if (g)
-          document.getElementById(g).scrollIntoView({ behavior: "smooth" });
-      };
-    </script>
-  </body>
-</html>
+<h3 style="margin-top:1.4em">D. Controladores MIDI y el flujo en tu DAW</h3>
+<p>Cuando tocas un controlador MIDI (un teclado maestro o una interfaz) <b>no generas audio</b>: envías ceros y unos, mensajes de datos, a la computadora. El sonido lo produce después el instrumento virtual que elijas.</p>
+<h4>¿Qué viaja por el cable MIDI?</h4>
+<ul><li><b>Note On / Note Off:</b> qué tecla presionaste (por ejemplo C4) y, milisegundos después, cuándo la soltaste.</li>
+<li><b>Velocity (0–127):</b> con cuánta fuerza golpeaste la tecla. Una velocity de 15 toca un acorde casi en susurro, melancólico; una de 115 abre el filtro del sintetizador o hace que el piano suene percusivo, enérgico y brillante.</li>
+<li><b>Control Changes (CC):</b> canales continuos para perillas y ruedas. El CC1 (rueda de modulación) suele abrir el filtro, con lo que el sonido se vuelve más brillante, o introducir un vibrato gradual a medida que la subes con la mano izquierda. El pitch bend desafina las notas.</li></ul>
+<h4>Flujo de trabajo (Ableton, FL Studio, Logic, Reaper)</h4>
+<div class="grid">
+<div class="cd"><span class="tg">Paso 1</span><h3>Grabar la idea MIDI</h3><p>Toca tu progresión C – Am – F – G en el teclado controlador y grábala en un clip MIDI.</p></div>
+<div class="cd"><span class="tg">Paso 2</span><h3>Corrección quirúrgica</h3><p>Si una nota quedó fuera de tiempo, corrígela con un clic (<i>Quantize</i>). Si tocaste un Mi en vez de un Re, arrastra la nota en el piano roll sin volver a tocar toda la pieza.</p></div>
+<div class="cd"><span class="tg">Paso 3</span><h3>Cambiar el alma</h3><p>Como tu interpretación son datos MIDI y no audio fijo, puedes probar 50 instrumentos en segundos: empezar con un piano de cola, pasar a un sintetizador analógico de los 80 y terminar con cuerdas orquestales sin perder una sola nota.</p></div></div>
+
+<h2 id="s9">9. Simulador de trastes y práctica de dedos</h2>
+<p>Explora el mástil: toca cualquier casilla para oír la nota y muestra escalas o acordes sobre él. Cambia la afinación o pon un capo y mira cómo se mueve todo.</p>
+<div class="sim">
+<div class="seg" id="fm"><button data-m="0">Libre</button><button data-m="1" class="on">Escala</button><button data-m="2">Acorde</button></div>
+<div class="row">
+<label>Afinación <select id="ftu"></select></label>
+<label>Capo <select id="fcp"></select></label>
+<label id="fgr">Tónica <select id="frt"></select></label>
+<label id="fgs">Escala <select id="fsc"></select></label>
+<label id="fgq">Acorde <select id="fcq"></select></label>
+<label>Etiquetas <select id="flb"><option value="0">Notas</option><option value="1">Grados</option></select></label>
+<button id="fact">▶ Tocar escala</button></div>
+<div class="fb" id="fb" role="img" aria-label="Mástil de guitarra con 15 trastes"></div>
+<p id="frd" aria-live="polite"></p><p id="finf"></p></div>
+<div class="box hl"><h3>🖐 Práctica de dedos</h3><p>Un mástil vertical a pantalla completa: eliges un acorde, colocas tú mismo los dedos y la página te dice si está bien.</p><button id="fpm" class="on">Abrir práctica a pantalla completa</button></div>
+<ul><li><b>1.</b> Elige un dedo abajo (1 índice, 2 medio, 3 anular, 4 meñique) y toca la casilla donde va. Hay un dedo por cuerda; el índice puede repetirse para hacer una cejilla.</li>
+<li><b>2.</b> Toca el símbolo sobre cada cuerda para alternar ○ (al aire) y ✕ (no se toca).</li>
+<li><b>3.</b> Pulsa <i>Comprobar</i>: las cuerdas incorrectas se marcan en rojo. Si lo necesitas, <i>Pista</i> muestra la respuesta con los números de dedo.</li></ul>
+
+<h2 id="s10">10. Ritmo y percusión: beats por género</h2>
+<p>La percusión define la energía, la cadencia y el movimiento de un track. Cada elemento ocupa un lugar en el espectro de frecuencias y en el compás.</p>
+<div class="scroll"><table><tr><th>Instrumento</th><th>Función y rango</th><th>Mejor momento para usarlo</th></tr>
+<tr><td><b>Kick (bombo)</b></td><td>Cimiento grave (20–100 Hz): peso y pulso principal.</td><td>Inicio de los compases y acentos fuertes.</td></tr>
+<tr><td><b>Snare (caja)</b></td><td>Ancla de frecuencia media (200 Hz–2 kHz): responde al kick en los tiempos débiles (backbeat).</td><td>Tiempos 2 y 4 (o el 3 en trap).</td></tr>
+<tr><td><b>Clap (palmas)</b></td><td>Alternativa o capa de la caja.</td><td>Coros o secciones que piden más brillo.</td></tr>
+<tr><td><b>Hi-hat cerrado</b></td><td>Agudos (5–18 kHz): marca la subdivisión y el groove.</td><td>Estrofas, para mantener el control del tempo.</td></tr>
+<tr><td><b>Hi-hat abierto</b></td><td>Apertura de energía y elevación.</td><td>Contratiempo del coro, para dar soltura.</td></tr>
+<tr><td><b>Congas / bongós</b></td><td>Relleno orgánico en medios-agudos; síncopa y movimiento.</td><td>Afrobeat, salsa, funk y house, para llenar huecos.</td></tr>
+<tr><td><b>Toms</b></td><td>Percusión tonal dinámica (grave, medio, agudo).</td><td>Fills al final de 4 u 8 compases y build-ups antes de un drop.</td></tr>
+<tr><td><b>Rimshot / sidestick</b></td><td>Percusión suave de bajo impacto.</td><td>Estrofas tranquilas o baladas, donde una caja completa sería agresiva.</td></tr></table></div>
+<h3 style="margin-top:1.4em">Secuenciador de beats</h3>
+<p>Cada columna es una semicorchea; las líneas gruesas marcan los 4 tiempos del compás. Elige un género, activa o apaga casillas y juega con el tempo y el swing. Con “Con acordes” suena además una progresión, con el timbre que hayas elegido en la sección 8.</p>
+<div class="sim"><div class="seg" id="bg"></div>
+<div class="row"><button id="bp" class="on">▶ Reproducir</button>
+<label>Tempo <b id="bv"></b> BPM<input type="range" id="bt" min="60" max="180"></label>
+<label>Swing <b id="bw"></b> %<input type="range" id="bs" min="0" max="50"></label>
+<label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="bc"> Con acordes</label>
+<button id="bx">Limpiar</button></div>
+<div class="sq" id="bgrid"></div>
+<p class="mut" id="bch"></p></div>
+<div class="box hl" id="bn"></div>
+<h3 style="margin-top:1.4em">Notación del ritmo</h3>
+<p>Así se escribe el patrón en un pentagrama de percusión (una sola línea, un compás de 4/4). Elige una pista: cada casilla activa se convierte en una figura y la partitura cambia al editar la cuadrícula. Debajo de cada paso está el conteo en voz alta: 1 e y a, 2 e y a…</p>
+<div class="seg" id="nb"></div>
+<div class="fb"><svg id="nv" viewBox="0 0 640 120" style="min-width:560px;color:var(--fg)" role="img" aria-label="Pentagrama del patrón"></svg></div>
+<p class="mut">Cada golpe dura hasta el siguiente golpe del mismo pulso; si un golpe cruza al pulso siguiente, se corta ahí por simplicidad. Una casilla de la cuadrícula es una semicorchea.</p>
+<h4>Figuras y silencios</h4>
+<div id="fgz"></div>
+
+<h3 style="margin-top:1.4em">Armonía y percusión: la radiografía por género</h3>
+<p>Cada género combina un tipo de acordes con un tipo de beat. Toca los acordes para ver su teclado y su diapasón.</p>
+<div class="grid" id="bcards"></div>
+</main>
+<div id="pm" hidden role="dialog" aria-label="Práctica de dedos"><div class="pt"><button id="pmx">✕ Cerrar</button><b>Práctica de dedos</b><select id="pmc" aria-label="Acorde"></select></div>
+<div id="pmt"></div>
+<div class="pbody"><div class="pw"><svg id="pmv" viewBox="0 0 350 440" role="img" aria-label="Mástil vertical para colocar los dedos"></svg></div>
+<div class="pside"><div class="row" id="pmf"></div><p id="pmm"></p>
+<div class="row"><button id="pmk" class="on">Comprobar</button><button id="pmh">Pista</button><button id="pml">Limpiar</button><button id="pms">▶ Acorde</button><button id="pmn">Siguiente ▸</button></div></div></div></div>
+
+<script>
+const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
+const N=['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'],PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11},FL=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const IV={'':[0,4,7],m:[0,3,7],7:[0,4,7,10],m7:[0,3,7,10],maj7:[0,4,7,11],dim7:[0,3,6,9],m7b5:[0,3,6,10],sus4:[0,5,7],dim:[0,3,6]};
+const pc=s=>(PC[s[0]]+(s[1]=='#'?1:s[1]=='b'?-1:0)+12)%12;
+function parse(n){const m=n.match(/^([A-G][b#]?)([^\/]*)(?:\/([A-G][b#]?))?$/);return{r:pc(m[1]),q:m[2],b:m[3]?pc(m[3]):null}}
+const dn=n=>n.replace(/^([A-G])b/,'$1♭').replace(/\/([A-G])b/,'/$1♭').replace(/#/g,'♯').replace('b5','♭5');
+function notes(n,inv=0){const c=parse(n);let a=IV[c.q].map(i=>c.r+i);for(let i=0;i<inv;i++)a[i]+=12;a.sort((x,y)=>x-y);if(c.b!=null){let b=c.b;while(b>=a[0])b-=12;a.unshift(b)}return a}
+function kb(nt,lo,hi){lo=lo??Math.floor(Math.min(...nt)/12)*12;hi=hi??Math.ceil((Math.max(...nt)+1)/12)*12;const W=22,S=new Set(nt);let w='',b='',i=0;
+for(let s=lo;s<hi;s++){const p=((s%12)+12)%12,on=S.has(s);
+if([0,2,4,5,7,9,11].includes(p)){w+=`<rect x="${i*W}" y="0" width="${W}" height="84" class="wk${on?' on':''}"/>`+(on?`<text x="${i*W+W/2}" y="76" class="t">${N[p]}</text>`:'');i++}
+else b+=`<rect x="${i*W-7}" y="0" width="14" height="50" class="bk${on?' on':''}"/>`}
+return `<svg viewBox="0 0 ${i*W} 86" class="kb">${w}${b}</svg>`}
+const OP={Bdim:[-1,2,3,4,3,-1],C:[-1,3,2,0,1,0],Am:[-1,0,2,2,1,0],G:[3,2,0,0,0,3],F:[1,3,3,2,1,1],Dm:[-1,-1,0,2,3,1],Em:[0,2,2,0,0,0],E:[0,2,2,1,0,0],D:[-1,-1,0,2,3,2],A:[-1,0,2,2,2,0],G7:[3,2,0,0,0,1],E7:[0,2,0,1,0,0],D7:[-1,-1,0,2,1,2],Cmaj7:[-1,3,2,0,0,0],Fmaj7:[-1,-1,3,2,1,0],Am7:[-1,0,2,0,1,0],Dm7:[-1,-1,0,2,1,1],Em7:[0,2,0,0,0,0]};
+const TE={'':[0,2,2,1,0,0],m:[0,2,2,0,0,0],7:[0,2,0,1,0,0],m7:[0,2,0,0,0,0],maj7:[0,2,1,1,0,0]},TA={'':[-1,0,2,2,2,0],m:[-1,0,2,2,1,0],7:[-1,0,2,0,2,0],m7:[-1,0,2,0,1,0],maj7:[-1,0,2,1,2,0]};
+function shape(n){const c=parse(n),k=n.split('/')[0];if(OP[k])return OP[k];const e=(c.r+8)%12,a=(c.r+3)%12;const t=TA[c.q]&&(a<e||!TE[c.q])?[TA[c.q],a]:TE[c.q]?[TE[c.q],e]:null;return t&&t[0].map(x=>x<0?x:x+t[1])}
+function gt(f){if(!f)return'<p class="mut">Sin diagrama de guitarra (forma poco común).</p>';const p=f.filter(x=>x>0),mn=p.length?Math.min(...p):1,mx=p.length?Math.max(...p):1,base=mx<=4?1:mn;let s='';
+for(let i=0;i<6;i++)s+=`<line x1="${22+i*18}" y1="30" x2="${22+i*18}" y2="140" class="ln"/><text x="${22+i*18}" y="154" class="sn">${'EADGBe'[i]}</text>`;
+for(let j=0;j<=5;j++)s+=`<line x1="22" y1="${30+j*22}" x2="112" y2="${30+j*22}" class="${j==0&&base==1?'nut':'ln'}"/>`;
+f.forEach((x,i)=>{const cx=22+i*18;if(x<0)s+=`<text x="${cx}" y="22" class="g">✕</text>`;else if(x==0)s+=`<circle cx="${cx}" cy="18" r="4.5" class="o"/>`;else s+=`<circle cx="${cx}" cy="${30+(x-base)*22+11}" r="7.5" class="d"/>`});
+if(base>1)s+=`<text x="116" y="45" class="fn">${base}</text>`;
+return `<svg viewBox="0 0 140 160" class="gt">${s}</svg>`}
+let AC;const ENV={a:.02,d:.3,s:.3,r:.6};let WV='triangle';
+const FX={hp:20,bf:1000,bg:0,bq:1,sg:0,dc:1.2,pd:20,wet:0};let BUS;
+function ir(){const n=AC.sampleRate*FX.dc|0,b=AC.createBuffer(2,n,AC.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n)**3}return b}
+function bus(){if(BUS)return BUS.i;const i=AC.createGain(),hp=AC.createBiquadFilter(),pk=AC.createBiquadFilter(),sh=AC.createBiquadFilter(),m=AC.createGain(),dr=AC.createGain(),wt=AC.createGain(),pd=AC.createDelay(.2),cv=AC.createConvolver();
+hp.type='highpass';pk.type='peaking';sh.type='highshelf';sh.frequency.value=10000;
+i.connect(hp);hp.connect(pk);pk.connect(sh);sh.connect(dr);sh.connect(pd);pd.connect(cv);cv.connect(wt);dr.connect(m);wt.connect(m);m.connect(AC.destination);
+BUS={i,hp,pk,sh,dr,wt,pd,cv};cv.buffer=ir();fxu();return i}
+function fxu(){if(!BUS)return;const t=AC.currentTime,r=(p,v)=>p.setTargetAtTime(v,t,.02);r(BUS.hp.frequency,FX.hp);r(BUS.pk.frequency,FX.bf);r(BUS.pk.gain,FX.bg);r(BUS.pk.Q,FX.bq);r(BUS.sh.gain,FX.sg);r(BUS.pd.delayTime,FX.pd/1000);r(BUS.wt.gain,FX.wet);r(BUS.dr.gain,1-FX.wet*.5)}
+function tone(f,t,d){const o=AC.createOscillator(),g=AC.createGain(),{a,d:dc,s,r}=ENV,p=.14,h=Math.max(d,a+dc);o.type=WV;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(p,t+a);g.gain.linearRampToValueAtTime(p*s+.0001,t+a+dc);g.gain.setValueAtTime(p*s+.0001,t+h);g.gain.exponentialRampToValueAtTime(.0001,t+h+r);o.connect(g);g.connect(bus());o.start(t);o.stop(t+h+r+.05)}
+function play(seq,gap,len){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();let t=AC.currentTime+.05;seq.forEach(a=>{a.forEach((s,i)=>tone(261.63*2**(s/12),t+i*gap,1.1));t+=len})}catch(e){}}
+function view(el,n,inv=0,po=false){const nt=notes(n,inv),c=parse(n);
+el.innerHTML=`<div class="vw"><div><h4>Piano · ${dn(n)}</h4>${kb(nt)}<p class="nn">${nt.map(s=>N[((s%12)+12)%12]).join(' – ')}</p></div>${po?'':`<div><h4>Guitarra</h4>${gt(shape(n))}${c.b!=null?'<p class="mut">Bajo en otra nota: se muestra el acorde base.</p>':''}</div>`}</div><button class="pl">▶ Escuchar</button>`;
+$('.pl',el).onclick=()=>play([nt],0,1.5)}
+const CAT={pop:'Pop y rock 80s–hoy',act:'Música actual',cla:'Clásica y romántica',ele:'Electrónica',lat:'Latina',jaz:'Sinatra / jazz',bal:'Baladas en inglés'};
+const P=[
+['pop','El bucle antémico','I – V – vi – IV','C G Am F','Don’t Stop Believin’ (Journey), With Or Without You (U2), Someone Like You (Adele), Despacito','La reina del pop desde los 80: equilibrio perfecto entre tensión y resolución.'],
+['pop','Épica menor','vi – IV – I – V','Am F C G','Zombie (The Cranberries), Complicated (Avril Lavigne), Apologize (OneRepublic)','Empieza en el relativo menor: más sombría, nostálgica y dramática.'],
+['pop','Cadencia andaluza','i – ♭VII – ♭VI – V','Am G F E','Sultans of Swing (Dire Straits), Smooth (Santana), Hips Don’t Lie (Shakira)','Bajo descendente con gran tensión dramática.'],
+['pop','R&B / neo-soul ii–V–I','ii – V – I','Dm7 G7 Cmaj7','Sunday Morning (Maroon 5), Bruno Mars, Alicia Keys, Daniel Caesar','Armonía de jazz con séptimas y novenas.'],
+['pop','Mixolidia / power','I – ♭VII – IV – I','C Bb F C','Sweet Child O’ Mine (Guns N’ Roses), Clocks (Coldplay), Born in the U.S.A. (Springsteen)','El ♭VII (intercambio modal) da una sonoridad heroica.'],
+['pop','Bajo descendente','I – V/VII – vi – V – IV – I/III – ii – V','C G/B Am G F C/E Dm G','Tears in Heaven (Clapton), Perfect (Ed Sheeran)','Para piano y guitarra acústica: el bajo baja paso a paso.'],
+['act','Bucle urbano / reguetón','i – ♭VI – ♭VII','Am F G','Bad Bunny, Rauw Alejandro, Rosalía, Karol G, Billie Eilish','Tres acordes en bucle continuo que sostienen el ritmo.'],
+['act','Royal Road (J-Pop)','IV – V – iii – vi','Fmaj7 G7 Em7 Am','Anime openings, baladas K-Pop, Olivia Rodrigo','Resolución suspendida, nostálgica y brillante.'],
+['act','Grunge / alt-rock 90s','I – ♭III – IV – ♭VI','C Eb F Ab','In Bloom y Lithium (Nirvana), Say It Ain’t So (Weezer)','Acordes prestados del modo menor dan peso y dinamismo.'],
+['act','Variante Creep','I – III – IV – iv','C E F Fm','Creep (Radiohead)','El IV mayor pasa a menor: un giro agridulce célebre.'],
+['act','Plagal / indie pop','IV – I – vi – V','F C Am G','Riptide (Vance Joy), As It Was (Harry Styles), Clairo, Mac DeMarco','Oscila entre F y C: ambiente etéreo y relajado.'],
+['act','Neo-soul / lofi','vi7 – ii7 – V7 – Imaj7','Am7 Dm7 G7 Cmaj7','SZA, Frank Ocean, Tyler, The Creator, Steve Lacy','Un acorde secundario añade tensión elegante.'],
+['act','El Canon','I – V – vi – iii – IV – I – IV – V','C G Am Em F C F G','Memories (Maroon 5), Graduation (Vitamin C), Basket Case (Green Day)','Basada en Pachelbel: la balada romántica por excelencia.'],
+['cla','Cadencia ii – V – I','ii – V – I','Dm G7 C','Bach, Mozart, Beethoven, Chopin','Pilar de la música clásica para cerrar frases (a menudo precedida de I 6/4 – V7 – I).'],
+['cla','Círculo de quintas','iii – vi – ii – V – I','Em Am Dm G7 C','Bach, Vivaldi; base de Hey Jude (The Beatles)','Cada acorde cae una quinta.'],
+['cla','Giro romántico','I – vi – IV – iv','C Am F Fm','Chopin, Liszt, Tchaikovsky','El IV menor aporta melancolía puramente romántica.'],
+['ele','Trance / EDM anthem','vi – IV – I – V','Am F C G','Armin van Buuren, Tiësto, Avicii','Euforia masiva en build-ups y drops.'],
+['ele','Deep house','i7 – iv7','Am7 Dm7','Disclosure, Ben Böhmer','Dos acordes con séptimas en bucle: cálido y bailable.'],
+['ele','Synthwave','I – ♭VII – vi – ♭VI','C Bb Am Ab','The Midnight, Kavinsky (Nightcall)','Nostalgia futurista de los 80.'],
+['lat','Tumbao de salsa','i7 – IV7','Am7 D7','Héctor Lavoe, Celia Cruz, Marc Anthony','Base de la salsa sobre un groove sincopado.'],
+['lat','Bolero','I – Idim7 – ii7 – V7','C C#dim7 Dm7 G7','Luis Miguel, Armando Manzanero, Los Panchos','El dim7 de paso conecta acordes cromáticamente.'],
+['lat','Rumba flamenca','i – ♭VII – ♭VI – V','Am G F E','Gipsy Kings, Estopa, Shakira, Juanes','Cadencia andaluza: motor de la rumba y el pop latino.'],
+['jaz','Jazz romántico','vi7 – ii7 – V7 – Imaj7 – IVmaj7 – viiø7 – III7','Am7 Dm7 G7 Cmaj7 Fmaj7 Bm7b5 E7','Fly Me to the Moon, Autumn Leaves, All the Things You Are','Dominantes secundarias y extensiones; voicings sin quinta.'],
+['jaz','Puente AABA','Imaj7 – I♯dim7 – ii7 – V7 → IVmaj7 – iv7 – Imaj7','Cmaj7 C#dim7 Dm7 G7 Fmaj7 Fm7 Cmaj7','My Way, Night and Day, Unforgettable','El puente pasa al subdominante menor para dramatizar.'],
+['bal','Lamento romántico','I – V/VII – vi – V – IV – I/III – ii7 – V7','C G/B Am C/G F C/E Dm7 G7','Careless Whisper, Right Here Waiting, Against All Odds','El bajo desciende mientras la tónica se sostiene.'],
+['bal','Gran poder vocal','I – V – vi – IV → ii7 – V7sus4 – V7 – I','C G Am F Dm7 Gsus4 G7 C','I Will Always Love You, My Heart Will Go On, I Don’t Want to Miss a Thing','Suspensión sus4 justo antes del clímax.'],
+['bal','Piano-pop minimalista','I – vi – IV – V','C Am F G','Someone Like You (Adele), Stay With Me (Sam Smith), All of Me (John Legend)','Cuatro acordes: la voz lleva la dinámica.'],
+['bal','Retro-soul en 6/8','I – iii – IV – iv','C Em F Fm','Perfect (Ed Sheeran), When I Was Your Man (Bruno Mars)','Compás de 6/8 con sabor R&B clásico.']];
+$('#cat').innerHTML=P.map(([c,t,g,ch,s,d])=>`<article class="cd" data-c="${c}"><span class="tg">${CAT[c]}</span><h3>${t}</h3><p class="gr">${g}</p><div class="chips">${ch.split(' ').map(x=>`<button class="ch" data-n="${x}">${dn(x)}</button>`).join('')}</div><p>${d}</p><p class="sg">♪ ${s}</p><div class="v"></div><button class="pp" data-ch="${ch}">▶ Tocar progresión</button></article>`).join('');
+$('#flt').innerHTML=['<button class="f on" data-c="">Todas</button>'].concat(Object.entries(CAT).map(([k,v])=>`<button class="f" data-c="${k}">${v}</button>`)).join('');
+const D={I:0,II:1,III:2,IV:3,V:4,VI:5,VII:6},SC=[0,2,4,5,7,9,11];
+function dg(s,k){const m=s.trim().match(/^(♭?)([ivIV]+)$/);return FL[(k+SC[D[m[2].toUpperCase()]]-(m[1]?1:0)+12)%12]+(m[2]===m[2].toLowerCase()?'m':'')}
+$('#key').innerHTML=FL.map((n,i)=>`<option value="${i}">${dn(n)} mayor</option>`).join('');
+function tr(){const k=+$('#key').value,ds=$('#pre').value.split(/\s*–\s*/);$('#degs').textContent=$('#pre').value;$('#tr').innerHTML=ds.map(d=>{const n=dg(d,k);return `<button class="ch" data-n="${n}">${dn(n)}</button>`}).join('');$('.tool .v').innerHTML=''}
+$('#key').onchange=$('#pre').onchange=tr;tr();
+[['C','I','Tónica'],['Dm','ii','Supertónica'],['Em','iii','Mediante'],['F','IV','Subdominante'],['G','V','Dominante'],['Am','vi','Superdominante (relativo menor)'],['Bdim','vii°','Sensible']].forEach(([n,g,f])=>{const d=document.createElement('div');d.className='cd';d.innerHTML=`<span class="tg">Grado ${g} · ${f}</span><h3>${dn(n)}</h3><div class="v"></div>`;$('#base').append(d);view($('.v',d),n)});
+const ID=['Fundamental: la raíz está abajo.','1.ª inversión: la tercera pasa al bajo.','2.ª inversión: la quinta pasa al bajo.'];let inv=0;
+function ri(){view($('#iv'),$('#ic').value,inv,true);$('#idesc').textContent=ID[inv]}
+$$('.iv').forEach(b=>b.onclick=()=>{inv=+b.dataset.i;$$('.iv').forEach(x=>x.classList.toggle('on',x===b));ri()});$('#ic').onchange=ri;ri();
+const EX=[['C','Fundamental',[0,4,7]],['Am','1.ª inversión',[0,4,9]],['F','2.ª inversión',[0,5,9]],['G','1.ª inversión',[-1,2,7]]];
+$('#ex').innerHTML=EX.map(([n,t,a])=>`<div class="cd"><h3>${n} · ${t}</h3>${kb(a,-12,12)}<p class="nn">${a.map(s=>N[((s%12)+12)%12]).join(' – ')}</p></div>`).join('');
+$('#pex').onclick=()=>play([[-12,4,7,12],[-15,4,9,12],[-19,0,5,9],[-17,-1,2,7]],.3,1.5);
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+if(b.classList.contains('ch')){const h=b.closest('.cd,.tool');$$('.ch',h).forEach(x=>x.classList.toggle('on',x===b));view($('.v',h),b.dataset.n)}
+else if(b.classList.contains('pp'))play(b.dataset.ch.split(' ').map(n=>notes(n)),0,1.2);
+else if(b.classList.contains('f')){$$('.f').forEach(x=>x.classList.toggle('on',x===b));$$('#cat .cd').forEach(c=>c.style.display=!b.dataset.c||c.dataset.c===b.dataset.c?'':'none')}});
+const MD=[['lidio','Lidio',[0,2,4,6,7,9,11],'Asombro, sueño, magia','Como el mayor pero con la 4.ª aumentada (♯4): flota y suena fantástico, sin pesadez.','I – II – I – II',[[0,'maj7'],[2,''],[0,'maj7'],[2,'']]],
+['jonico','Jónico (mayor)',[0,2,4,5,7,9,11],'Alegría, luz, estabilidad','La escala mayor: brillante y resuelta, la base del pop festivo.','I – IV – V – I',[[0,''],[5,''],[7,''],[0,'']]],
+['mixo','Mixolidio',[0,2,4,5,7,9,10],'Heroico, relajado, rockero','Mayor con 7.ª menor (♭7): el ♭VII da un aire heroico o nostálgico.','I – ♭VII – IV – I',[[0,''],[10,''],[5,''],[0,'']]],
+['dorico','Dórico',[0,2,3,5,7,9,10],'Melancolía con esperanza, “cool”','Menor con 6.ª mayor: triste pero no hundido; muy usado en jazz, funk y soul.','i – IV – i – ♭VII',[[0,'m'],[5,''],[0,'m'],[10,'']]],
+['eolico','Eólico (menor natural)',[0,2,3,5,7,8,10],'Tristeza, nostalgia, drama','La escala menor natural: sombría e introspectiva. La épica menor Am – F – C – G vive aquí.','i – ♭VI – ♭III – ♭VII',[[0,'m'],[8,''],[3,''],[10,'']]],
+['frigio','Frigio',[0,1,3,5,7,8,10],'Oscuridad, tensión, dramatismo','Menor con 2.ª menor (♭2): el semitono sobre la tónica da un color oscuro, flamenco y metalero.','i – ♭II – i – ♭VII',[[0,'m'],[1,''],[0,'m'],[10,'']]],
+['locrio','Locrio',[0,1,3,5,6,8,10],'Inestabilidad, inquietud','Su 5.ª es disminuida: la tónica es un acorde disminuido y nunca termina de asentarse.','i° – ♭II – ♭iii – i°',[[0,'dim'],[1,''],[3,'m'],[0,'dim']]]];
+let mi=1,MS=[],MC=[];
+$('#mk').innerHTML=FL.map((n,i)=>`<option value="${i}">${dn(n)}</option>`).join('');
+$('#mb').innerHTML=MD.map((m,i)=>`<button class="mm${i==1?' on':''}" data-i="${i}">${m[1]}</button>`).join('');
+function rm(){const m=MD[mi],k=+$('#mk').value;MS=m[2].map(s=>k+s).concat(k+12);MC=m[6].map(([o,q])=>FL[(k+o)%12]+q);
+$('#mt').textContent=`${dn(FL[k])} ${m[1]}`;$('#md').innerHTML=`<b>${m[3]}.</b> ${m[4]}`;$('#mg').textContent=`Grados: ${m[5]}`;
+$('#mp').innerHTML=kb(MS)+`<p class="nn">${MS.map(s=>N[s%12]).join(' – ')}</p>`;
+$('#mc').innerHTML=MC.map(n=>`<button class="ch" data-n="${n}">${dn(n)}</button>`).join('');$('.mdp .v').innerHTML=''}
+$$('.mm').forEach(b=>b.onclick=()=>{mi=+b.dataset.i;$$('.mm').forEach(x=>x.classList.toggle('on',x===b));rm()});
+$('#mk').onchange=rm;$('#msc').onclick=()=>play(MS.map(s=>[s]),0,.35);$('#mpr').onclick=()=>play(MC.map(n=>notes(n)),0,1.2);rm();
+const WS=[['sine','Seno'],['sawtooth','Sierra'],['square','Cuadrada'],['triangle','Triangular']],PR=[['Piano','triangle',.005,.6,.2,.5],['Pad','sawtooth',1.2,.5,.8,1.5],['Bajo','square',.01,.2,.6,.15],['Lead','sawtooth',.01,.1,.7,.3]];
+function wp(t){let d='';for(let x=0;x<=300;x++){const p=(x/150)%1,y=t=='sine'?Math.sin(p*6.2832):t=='sawtooth'?2*p-1:t=='square'?(p<.5?1:-1):4*Math.abs(p-.5)-1;d+=(x?'L':'M')+x+' '+(40-y*30).toFixed(1)}return d}
+function ws(){$('#wf').innerHTML=WS.map(([v,n])=>`<button class="wb${v==WV?' on':''}" data-v="${v}">${n}</button>`).join('');$('#wsv').innerHTML=`<path d="${wp(WV)}" fill="none" stroke="var(--acc)" stroke-width="2"/>`;
+const {a,d,s,r}=ENV,k=300/(a+d+.4+r),y=70-60*s;$('#env').innerHTML=`<polygon points="0,70 ${a*k},10 ${(a+d)*k},${y} ${(a+d+.4)*k},${y} 300,70" fill="var(--acc2)" stroke="var(--acc)" stroke-width="2"/>`;
+['a','d','s','r'].forEach(x=>{$('#r'+x).value=ENV[x];$('#v'+x).textContent=ENV[x]})}
+$('#wf').onclick=e=>{const v=e.target.dataset.v;if(v){WV=v;ws()}};
+['a','d','s','r'].forEach(x=>$('#r'+x).oninput=e=>{ENV[x]=+e.target.value;ws()});
+$('#pr').innerHTML=PR.map(([n],i)=>`<button data-i="${i}">${n}</button>`).join('');
+$('#pr').onclick=e=>{const p=PR[e.target.dataset.i];if(p){WV=p[1];[ENV.a,ENV.d,ENV.s,ENV.r]=p.slice(2);ws()}};
+$('#ps').onclick=()=>play(['C','Am','F','G'].map(n=>notes(n)),0,1.4);ws();
+
+(()=>{
+const DG=['1','♭2','2','♭3','3','4','♯4','5','♭6','6','♭7','7'];
+const TU=[['Estándar (E A D G B e)',[40,45,50,55,59,64]],['Drop D',[38,45,50,55,59,64]],['Medio tono abajo',[39,44,49,54,58,63]],['DADGAD',[38,45,50,55,57,62]],['Open G',[38,43,50,55,59,62]],['Open D',[38,45,50,54,57,62]]];
+const SCL=[['Mayor',[0,2,4,5,7,9,11]],['Menor natural',[0,2,3,5,7,8,10]],['Pentatónica menor',[0,3,5,7,10]],['Pentatónica mayor',[0,2,4,7,9]],['Blues',[0,3,5,6,7,10]],['Dórico',[0,2,3,5,7,9,10]],['Mixolidio',[0,2,4,5,7,9,10]],['Frigio',[0,1,3,5,7,8,10]]];
+const CQ=[['Mayor','',[0,4,7]],['Menor','m',[0,3,7]],['Séptima (7)','7',[0,4,7,10]],['Menor 7 (m7)','m7',[0,3,7,10]],['Mayor 7 (maj7)','maj7',[0,4,7,11]]];
+const S={tu:0,capo:0,mode:1,root:0,sc:0,cq:0,lab:0,sel:null},NF=15,X=f=>56+1500*(1-2**(-f/12)),CX=f=>f?(X(f-1)+X(f))/2:30,Y=s=>34+(5-s)*34;
+function shp(){if(S.tu)return null;const q=CQ[S.cq][1],n=FL[S.root]+q;if(OP[n])return OP[n];const e=(S.root+8)%12,a=(S.root+3)%12,t=a<e?[TA[q],a]:[TE[q],e];return t[0].map(x=>x<0?x:x+t[1])}
+function pl(m,t=0){AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=='suspended')AC.resume();const f=440*2**((m-69)/12),sr=AC.sampleRate,n=sr*2|0,p=Math.max(2,Math.round(sr/f)),b=AC.createBuffer(1,n,sr),d=b.getChannelData(0);for(let i=0;i<p;i++)d[i]=Math.random()*2-1;for(let i=p+1;i<n;i++)d[i]=.4985*(d[i-p]+d[i-p-1]);const o=AC.createBufferSource(),g=AC.createGain();g.gain.value=.5;o.buffer=b;o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+t)}
+const mark=(s,f,t,k)=>`<circle cx="${CX(f)}" cy="${Y(s)}" r="11" class="${k}"/><text x="${CX(f)}" y="${Y(s)+4}" class="${k=='rt'?'xw':'xt'}">${t}</text>`;
+function draw(){const T=TU[S.tu][1],c=S.capo;let g=`<rect x="56" y="18" width="${X(NF)-56}" height="168" class="wood"/>`;
+for(let f=1;f<=NF;f++)g+=`<line x1="${X(f)}" y1="18" x2="${X(f)}" y2="186" class="fr"/><text x="${CX(f)}" y="206" class="xf">${f}</text>`;
+g+=`<line x1="56" y1="18" x2="56" y2="186" class="nut"/>`;
+[3,5,7,9,15].forEach(f=>g+=`<circle cx="${CX(f)}" cy="102" r="5" class="mk"/>`);[68,136].forEach(v=>g+=`<circle cx="${CX(12)}" cy="${v}" r="5" class="mk"/>`);
+for(let s=0;s<6;s++)g+=`<line x1="56" y1="${Y(s)}" x2="${X(NF)}" y2="${Y(s)}" class="st" stroke-width="${1+s*.35}"/>`;
+if(c)g+=`<rect x="0" y="14" width="${X(c)-12}" height="176" class="dim"/><rect x="${X(c)-12}" y="12" width="9" height="180" rx="4" class="cap"/>`;
+for(let s=0;s<6;s++)g+=`<text x="10" y="${Y(s)+4}" class="xs">${N[(T[s]+c)%12]}</text>`;
+if(S.mode==1){const st=SCL[S.sc][1];for(let s=0;s<6;s++)for(let f=c;f<=NF;f++){const m=T[s]+f,iv=(m-S.root+120)%12;if(st.includes(iv))g+=mark(s,f,S.lab?DG[iv]:N[m%12],iv?'nt':'rt')}}
+else if(S.mode==2){const sh=shp();if(sh){const sr=(S.root+c)%12;sh.forEach((r,s)=>{if(r<0){g+=`<text x="30" y="${Y(s)+4}" class="xf">✕</text>`;return}const a=r?r+c:c;if(a>NF)return;const iv=(T[s]+a-sr+120)%12;g+=mark(s,a,S.lab?DG[iv]:N[(T[s]+a)%12],r?(iv?'nt':'rt'):'ho')})}}
+if(S.sel){const{s,f}=S.sel;if(S.mode==0)g+=mark(s,f,N[(T[s]+f)%12],'rt');g+=`<circle cx="${CX(f)}" cy="${Y(s)}" r="15" class="ring"/>`}
+for(let s=0;s<6;s++)for(let f=c;f<=NF;f++){const x=f?X(f-1):4,w=f?X(f)-X(f-1):52;g+=`<rect x="${x}" y="${Y(s)-17}" width="${w}" height="34" fill="transparent" data-s="${s}" data-f="${f}"/>`}
+$('#fb').innerHTML=`<svg viewBox="0 0 960 216">${g}</svg>`;inf();rdo()}
+function rdo(){const T=TU[S.tu][1];if(!S.sel){$('#frd').textContent='Toca un traste para oírlo.';return}const{s,f}=S.sel,m=T[s]+f;$('#frd').textContent=`Cuerda ${6-s} · ${f?'traste '+f:'al aire'} → ${N[m%12]}${Math.floor(m/12)-1}`}
+function inf(){let t='Modo libre: toca cualquier casilla del mástil.';if(S.mode==1)t=`<b>${N[S.root]} ${SCL[S.sc][0]}</b>: ${SCL[S.sc][1].map(i=>N[(S.root+i)%12]).join(' – ')}`;else if(S.mode==2){if(S.tu)t='Las formas de acorde están pensadas para la afinación estándar.';else{const q=CQ[S.cq],sr=(S.root+S.capo)%12;t=`<b>Forma de ${dn(FL[S.root]+q[1])}</b>`+(S.capo?` con capo en el traste ${S.capo}: suena ${dn(FL[sr]+q[1])}`:'')+` — notas: ${q[2].map(i=>N[(sr+i)%12]).join(' – ')}`}}$('#finf').innerHTML=t}
+function ui(){$('#fgr').hidden=S.mode==0;$('#fgs').hidden=S.mode!=1;$('#fgq').hidden=S.mode!=2;$('#fact').hidden=S.mode==0;$('#fact').textContent=S.mode==1?'▶ Tocar escala':'▶ Rasgueo';document.querySelectorAll('#fm button').forEach(b=>b.classList.toggle('on',+b.dataset.m==S.mode))}
+const opt=(a,f)=>a.map((x,i)=>`<option value="${i}">${f(x,i)}</option>`).join('');
+$('#ftu').innerHTML=opt(TU,x=>x[0]);$('#fcp').innerHTML=opt([...Array(8)],(_,i)=>i?'Traste '+i:'Sin capo');$('#frt').innerHTML=opt(N,x=>x);$('#fsc').innerHTML=opt(SCL,x=>x[0]);$('#fcq').innerHTML=opt(CQ,x=>x[0]);
+const bind=(id,k,r)=>$(id).onchange=e=>{S[k]=+e.target.value;if(r)S.sel=null;draw()};
+bind('#ftu','tu',1);bind('#fcp','capo',1);bind('#frt','root');bind('#fsc','sc');bind('#fcq','cq');bind('#flb','lab');
+$('#fm').onclick=e=>{const m=e.target.dataset.m;if(m!=null){S.mode=+m;S.sel=null;ui();draw()}};
+$('#fb').onclick=e=>{const r=e.target.closest('[data-s]');if(!r)return;const s=+r.dataset.s,f=+r.dataset.f;S.sel={s,f};pl(TU[S.tu][1][s]+f);draw()};
+$('#fact').onclick=()=>{if(S.mode==1){const b=40+(S.root+8)%12;SCL[S.sc][1].concat(12).forEach((i,k)=>pl(b+i,k*.28))}else if(S.mode==2){const f=shp();if(f)f.forEach((r,s)=>{if(r>=0)pl(TU[0][1][s]+(r?r+S.capo:S.capo),s*.05)})}};
+ui();draw();
+/* Práctica de dedos */
+const PC=[['Em',[0,2,2,0,0,0],[0,2,3,0,0,0],'Mi menor'],['Am',[-1,0,2,2,1,0],[0,0,2,3,1,0],'La menor'],['E',[0,2,2,1,0,0],[0,2,3,1,0,0],'Mi mayor'],['A',[-1,0,2,2,2,0],[0,0,1,2,3,0],'La mayor'],['D',[-1,-1,0,2,3,2],[0,0,0,1,3,2],'Re mayor'],['C',[-1,3,2,0,1,0],[0,3,2,0,1,0],'Do mayor'],['G',[3,2,0,0,0,3],[2,1,0,0,0,3],'Sol mayor'],['Dm',[-1,-1,0,2,3,1],[0,0,0,2,3,1],'Re menor'],['G7',[3,2,0,0,0,1],[3,2,0,0,0,1],'Sol séptima'],['F',[1,3,3,2,1,1],[1,3,4,2,1,1],'Fa mayor (con cejilla)']];
+const FC=['','#f97316','#ec4899','#8b5cf6','#0ea5e9'],FN=['','Índice','Medio','Anular','Meñique'],T0=TU[0][1];
+const P2={ci:0,fi:1,m:Array(6).fill(null),mu:Array(6).fill(false),bad:[],hint:0};
+function msg(t,ok){$('#pmm').textContent=t;$('#pmm').className=ok?'ok':''}
+function rs(){P2.m=Array(6).fill(null);P2.mu=Array(6).fill(false);P2.bad=[];P2.hint=0;msg('Elige un dedo, toca una casilla del mástil y pulsa Comprobar.');pv()}
+function pv(){const[nm,fr,fi]=PC[P2.ci];$('#pmt').innerHTML=`Forma <b>${dn(nm)}</b> — ${PC[P2.ci][3]}`;
+let g=`<rect x="24" y="50" width="302" height="350" class="wood"/>`;
+P2.bad.forEach(s=>g+=`<rect x="${50+s*52-26}" y="4" width="52" height="400" rx="8" fill="#dc2626" opacity=".18"/>`);
+for(let r=0;r<=5;r++)g+=`<line x1="24" y1="${50+r*70}" x2="326" y2="${50+r*70}" class="${r?'fr':'nut'}"/>`;
+for(let r=1;r<=5;r++)g+=`<text x="12" y="${50+r*70-30}" class="xf">${r}</text>`;
+for(let s=0;s<6;s++){const x=50+s*52;g+=`<line x1="${x}" y1="50" x2="${x}" y2="400" class="st" stroke-width="${1+(5-s)*.4}"/><text x="${x}" y="426" class="xs">${'EADGBe'[s]}</text>`;
+const e=fr[s],p=P2.m[s];
+if(P2.hint&&e<=0)g+=`<text x="${x}" y="34" class="xh" style="fill:var(--acc)">${e<0?'✕':'○'}</text>`;
+else if(!p&&!(P2.hint&&e>0))g+=`<text x="${x}" y="34" class="xh">${P2.mu[s]?'✕':'○'}</text>`;
+if(P2.hint&&e>0)g+=`<circle cx="${x}" cy="${50+(e-1)*70+35}" r="22" class="gh"/><text x="${x}" y="${50+(e-1)*70+42}" class="xt" style="font-size:18px">${fi[s]}</text>`;
+if(p)g+=`<circle cx="${x}" cy="${50+(p.f-1)*70+35}" r="22" fill="${FC[p.fi]}"/><text x="${x}" y="${50+(p.f-1)*70+42}" class="xw" style="font-size:18px">${p.fi}</text>`}
+for(let s=0;s<6;s++){g+=`<rect x="${50+s*52-26}" y="0" width="52" height="48" fill="transparent" data-h="${s}"/>`;for(let r=1;r<=5;r++)g+=`<rect x="${50+s*52-26}" y="${50+(r-1)*70}" width="52" height="70" fill="transparent" data-s="${s}" data-r="${r}"/>`}
+$('#pmv').innerHTML=g}
+$('#pmv').onclick=e=>{const t=e.target;P2.bad=[];if(t.dataset.h!=null){const s=+t.dataset.h;P2.m[s]=null;P2.mu[s]=!P2.mu[s]}
+else if(t.dataset.r!=null){const s=+t.dataset.s,r=+t.dataset.r,p=P2.m[s];if(p&&p.f==r)P2.m[s]=null;else{const fi=P2.fi;if(fi>1)P2.m=P2.m.map(q=>q&&q.fi==fi?null:q);P2.m[s]={f:r,fi};P2.mu[s]=false;pl(T0[s]+r)}}
+msg('');pv()};
+function fgs(){$('#pmf').innerHTML=[1,2,3,4].map(i=>`<button class="fg${P2.fi==i?' on':''}" data-f="${i}" style="--c:${FC[i]}"><b>${i}</b><small>${FN[i]}</small></button>`).join('')}
+$('#pmf').onclick=e=>{const b=e.target.closest('[data-f]');if(b){P2.fi=+b.dataset.f;fgs()}};
+$('#pmc').innerHTML=opt(PC,x=>`${x[0]} · ${x[3]}`);
+$('#pmc').onchange=e=>{P2.ci=+e.target.value;rs()};
+$('#pmn').onclick=()=>{P2.ci=(P2.ci+1)%PC.length;$('#pmc').value=P2.ci;rs()};
+$('#pml').onclick=rs;$('#pmh').onclick=()=>{P2.hint=1-P2.hint;pv()};
+const strum=fr=>fr.forEach((e,s)=>{if(e>=0)pl(T0[s]+e,s*.05)});
+$('#pms').onclick=()=>strum(PC[P2.ci][1]);
+$('#pmk').onclick=()=>{const[nm,fr,fi]=PC[P2.ci],bad=[];for(let s=0;s<6;s++){const e=fr[s],p=P2.m[s];if(e<0?(p||!P2.mu[s]):e==0?(p||P2.mu[s]):(!p||p.f!=e))bad.push(s)}
+P2.bad=bad;pv();if(bad.length){msg(`Casi: revisa las cuerdas en rojo (${bad.map(s=>6-s).join(', ')}). Marca con ✕ las que no se tocan.`);return}
+const wf=[];fr.forEach((e,s)=>{if(e>0&&P2.m[s].fi!=fi[s])wf.push(`cuerda ${6-s}: dedo ${fi[s]}`)});
+msg(wf.length?`✓ ¡Posición correcta! Para más comodidad usa ${wf.join('; ')}.`:`✓ ¡Perfecto! Así se toca ${dn(nm)}.`,1);strum(fr)};
+$('#fpm').onclick=()=>{$('#pm').hidden=false;document.body.style.overflow='hidden';try{$('#pm').requestFullscreen&&$('#pm').requestFullscreen().catch(()=>{})}catch(e){}fgs();rs()};
+const cl=()=>{$('#pm').hidden=true;document.body.style.overflow='';try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}};
+$('#pmx').onclick=cl;document.addEventListener('keydown',e=>{if(e.key=='Escape'&&!$('#pm').hidden)cl()});
+})();
+
+(()=>{
+const TR=['Kick','Caja / Clap','Hat cerrado','Hat abierto','Conga'];
+const GN=[
+['House / four-on-the-floor',124,0,['x...x...x...x...','....x.......x...','................','..x...x...x...x.','................'],['Am7','Dm7','Am7','Dm7'],'Sirve también para techno, synthwave y disco. Kick en los 4 tiempos; clap o caja en el 2 y el 4 (backbeat); hi-hat abierto en el contratiempo (las “y”), la clave del groove house. Los toms casi no van en el patrón: se colocan al final del compás 4 u 8 como fill descendente (agudo → medio → grave) para avisar un cambio de sección.'],
+['Boom bap / hip-hop clásico',90,20,['x......x.x......','....x.......x...','x.x.x.x.x.x.x.x.','................','................'],['Dm7','G7','Cmaj7','A7'],'Ritmo sincopado con swing. El kick va en el 1, con un segundo kick desplazado antes del 3; la caja es seca y pesada en el 2 y el 4. Congas o bongós en los huecos libres dan textura orgánica.'],
+['Trap / drill',140,0,['x..x......x.....','........x.......','xxxxxxxxxxxxxxxx','................','................'],['Am','G','F','E'],'130–160 BPM en medio tiempo, dominado por el sub-bajo 808. La caja o el clap cae en el tercer tiempo, no en el 2 y el 4. Los hi-hats llevan el peso creativo: de corcheas a ráfagas de semicorcheas o fusas con pitch rolls. Los rimshots acentúan contra-ritmos antes de la caja.'],
+['Reggaetón / dembow',95,0,['x...x...x...x...','...x.x.....x.x..','................','................','................'],['C','G','Am','F'],'Kick en los cuatro tiempos y caja, palo o rimshot en un patrón sincopado (el dembow) que da el vaivén característico. Congas y woodblocks rellenan con percusión seca.'],
+['Afrobeat / pop latino',105,0,['x.....x.....x...','................','xxxxxxxxxxxxxxxx','................','..x.x..x..x.x..x'],['Am','F','G','G'],'Polirritmia orgánica: las congas usan el tumbao (golpe abierto + palma o dedo) en lugar de una caja pesada, y el shaker mantiene el pulso. Las claves marcan el marco temporal (3-2 o 2-3), y los toms se afinan melódicamente para construir el patrón junto al kick.'],
+['Rock / pop',110,0,['x.......x.......','....x.......x...','x.x.x.x.x.x.x.x.','................','................'],['C','Bb','F','C'],'Kick orgánico en el 1 y el 3 (en el pop bailable, en los cuatro tiempos) y caja brillante en el 2 y el 4. Los toms son la clave de los breaks y fills (del tom agudo al floor tom); el crash abre cada sección y el ride lleva el pulso en las partes intensas.']];
+let gi=0,G=[],on=0,step=0,bar=0,bs=0,tm,NB;
+const $$$=s=>document.querySelectorAll(s);
+function ac(){AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=='suspended')AC.resume();if(!NB){NB=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}}
+function drum(r,t){const g=AC.createGain();g.connect(AC.destination);
+if(r==0||r==4){const o=AC.createOscillator(),k=r==0;o.frequency.setValueAtTime(k?150:260,t);o.frequency.exponentialRampToValueAtTime(k?42:190,t+(k?.12:.1));g.gain.setValueAtTime(k?.9:.4,t);g.gain.exponentialRampToValueAtTime(.001,t+(k?.35:.18));o.connect(g);o.start(t);o.stop(t+.4);return}
+const n=AC.createBufferSource(),f=AC.createBiquadFilter(),d=r==1?.2:r==2?.05:.3;n.buffer=NB;f.type=r==1?'bandpass':'highpass';f.frequency.value=r==1?1800:7000;g.gain.setValueAtTime(r==1?.7:.25,t);g.gain.exponentialRampToValueAtTime(.001,t+d);n.connect(f);f.connect(g);n.start(t);n.stop(t+d+.05);
+if(r==1){const o=AC.createOscillator(),h=AC.createGain();o.type='triangle';o.frequency.setValueAtTime(200,t);h.gain.setValueAtTime(.3,t);h.gain.exponentialRampToValueAtTime(.001,t+.1);o.connect(h);h.connect(AC.destination);o.start(t);o.stop(t+.12)}}
+function cur(k){$$$('#bgrid .cl').forEach(c=>c.classList.toggle('cur',+c.dataset.k==k))}
+function sched(){const bpm=+$('#bt').value,sw=$('#bs').value/100,sd=60/bpm/4;
+while(bs+step*sd<AC.currentTime+.15){const st=step,t=bs+st*sd+(st%2?sw*sd:0);
+G.forEach((row,r)=>{if(row[st])drum(r,t)});
+if(!st&&$('#bc').checked)notes(GN[gi][4][bar%4]).forEach(n=>tone(261.63*2**((n-12)/12),t,sd*15));
+setTimeout(()=>on&&cur(st),Math.max(0,(t-AC.currentTime)*1000));
+if(++step==16){step=0;bs+=16*sd;bar++}}}
+function stop(){on=0;clearInterval(tm);$('#bp').textContent='▶ Reproducir';cur(-1)}
+function load(i){gi=i;const g=GN[i];G=g[3].map(r=>[...r].map(c=>c=='x'));$('#bt').value=g[1];$('#bs').value=g[2];lab();
+$('#bg').innerHTML=GN.map((x,j)=>`<button data-i="${j}" class="${j==i?'on':''}">${x[0]}</button>`).join('');
+$('#bn').innerHTML=`<b>${g[0]}.</b> ${g[5]}`;$('#bch').textContent=`Acordes (un compás cada uno): ${g[4].map(dn).join(' – ')}`;
+$('#bgrid').innerHTML='<span></span>'+[...Array(16)].map((_,k)=>`<span class="bc2${k%4?'':' bb'}">${k%4?['e','y','a'][k%4-1]:k/4+1}</span>`).join('')+TR.map((n,r)=>`<span class="bl">${n}</span>`+G[r].map((v,k)=>`<button class="cl${v?' on':''}${k%4?'':' b'}" data-r="${r}" data-k="${k}" aria-label="${n}, semicorchea ${k+1}"></button>`).join('')).join('');nr()}
+let nk=0;
+const XP=st=>82+st*33,FC2='fill="currentColor"',SC2='stroke="currentColor"';
+function rst(x,d){if(d==4)return `<path d="M${x} 56 l6 8 l-6 8 l6 8" fill="none" ${SC2} stroke-width="2.6"/>`;
+const e=`<circle cx="${x}" cy="62" r="2.6" ${FC2}/><path d="M${x+4} 60 q-4 10-9 22" fill="none" ${SC2} stroke-width="2"/>`;
+return d==1?e+`<circle cx="${x-2}" cy="72" r="2.6" ${FC2}/>`:d==2?e:e+`<circle cx="${x+10}" cy="62" r="1.6" ${FC2}/>`}
+function nr(){const row=G[nk];$('#nb').innerHTML=TR.map((n,i)=>`<button data-i="${i}" class="${i==nk?'on':''}">${n}</button>`).join('');
+let g=`<line x1="60" y1="70" x2="632" y2="70" ${SC2}/><rect x="14" y="58" width="4" height="24" ${FC2}/><rect x="24" y="58" width="4" height="24" ${FC2}/><text x="46" y="66" font-size="20" font-family="Georgia,serif" font-weight="700" text-anchor="middle" ${FC2}>4</text><text x="46" y="86" font-size="20" font-family="Georgia,serif" font-weight="700" text-anchor="middle" ${FC2}>4</text><line x1="60" y1="58" x2="60" y2="82" ${SC2}/><line x1="627" y1="58" x2="627" y2="82" ${SC2}/><line x1="632" y1="58" x2="632" y2="82" ${SC2} stroke-width="4"/>`;
+for(let st=0;st<16;st++)g+=`<text x="${XP(st)}" y="108" font-size="11" text-anchor="middle" ${FC2} opacity="${row[st]?1:.4}" font-weight="${row[st]?700:400}">${st%4?['e','y','a'][st%4-1]:st/4+1}</text>`;
+for(let b=0;b<4;b++){const on=[];for(let i=0;i<4;i++)if(row[b*4+i])on.push(b*4+i);
+if(b)g+=`<line x1="${XP(b*4)-16}" y1="58" x2="${XP(b*4)-16}" y2="82" ${SC2} opacity=".25" stroke-dasharray="3 3"/>`;
+if(!on.length){g+=rst(XP(b*4),4);continue}
+if(on[0]>b*4)g+=rst(XP(b*4),on[0]-b*4);
+const ns=on.map((st,j)=>({x:XP(st),d:(on[j+1]??b*4+4)-st}));
+ns.forEach(n=>{g+=`<ellipse cx="${n.x}" cy="70" rx="6" ry="4.3" transform="rotate(-20 ${n.x} 70)" ${FC2}/><line x1="${n.x+5.2}" y1="68" x2="${n.x+5.2}" y2="35" ${SC2} stroke-width="1.6"/>`;if(n.d==3)g+=`<circle cx="${n.x+12}" cy="73" r="1.8" ${FC2}/>`});
+if(ns.length>1){g+=`<line x1="${ns[0].x+5.2}" y1="36" x2="${ns[ns.length-1].x+5.2}" y2="36" ${SC2} stroke-width="4"/>`;
+ns.forEach((n,j)=>{if(n.d!=1)return;const nx=ns[j+1],pv=ns[j-1],a=n.x+5.2;if(nx&&nx.d==1)g+=`<line x1="${a}" y1="44" x2="${nx.x+5.2}" y2="44" ${SC2} stroke-width="3.5"/>`;else if(!(pv&&pv.d==1))g+=`<line x1="${a}" y1="44" x2="${a+(nx?9:-9)}" y2="44" ${SC2} stroke-width="3.5"/>`})}
+else{const n=ns[0],fl=n.d==1?2:n.d==4?0:1;for(let i=0;i<fl;i++)g+=`<path d="M${n.x+5.2} ${35+i*8} q9 5 6 17" fill="none" ${SC2} stroke-width="2"/>`}}
+$('#nv').innerHTML=g}
+$('#nb').onclick=e=>{const i=e.target.dataset.i;if(i!=null){nk=+i;nr()}};
+function fig(k,r){const h=(o)=>`<ellipse cx="15" cy="38" rx="${k==0?8:6.5}" ry="${k==0?5.5:4.6}" transform="rotate(-20 15 38)" ${o?`fill="none" ${SC2} stroke-width="2.2"`:FC2}/>`;
+if(r){const l=`<line x1="4" y1="22" x2="36" y2="22" ${SC2}/>`;
+if(k==0)return l+`<rect x="14" y="22" width="12" height="6" ${FC2}/>`;if(k==1)return l+`<rect x="14" y="16" width="12" height="6" ${FC2}/>`;
+if(k==2)return `<path d="M17 8 l7 10 l-7 10 l7 10" fill="none" ${SC2} stroke-width="3"/>`;
+let q='';for(let i=0;i<k-2;i++)q+=`<circle cx="${19-i*3}" cy="${14+i*9}" r="2.8" ${FC2}/>`;return q+`<path d="M24 13 q-5 12-10 ${14+(k-3)*9}" fill="none" ${SC2} stroke-width="2"/>`}
+let t=h(k<2);if(k>0)t+=`<line x1="20.2" y1="36" x2="20.2" y2="6" ${SC2} stroke-width="1.8"/>`;
+for(let i=0;i<k-2;i++)t+=`<path d="M20.2 ${6+i*7} q10 5 6 17" fill="none" ${SC2} stroke-width="2.2"/>`;return t}
+function lg(){const L=[['Redonda','4','16','ta-a-a-a'],['Blanca','2','8','ta-a'],['Negra','1','4','ta'],['Corchea','½','2','ti (ti-ti)'],['Semicorchea','¼','1','ti-ri (ti-ri-ti-ri)'],['Fusa','⅛','½ (1/32)','ri-ri-ri-ri…']];
+$('#fgz').innerHTML=`<div class="scroll"><table><tr><th>Figura</th><th>Nombre</th><th>Pulsos</th><th>Pasos de la cuadrícula</th><th>Sílaba rítmica</th><th>Silencio</th></tr>`+L.map((x,i)=>`<tr><td><svg width="44" height="48" viewBox="0 0 40 46" style="color:var(--fg)">${fig(i<3?i:i,0)}</svg></td><td><b>${x[0]}</b></td><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td><svg width="44" height="48" viewBox="0 0 40 46" style="color:var(--fg)">${fig(i,1)}</svg></td></tr>`).join('')+`</table></div><p class="mut">El puntillo suma la mitad del valor: negra con puntillo = 1½ pulsos (6 pasos); corchea con puntillo = ¾ de pulso (3 pasos). La fusa no cabe en 16 pasos: es la ráfaga de hi-hats a 1/32 del trap.</p>`}
+function lab(){$('#bv').textContent=$('#bt').value;$('#bw').textContent=$('#bs').value}
+$('#bg').onclick=e=>{const i=e.target.dataset.i;if(i!=null)load(+i)};
+$('#bgrid').onclick=e=>{const b=e.target.closest('.cl');if(!b)return;const r=+b.dataset.r,k=+b.dataset.k;G[r][k]=!G[r][k];b.classList.toggle('on',G[r][k]);nr();if(G[r][k]&&!on){ac();drum(r,AC.currentTime)}};
+$('#bt').oninput=$('#bs').oninput=lab;
+$('#bp').onclick=()=>{if(on){stop();return}ac();on=1;step=0;bar=0;bs=AC.currentTime+.08;$('#bp').textContent='■ Detener';tm=setInterval(sched,25);sched()};
+$('#bx').onclick=()=>{G=G.map(r=>r.map(()=>false));$$$('#bgrid .cl').forEach(c=>c.classList.remove('on'));nr()};
+const CD=[
+['Lo-fi (hip-hop, chill, study)','Dm7 G7 Cmaj7 A7','Acordes de jazz extendidos (maj7, m9, dominante 11, add9) con conducción de voces muy suave. Progresiones cíclicas y nostálgicas, por ejemplo ii7 – V7 – Imaj7 – VI7.','Kick profundo y comprimido, de low-end cálido. Caja o rimshot apagado en el 2 y el 4, algo corrido del pulso exacto para sonar humano. Hi-hats lentos con crackle de vinilo y lluvia; sin toms agresivos, a lo sumo shakers o madera de fondo.'],
+['House (deep, tech, progressive)','Am7 Dm7 Am7 Dm7','Stabs de piano eléctrico (Rhodes, Wurlitzer) o de sintetizador tipo órgano M1. Acordes de 4 notas con inversiones limpias que entran a contratiempo.','Four-on-the-floor limpio, con el bajo comprimido por sidechain cada vez que golpea el kick. Clap en el 2 y el 4 con capa brillante y reverb plate corta; hat cerrado en las “y” y hat abierto en el pulso débil para dar aire antes de los drops.'],
+['Tribal / latin house','Am Bb Am Bb','Progresiones menores oscuras o modales (frigio, menor armónica), con una nota pedal repetida en el bajo mientras la armonía fluctúa.','Kick constante en 4/4, pero mandan las congas, bongós y tumbadoras con síncopas hiperactivas. Shakers, whistles y cowbells cortan en medios-altos para crear una atmósfera cálida y de alta energía.'],
+['Electro / synthwave / cyberpunk','C Bb Am Ab','Progresiones oscuras, cinemáticas y épicas inspiradas en los 80, con modos eólico y dórico y tríadas con novena añadida.','Kick electrónico y pesado (estilo TR-808 o LinnDrum). Caja o clap con gated reverb para un sonido enorme y espacial; hats en semicorcheas mecánicas con paneos rápidos y rimshots sintéticos.'],
+['Trap','Am G F E','Melodías oscuras y menores (armónicas o frigias) con flautas, pianos de cola tristes o bells con octavador y reversa.','El 808 manda y se desliza (glide) de nota en nota con saturación armónica. Caja o clap agudo y cortante en el tercer tiempo; hats rápidos e impredecibles, con tresillos y fusas programadas como rolls.'],
+['Reggaetón / urbano','C G Am F','Progresiones pop de 4 acordes (I – vi – IV – V o variaciones menores) con plucks suaves, guitarras acústicas procesadas o pianos eléctricos modernos.','Kick en los cuatro tiempos y el patrón sincopado del dembow, que empuja el cuerpo adelante y atrás. Woodblocks, rimshots y percusión latina digital rellenan los huecos.'],
+['Rock y pop','C Bb F C','Pop: I – V – vi – IV, con ganchos melódicos inmediatos. Rock: power chords (raíz y quinta), pentatónicas y modo mixolidio con el ♭VII (de Do mayor a Si bemol mayor) para un sonido crudo y de estadio.','Batería real: kick en el 1 y el 3 en el rock (cuatro tiempos en el pop bailable) y caja en el 2 y el 4. Los toms hacen los breaks y fills entre estrofa y coro; el crash abre secciones y el ride lleva el pulso en lo intenso.']];
+$('#bcards').innerHTML=CD.map(([t,ch,a,b])=>`<article class="cd"><h3>${t}</h3><div class="chips">${ch.split(' ').map(x=>`<button class="ch" data-n="${x}">${dn(x)}</button>`).join('')}</div><p><b>Armonía.</b> ${a}</p><p><b>Beat.</b> ${b}</p><div class="v"></div></article>`).join('');
+lg();load(0);
+})();
+(()=>{
+const SL=[['hp','HPF (corte de graves)',20,400,1,'Hz'],['bf','Campana: frecuencia',100,8000,10,'Hz'],['bg','Campana: Gain',-12,12,.5,'dB'],['bq','Campana: Q',.3,12,.1,''],['sg','High shelf (10 kHz)',-12,12,.5,'dB'],['pd','Pre-delay',0,60,1,'ms'],['dc','Decay (RT60)',.3,4.5,.1,'s'],['wet','Wet (mezcla)',0,100,1,'%']];
+const row=([k,n,a,b,st,u])=>`<label class="mut" style="display:block">${n} <b id="l_${k}"></b> ${u}<input type="range" id="x_${k}" min="${a}" max="${b}" step="${st}" style="width:100%"></label>`;
+$('#fxe').innerHTML=SL.slice(0,5).map(row).join('');$('#fxr').innerHTML=SL.slice(5).map(row).join('');
+const PF={'Seco':{hp:20,bf:1000,bg:0,bq:1,sg:0,dc:1.2,pd:20,wet:0},'Piano limpio':{hp:100,bf:4000,bg:2,bq:1.2,sg:0,dc:1.2,pd:20,wet:.2},'Rhodes con aire':{hp:80,bf:1000,bg:0,bq:1,sg:3,dc:1.5,pd:20,wet:.2},'Hall (balada)':{hp:100,bf:3000,bg:1,bq:1,sg:1,dc:3.5,pd:25,wet:.3}};
+function eq(){let d='';for(let i=0;i<120;i++){const f=20*10**(3*i/119),x=10+280*Math.log10(f/20)/3,db=-10*Math.log10(1+(FX.hp/f)**4)+FX.bg*Math.exp(-.5*(Math.log2(f/FX.bf)/(.8/FX.bq))**2)+FX.sg/(1+Math.exp(-3*Math.log2(f/10000))),y=Math.max(4,Math.min(106,55-db*3));d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}
+let g=`<line x1="10" y1="55" x2="290" y2="55" stroke="currentColor" opacity=".3"/><path d="${d}" fill="none" stroke="var(--acc)" stroke-width="2.5"/>`;
+[[100,'100 Hz'],[1000,'1 kHz'],[10000,'10 kHz']].forEach(([f,t])=>{const x=10+280*Math.log10(f/20)/3;g+=`<line x1="${x}" y1="8" x2="${x}" y2="100" stroke="currentColor" opacity=".12"/><text x="${x}" y="108" font-size="8" text-anchor="middle" fill="currentColor" opacity=".6">${t}</text>`});$('#eqv').innerHTML=g}
+function rv(){const k=52,x0=10+FX.pd/1000*k,amp=8+32*FX.wet;let p=`M${x0} 60`;for(let i=0;i<=40;i++){const t=FX.dc*i/40;p+=`L${(x0+t*k).toFixed(1)} ${(60-amp*(1-i/40)**3).toFixed(1)}`}
+$('#rvv').innerHTML=`<line x1="10" y1="60" x2="290" y2="60" stroke="currentColor" opacity=".3"/><line x1="10" y1="14" x2="10" y2="60" stroke="currentColor" stroke-width="3"/><path d="${p}L${x0+FX.dc*k} 60Z" fill="var(--acc2)" stroke="var(--acc)" stroke-width="2"/><text x="14" y="12" font-size="8" fill="currentColor">seco</text><text x="${x0+4}" y="${60-amp-4}" font-size="8" fill="currentColor">cola · ${FX.dc.toFixed(1)} s</text>`}
+function sync(){SL.forEach(([k,,,,,u])=>{const v=k=='wet'?Math.round(FX.wet*100):FX[k];$('#x_'+k).value=v;$('#l_'+k).textContent=v});eq();rv()}
+SL.forEach(([k])=>{const el=$('#x_'+k);el.oninput=()=>{FX[k]=k=='wet'?el.value/100:+el.value;fxu();sync()};el.onchange=()=>{if(k=='dc'&&BUS)BUS.cv.buffer=ir()}});
+function ap(o){Object.assign(FX,o);if(BUS)BUS.cv.buffer=ir();fxu();sync()}
+$('#fxp').innerHTML=Object.keys(PF).map(n=>`<button data-n="${n}">${n}</button>`).join('');
+$('#fxp').onclick=e=>{const n=e.target.dataset.n;if(n)ap(PF[n])};
+const pg=()=>play(['C','Am','F','G'].map(n=>notes(n)),0,1.4);
+$('#pfx').onclick=pg;
+$('#xa').onclick=()=>{WV='triangle';Object.assign(ENV,{a:.005,d:.6,s:.2,r:.5});ap({hp:100,bf:4000,bg:2,bq:1.2,sg:0,dc:1.2,pd:20,wet:.2});ws();pg()};
+$('#xb').onclick=()=>{WV='sawtooth';Object.assign(ENV,{a:.01,d:.1,s:.7,r:.3});ap({hp:80,bf:2500,bg:4,bq:1,sg:3,dc:.6,pd:10,wet:.1});ws();pg()};
+sync();
+})();
+$('#nav').innerHTML=[['s1','Leer'],['s2','Acordes'],['s3','Catálogo'],['s4','Inversiones'],['s5','Ejercicio'],['s6','Emociones'],['s7','Consejos'],['s8','Sonido'],['s9','Trastes'],['s10','Beats']].map(([i,t])=>`<button data-go="${i}">${t}</button>`).join('');
+$('#nav').onclick=e=>{const g=e.target.dataset.go;if(g)document.getElementById(g).scrollIntoView({behavior:'smooth'})};
+</script></body></html>

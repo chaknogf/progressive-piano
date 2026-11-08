@@ -21,74 +21,330 @@
   <div class="sim">
     <div class="seg" id="bg"></div>
     <div class="row">
-      <button id="bp" class="on">▶ Reproducir</button>
+      <button id="bp" class="on" type="button">▶ Reproducir</button>
       <label>Tempo <b id="bv"></b> BPM<input type="range" id="bt" min="60" max="180"></label>
       <label>Swing <b id="bw"></b> %<input type="range" id="bs" min="0" max="50"></label>
       <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="bc"> Con acordes</label>
-      <button id="bx">Limpiar</button>
+      <button id="bx" type="button">Limpiar</button>
     </div>
     <div class="sq" id="bgrid"></div>
     <p class="mut" id="bch"></p>
   </div>
   <div class="box hl" id="bn"></div>
+  <h3 style="margin-top:1.4em">Notación del ritmo</h3>
+  <p>Así se escribe el patrón en un pentagrama de percusión (una sola línea, un compás de 4/4). Elige una pista: cada casilla activa se convierte en una figura y la partitura cambia al editar la cuadrícula. Debajo de cada paso está el conteo en voz alta: 1 e y a, 2 e y a…</p>
+  <div class="seg" id="nb"></div>
+  <div class="fb"><svg id="nv" viewBox="0 0 640 120" style="min-width:560px;color:var(--fg)" role="img" aria-label="Pentagrama del patrón"></svg></div>
+  <p class="mut">Cada golpe dura hasta el siguiente golpe del mismo pulso; si un golpe cruza al pulso siguiente, se corta ahí por simplicidad. Una casilla de la cuadrícula es una semicorchea.</p>
+  <h4>Figuras y silencios</h4>
+  <div id="fgz"></div>
   <h3 style="margin-top:1.4em">Armonía y percusión: la radiografía por género</h3>
   <p>Cada género combina un tipo de acordes con un tipo de beat. Toca los acordes para ver su teclado y su diapasón.</p>
   <div class="grid" id="bcards"></div>
 </section>
 <script>
-const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
-const N=['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'],PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11},FL=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
-const IV={'':[0,4,7],m:[0,3,7],7:[0,4,7,10],m7:[0,3,7,10],maj7:[0,4,7,11],dim7:[0,3,6,9],m7b5:[0,3,6,10],sus4:[0,5,7],dim:[0,3,6]};
-const pc=s=>(PC[s[0]]+(s[1]=='#'?1:s[1]=='b'?-1:0)+12)%12;
-function parse(n){const m=n.match(/^([A-G][b#]?)([^\/]*)(?:\/([A-G][b#]?))?$/);return{r:pc(m[1]),q:m[2],b:m[3]?pc(m[3]):null}}
-const dn=n=>n.replace(/^([A-G])b/,'$1♭').replace(/\/([A-G])b/,'/$1♭').replace(/#/g,'♯').replace('b5','♭5');
-function notes(n,inv=0){const c=parse(n);let a=IV[c.q].map(i=>c.r+i);for(let i=0;i<inv;i++)a[i]+=12;a.sort((x,y)=>x-y);if(c.b!=null){let b=c.b;while(b>=a[0])b-=12;a.unshift(b)}return a}
-let AC;
-function tone(f,t,d){AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.14,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.05)}
-(()=>{const TR=['Kick','Caja / Clap','Hat cerrado','Hat abierto','Conga'];
-const GN=[
-['House / four-on-the-floor',124,0,['x...x...x...x...','....x.......x...','................','..x...x...x...x.','................'],['Am7','Dm7','Am7','Dm7'],'Sirve también para techno, synthwave y disco. Kick en los 4 tiempos; clap o caja en el 2 y el 4 (backbeat); hi-hat abierto en el contratiempo (las “y”), la clave del groove house. Los toms casi no van en el patrón: se colocan al final del compás 4 u 8 como fill descendente (agudo → medio → grave) para avisar un cambio de sección.'],
-['Boom bap / hip-hop clásico',90,20,['x......x.x......','....x.......x...','x.x.x.x.x.x.x.x.','................','................'],['Dm7','G7','Cmaj7','A7'],'Ritmo sincopado con swing. El kick va en el 1, con un segundo kick desplazado antes del 3; la caja es seca y pesada en el 2 y el 4. Congas o bongós en los huecos libres dan textura orgánica.'],
-['Trap / drill',140,0,['x..x......x.....','........x.......','xxxxxxxxxxxxxxxx','................','................'],['Am','G','F','E'],'130–160 BPM en medio tiempo, dominado por el sub-bajo 808. La caja o el clap cae en el tercer tiempo, no en el 2 y el 4. Los hi-hats llevan el peso creativo: de corcheas a ráfagas de semicorcheas o fusas con pitch rolls. Los rimshots acentúan contra-ritmos antes de la caja.'],
-['Reggaetón / dembow',95,0,['x...x...x...x...','...x.x.....x.x..','................','................','................'],['C','G','Am','F'],'Kick en los cuatro tiempos y caja, palo o rimshot en un patrón sincopado (el dembow) que da el vaivén característico. Congas y woodblocks rellenan con percusión seca.'],
-['Afrobeat / pop latino',105,0,['x.....x.....x...','................','xxxxxxxxxxxxxxxx','................','..x.x..x..x.x..x'],['Am','F','G','G'],'Polirritmia orgánica: las congas usan el tumbao (golpe abierto + palma o dedo) en lugar de una caja pesada, y el shaker mantiene el pulso. Las claves marcan el marco temporal (3-2 o 2-3), y los toms se afinan melódicamente para construir el patrón junto al kick.'],
-['Rock / pop',110,0,['x.......x.......','....x.......x...','x.x.x.x.x.x.x.x.','................','................'],['C','Bb','F','C'],'Kick orgánico en el 1 y el 3 (en el pop bailable, en los cuatro tiempos) y caja brillante en el 2 y el 4. Los toms son la clave de los breaks y fills (del tom agudo al floor tom); el crash abre cada sección y el ride lleva el pulso en las partes intensas.']];
-let gi=0,G=[],on=0,step=0,bar=0,bs=0,tm,NB;
-const $$$=s=>document.querySelectorAll(s);
-function ac(){AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=='suspended')AC.resume();if(!NB){NB=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}}
-function drum(r,t){const g=AC.createGain();g.connect(AC.destination);
-if(r==0||r==4){const o=AC.createOscillator(),k=r==0;o.frequency.setValueAtTime(k?150:260,t);o.frequency.exponentialRampToValueAtTime(k?42:190,t+(k?.12:.1));g.gain.setValueAtTime(k?.9:.4,t);g.gain.exponentialRampToValueAtTime(.001,t+(k?.35:.18));o.connect(g);o.start(t);o.stop(t+.4);return}
-const n=AC.createBufferSource(),f=AC.createBiquadFilter(),d=r==1?.2:r==2?.05:.3;n.buffer=NB;f.type=r==1?'bandpass':'highpass';f.frequency.value=r==1?1800:7000;g.gain.setValueAtTime(r==1?.7:.25,t);g.gain.exponentialRampToValueAtTime(.001,t+d);n.connect(f);f.connect(g);n.start(t);n.stop(t+d+.05);
-if(r==1){const o=AC.createOscillator(),h=AC.createGain();o.type='triangle';o.frequency.setValueAtTime(200,t);h.gain.setValueAtTime(.3,t);h.gain.exponentialRampToValueAtTime(.001,t+.1);o.connect(h);h.connect(AC.destination);o.start(t);o.stop(t+.12)}}
-function cur(k){$$$('#bgrid .cl').forEach(c=>c.classList.toggle('cur',+c.dataset.k==k))}
-function sched(){const bpm=+$('#bt').value,sw=$('#bs').value/100,sd=60/bpm/4;
-while(bs+step*sd<AC.currentTime+.15){const st=step,t=bs+st*sd+(st%2?sw*sd:0);
-G.forEach((row,r)=>{if(row[st])drum(r,t)});
-if(!st&&$('#bc').checked)notes(GN[gi][4][bar%4]).forEach(n=>window.__scheduleTone?.(n-12,t,sd*15));
-setTimeout(()=>on&&cur(st),Math.max(0,(t-AC.currentTime)*1000));
-if(++step==16){step=0;bs+=16*sd;bar++}}}
-function stop(){on=0;clearInterval(tm);$('#bp').textContent='▶ Reproducir';cur(-1)}
-function load(i){gi=i;const g=GN[i];G=g[3].map(r=>[...r].map(c=>c=='x'));$('#bt').value=g[1];$('#bs').value=g[2];lab();
-$('#bg').innerHTML=GN.map((x,j)=>`<button data-i="${j}" class="${j==i?'on':''}">${x[0]}</button>`).join('');
-$('#bn').innerHTML=`<b>${g[0]}.</b> ${g[5]}`;$('#bch').textContent=`Acordes (un compás cada uno): ${g[4].map(dn).join(' – ')}`;
-$('#bgrid').innerHTML=TR.map((n,r)=>`<span class="bl">${n}</span>`+G[r].map((v,k)=>`<button class="cl${v?' on':''}${k%4?'':' b'}" data-r="${r}" data-k="${k}" aria-label="${n}, semicorchea ${k+1}"></button>`).join('')).join('')}
-function lab(){$('#bv').textContent=$('#bt').value;$('#bw').textContent=$('#bs').value}
-$('#bg').onclick=e=>{const i=e.target.dataset.i;if(i!=null)load(+i)};
-$('#bgrid').onclick=e=>{const b=e.target.closest('.cl');if(!b)return;const r=+b.dataset.r,k=+b.dataset.k;G[r][k]=!G[r][k];b.classList.toggle('on',G[r][k]);if(G[r][k]&&!on){ac();drum(r,AC.currentTime)}};
-$('#bt').oninput=$('#bs').oninput=lab;
-$('#bp').onclick=()=>{if(on){stop();return}ac();on=1;step=0;bar=0;bs=AC.currentTime+.08;$('#bp').textContent='■ Detener';tm=setInterval(sched,25);sched()};
-$('#bx').onclick=()=>{G=G.map(r=>r.map(()=>false));$$$('#bgrid .cl').forEach(c=>c.classList.remove('on'))};
-const CD=[
-['Lo-fi (hip-hop, chill, study)','Dm7 G7 Cmaj7 A7','Acordes de jazz extendidos (maj7, m9, dominante 11, add9) con conducción de voces muy suave. Progresiones cíclicas y nostálgicas, por ejemplo ii7 – V7 – Imaj7 – VI7.','Kick profundo y comprimido, de low-end cálido. Caja o rimshot apagado en el 2 y el 4, algo corrido del pulso exacto para sonar humano. Hi-hats lentos con crackle de vinilo y lluvia; sin toms agresivos, a lo sumo shakers o madera de fondo.'],
-['House (deep, tech, progressive)','Am7 Dm7 Am7 Dm7','Stabs de piano eléctrico (Rhodes, Wurlitzer) o de sintetizador tipo órgano M1. Acordes de 4 notas con inversiones limpias que entran a contratiempo.','Four-on-the-floor limpio, con el bajo comprimido por sidechain cada vez que golpea el kick. Clap en el 2 y el 4 con capa brillante y reverb plate corta; hat cerrado en las “y” y hat abierto en el pulso débil para dar aire antes de los drops.'],
-['Tribal / latin house','Am Bb Am Bb','Progresiones menores oscuras o modales (frigio, menor armónica), con una nota pedal repetida en el bajo mientras la armonía fluctúa.','Kick constante en 4/4, pero mandan las congas, bongós y tumbadoras con síncopas hiperactivas. Shakers, whistles y cowbells cortan en medios-altos para crear una atmósfera cálida y de alta energía.'],
-['Electro / synthwave / cyberpunk','C Bb Am Ab','Progresiones oscuras, cinemáticas y épicas inspiradas en los 80, con modos eólico y dórico y tríadas con novena añadida.','Kick electrónico y pesado (estilo TR-808 o LinnDrum). Caja o clap con gated reverb para un sonido enorme y espacial; hats en semicorcheas mecánicas con paneos rápidos y rimshots sintéticos.'],
-['Trap','Am G F E','Melodías oscuras y menores (armónicas o frigias) con flautas, pianos de cola tristes o bells con octavador y reversa.','El 808 manda y se desliza (glide) de nota en nota con saturación armónica. Caja o clap agudo y cortante en el tercer tiempo; hats rápidos e impredecibles, con tresillos y fusas programadas como rolls.'],
-['Reggaetón / urbano','C G Am F','Progresiones pop de 4 acordes (I – vi – IV – V o variaciones menores) con plucks suaves, guitarras acústicas procesadas o pianos eléctricos modernos.','Kick en los cuatro tiempos y el patrón sincopado del dembow, que empuja el cuerpo adelante y atrás. Woodblocks, rimshots y percusión latina digital rellenan los huecos.'],
-['Rock y pop','C Bb F C','Pop: I – V – vi – IV, con ganchos melódicos inmediatos. Rock: power chords (raíz y quinta), pentatónicas y modo mixolidio con el ♭VII (de Do mayor a Si bemol mayor) para un sonido crudo y de estadio.','Batería real: kick en el 1 y el 3 en el rock (cuatro tiempos en el pop bailable) y caja en el 2 y el 4. Los toms hacen los breaks y fills entre estrofa y coro; el crash abre secciones y el ride lleva el pulso en lo intenso.']];
-$('#bcards').innerHTML=CD.map(([t,ch,a,b])=>`<article class="cd"><h3>${t}</h3><div class="chips">${ch.split(' ').map(x=>`<button class="ch" data-n="${x}">${dn(x)}</button>`).join('')}</div><p><b>Armonía.</b> ${a}</p><p><b>Beat.</b> ${b}</p><div class="v"></div></article>`).join('');
-load(0);
-})();
+  import { audioContext, scheduleTone } from '../lib/audio';
+  import { BEAT_GENRES, BEAT_INSTRUMENTS, HARMONY_CARDS } from '../data/beats';
+  import { chordNotes as notes, displayName as dn } from '../lib/theory';
+
+  const $ = (s: string, e: ParentNode = document): any => e.querySelector(s);
+  const $$ = (s: string, e: ParentNode = document): any[] => [...e.querySelectorAll(s)];
+
+  const TR = BEAT_INSTRUMENTS;
+  const GN = BEAT_GENRES;
+  const CD = HARMONY_CARDS;
+
+  let gi = 0;
+  let G: boolean[][] = [];
+  let on = 0;
+  let step = 0;
+  let bar = 0;
+  let bs = 0;
+  let tm: ReturnType<typeof setInterval>;
+  let AC: AudioContext;
+  let NB: AudioBuffer | null = null;
+
+  function ac(): void {
+    AC = audioContext();
+    if (AC.state === 'suspended') AC.resume();
+    if (!NB) {
+      NB = AC.createBuffer(1, AC.sampleRate, AC.sampleRate);
+      const d = NB.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+  }
+
+  function drum(r: number, t: number): void {
+    const g = AC.createGain();
+    g.connect(AC.destination);
+    if (r == 0 || r == 4) {
+      const o = AC.createOscillator();
+      const k = r == 0;
+      o.frequency.setValueAtTime(k ? 150 : 260, t);
+      o.frequency.exponentialRampToValueAtTime(k ? 42 : 190, t + (k ? 0.12 : 0.1));
+      g.gain.setValueAtTime(k ? 0.9 : 0.4, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + (k ? 0.35 : 0.18));
+      o.connect(g);
+      o.start(t);
+      o.stop(t + 0.4);
+      return;
+    }
+    const n = AC.createBufferSource();
+    const f = AC.createBiquadFilter();
+    const d = r == 1 ? 0.2 : r == 2 ? 0.05 : 0.3;
+    n.buffer = NB;
+    f.type = r == 1 ? 'bandpass' : 'highpass';
+    f.frequency.value = r == 1 ? 1800 : 7000;
+    g.gain.setValueAtTime(r == 1 ? 0.7 : 0.25, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + d);
+    n.connect(f);
+    f.connect(g);
+    n.start(t);
+    n.stop(t + d + 0.05);
+    if (r == 1) {
+      const o = AC.createOscillator();
+      const h = AC.createGain();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(200, t);
+      h.gain.setValueAtTime(0.3, t);
+      h.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+      o.connect(h);
+      h.connect(AC.destination);
+      o.start(t);
+      o.stop(t + 0.12);
+    }
+  }
+
+  function cur(k: number): void {
+    $$('#bgrid .cl').forEach((c) => c.classList.toggle('cur', +c.dataset.k == k));
+  }
+
+  function sched(): void {
+    const bpm = +$('#bt').value;
+    const sw = $('#bs').value / 100;
+    const sd = 60 / bpm / 4;
+    while (bs + step * sd < AC.currentTime + 0.15) {
+      const st = step;
+      const t = bs + st * sd + (st % 2 ? sw * sd : 0);
+      G.forEach((row, r) => {
+        if (row[st]) drum(r, t);
+      });
+      if (!st && $('#bc').checked) {
+        notes(GN[gi].chords[bar % 4]).forEach((n) => scheduleTone(n - 12, t, sd * 15));
+      }
+      setTimeout(() => on && cur(st), Math.max(0, (t - AC.currentTime) * 1000));
+      if (++step == 16) {
+        step = 0;
+        bs += 16 * sd;
+        bar++;
+      }
+    }
+  }
+
+  function stop(): void {
+    on = 0;
+    clearInterval(tm);
+    $('#bp').textContent = '▶ Reproducir';
+    cur(-1);
+  }
+
+  function lab(): void {
+    $('#bv').textContent = $('#bt').value;
+    $('#bw').textContent = $('#bs').value;
+  }
+
+  let nk = 0;
+  const XP = (st: number): number => 82 + st * 33;
+  const FC2 = 'fill="currentColor"';
+  const SC2 = 'stroke="currentColor"';
+
+  function rst(x: number, d: number): string {
+    if (d == 4) {
+      return `<path d="M${x} 56 l6 8 l-6 8 l6 8" fill="none" ${SC2} stroke-width="2.6"/>`;
+    }
+    const e = `<circle cx="${x}" cy="62" r="2.6" ${FC2}/><path d="M${x + 4} 60 q-4 10-9 22" fill="none" ${SC2} stroke-width="2"/>`;
+    return d == 1
+      ? e + `<circle cx="${x - 2}" cy="72" r="2.6" ${FC2}/>`
+      : d == 2
+        ? e
+        : e + `<circle cx="${x + 10}" cy="62" r="1.6" ${FC2}/>`;
+  }
+
+  function nr(): void {
+    const row = G[nk];
+    $('#nb').innerHTML = TR.map(
+      (n, i) => `<button data-i="${i}" class="${i == nk ? 'on' : ''}" type="button">${n}</button>`,
+    ).join('');
+    let g = `<line x1="60" y1="70" x2="632" y2="70" ${SC2}/><rect x="14" y="58" width="4" height="24" ${FC2}/><rect x="24" y="58" width="4" height="24" ${FC2}/><text x="46" y="66" font-size="20" font-family="Georgia,serif" font-weight="700" text-anchor="middle" ${FC2}>4</text><text x="46" y="86" font-size="20" font-family="Georgia,serif" font-weight="700" text-anchor="middle" ${FC2}>4</text><line x1="60" y1="58" x2="60" y2="82" ${SC2}/><line x1="627" y1="58" x2="627" y2="82" ${SC2}/><line x1="632" y1="58" x2="632" y2="82" ${SC2} stroke-width="4"/>`;
+    for (let st = 0; st < 16; st++) {
+      g += `<text x="${XP(st)}" y="108" font-size="11" text-anchor="middle" ${FC2} opacity="${row[st] ? 1 : 0.4}" font-weight="${row[st] ? 700 : 400}">${st % 4 ? ['e', 'y', 'a'][st % 4 - 1] : st / 4 + 1}</text>`;
+    }
+    for (let b = 0; b < 4; b++) {
+      const active: number[] = [];
+      for (let i = 0; i < 4; i++) if (row[b * 4 + i]) active.push(b * 4 + i);
+      if (b) {
+        g += `<line x1="${XP(b * 4) - 16}" y1="58" x2="${XP(b * 4) - 16}" y2="82" ${SC2} opacity=".25" stroke-dasharray="3 3"/>`;
+      }
+      if (!active.length) {
+        g += rst(XP(b * 4), 4);
+        continue;
+      }
+      if (active[0] > b * 4) g += rst(XP(b * 4), active[0] - b * 4);
+      const ns = active.map((st, j) => ({ x: XP(st), d: (active[j + 1] ?? b * 4 + 4) - st }));
+      ns.forEach((n) => {
+        g += `<ellipse cx="${n.x}" cy="70" rx="6" ry="4.3" transform="rotate(-20 ${n.x} 70)" ${FC2}/><line x1="${n.x + 5.2}" y1="68" x2="${n.x + 5.2}" y2="35" ${SC2} stroke-width="1.6"/>`;
+        if (n.d == 3) g += `<circle cx="${n.x + 12}" cy="73" r="1.8" ${FC2}/>`;
+      });
+      if (ns.length > 1) {
+        g += `<line x1="${ns[0].x + 5.2}" y1="36" x2="${ns[ns.length - 1].x + 5.2}" y2="36" ${SC2} stroke-width="4"/>`;
+        ns.forEach((n, j) => {
+          if (n.d != 1) return;
+          const nx = ns[j + 1];
+          const pv = ns[j - 1];
+          const a = n.x + 5.2;
+          if (nx && nx.d == 1) {
+            g += `<line x1="${a}" y1="44" x2="${nx.x + 5.2}" y2="44" ${SC2} stroke-width="3.5"/>`;
+          } else if (!(pv && pv.d == 1)) {
+            g += `<line x1="${a}" y1="44" x2="${a + (nx ? 9 : -9)}" y2="44" ${SC2} stroke-width="3.5"/>`;
+          }
+        });
+      } else {
+        const n = ns[0];
+        const fl = n.d == 1 ? 2 : n.d == 4 ? 0 : 1;
+        for (let i = 0; i < fl; i++) {
+          g += `<path d="M${n.x + 5.2} ${35 + i * 8} q9 5 6 17" fill="none" ${SC2} stroke-width="2"/>`;
+        }
+      }
+    }
+    $('#nv').innerHTML = g;
+  }
+
+  function fig(k: number, r: number): string {
+    const h = (o: boolean): string =>
+      `<ellipse cx="15" cy="38" rx="${k == 0 ? 8 : 6.5}" ry="${k == 0 ? 5.5 : 4.6}" transform="rotate(-20 15 38)" ${o ? `fill="none" ${SC2} stroke-width="2.2"` : FC2}/>`;
+    if (r) {
+      const l = `<line x1="4" y1="22" x2="36" y2="22" ${SC2}/>`;
+      if (k == 0) return l + `<rect x="14" y="22" width="12" height="6" ${FC2}/>`;
+      if (k == 1) return l + `<rect x="14" y="16" width="12" height="6" ${FC2}/>`;
+      if (k == 2) return `<path d="M17 8 l7 10 l-7 10 l7 10" fill="none" ${SC2} stroke-width="3"/>`;
+      let q = '';
+      for (let i = 0; i < k - 2; i++) q += `<circle cx="${19 - i * 3}" cy="${14 + i * 9}" r="2.8" ${FC2}/>`;
+      return q + `<path d="M24 13 q-5 12-10 ${14 + (k - 3) * 9}" fill="none" ${SC2} stroke-width="2"/>`;
+    }
+    let t = h(k < 2);
+    if (k > 0) t += `<line x1="20.2" y1="36" x2="20.2" y2="6" ${SC2} stroke-width="1.8"/>`;
+    for (let i = 0; i < k - 2; i++) {
+      t += `<path d="M20.2 ${6 + i * 7} q10 5 6 17" fill="none" ${SC2} stroke-width="2.2"/>`;
+    }
+    return t;
+  }
+
+  function lg(): void {
+    const L = [
+      ['Redonda', '4', '16', 'ta-a-a-a'],
+      ['Blanca', '2', '8', 'ta-a'],
+      ['Negra', '1', '4', 'ta'],
+      ['Corchea', '½', '2', 'ti (ti-ti)'],
+      ['Semicorchea', '¼', '1', 'ti-ri (ti-ri-ti-ri)'],
+      ['Fusa', '⅛', '½ (1/32)', 'ri-ri-ri-ri…'],
+    ];
+    $('#fgz').innerHTML =
+      `<div class="scroll"><table><tr><th>Figura</th><th>Nombre</th><th>Pulsos</th><th>Pasos de la cuadrícula</th><th>Sílaba rítmica</th><th>Silencio</th></tr>` +
+      L.map(
+        (x, i) =>
+          `<tr><td><svg width="44" height="48" viewBox="0 0 40 46" style="color:var(--fg)">${fig(i, 0)}</svg></td><td><b>${x[0]}</b></td><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td><svg width="44" height="48" viewBox="0 0 40 46" style="color:var(--fg)">${fig(i, 1)}</svg></td></tr>`,
+      ).join('') +
+      `</table></div><p class="mut">El puntillo suma la mitad del valor: negra con puntillo = 1½ pulsos (6 pasos); corchea con puntillo = ¾ de pulso (3 pasos). La fusa no cabe en 16 pasos: es la ráfaga de hi-hats a 1/32 del trap.</p>`;
+  }
+
+  function load(i: number): void {
+    gi = i;
+    const g = GN[i];
+    G = g.patterns.map((row) => [...row].map((c) => c == 'x'));
+    $('#bt').value = g.bpm;
+    $('#bs').value = g.swing;
+    lab();
+    $('#bg').innerHTML = GN.map(
+      (x, j) => `<button data-i="${j}" class="${j == i ? 'on' : ''}" type="button">${x.name}</button>`,
+    ).join('');
+    $('#bn').innerHTML = `<b>${g.name}.</b> ${g.description}`;
+    $('#bch').textContent = `Acordes (un compás cada uno): ${g.chords.map(dn).join(' – ')}`;
+    $('#bgrid').innerHTML =
+      '<span></span>' +
+      [...Array(16)]
+        .map(
+          (_, k) =>
+            `<span class="bc2${k % 4 ? '' : ' bb'}">${k % 4 ? ['e', 'y', 'a'][k % 4 - 1] : k / 4 + 1}</span>`,
+        )
+        .join('') +
+      TR.map(
+        (n, r) =>
+          `<span class="bl">${n}</span>` +
+          G[r]
+            .map(
+              (v, k) =>
+                `<button class="cl${v ? ' on' : ''}${k % 4 ? '' : ' b'}" data-r="${r}" data-k="${k}" aria-label="${n}, semicorchea ${k + 1}" type="button"></button>`,
+            )
+            .join(''),
+      ).join('');
+    nr();
+  }
+
+  $('#bg').onclick = (e) => {
+    const i = e.target.dataset.i;
+    if (i != null) load(+i);
+  };
+  $('#bgrid').onclick = (e) => {
+    const b = e.target.closest('.cl');
+    if (!b) return;
+    const r = +b.dataset.r;
+    const k = +b.dataset.k;
+    G[r][k] = !G[r][k];
+    b.classList.toggle('on', G[r][k]);
+    nr();
+    if (G[r][k] && !on) {
+      ac();
+      drum(r, AC.currentTime);
+    }
+  };
+  $('#bt').oninput = $('#bs').oninput = lab;
+  $('#bp').onclick = () => {
+    if (on) {
+      stop();
+      return;
+    }
+    ac();
+    on = 1;
+    step = 0;
+    bar = 0;
+    bs = AC.currentTime + 0.08;
+    $('#bp').textContent = '■ Detener';
+    tm = setInterval(sched, 25);
+    sched();
+  };
+  $('#bx').onclick = () => {
+    G = G.map((r) => r.map(() => false));
+    $$('#bgrid .cl').forEach((c) => c.classList.remove('on'));
+    nr();
+  };
+  $('#nb').onclick = (e) => {
+    const i = e.target.dataset.i;
+    if (i != null) {
+      nk = +i;
+      nr();
+    }
+  };
+
+  $('#bcards').innerHTML = CD.map(
+    (card) =>
+      `<article class="cd"><h3>${card.title}</h3><div class="chips">${card.chords
+        .split(' ')
+        .map((x) => `<button class="ch" type="button" data-n="${x}">${dn(x)}</button>`)
+        .join('')}</div><p><b>Armonía.</b> ${card.harmony}</p><p><b>Beat.</b> ${card.beat}</p><div class="v"></div></article>`,
+  ).join('');
+
+  lg();
+  load(0);
 </script>
 <style>
   .sq{display:grid;grid-template-columns:72px repeat(16,minmax(0,1fr));gap:3px;align-items:center;margin:10px 0}

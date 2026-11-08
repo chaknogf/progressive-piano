@@ -1,22 +1,22 @@
 ---
 ---
 <div class="row" style="font-weight:700">
-  <span class="box" style="margin:0;text-align:center">Oscilador<br /><small class="mut">forma de onda</small></span>→<span class="box" style="margin:0;text-align:center">Filtro (VCF)<br /><small class="mut">frecuencia de corte</small></span>→<span class="box" style="margin:0;text-align:center">Amplificador (VCA)<br /><small class="mut">envolvente ADSR</small></span>
+  <span class="box" style="margin:0;text-align:center">Oscilador<br /><small class="mut">genera la forma de onda</small></span>→<span class="box" style="margin:0;text-align:center">Filtro (VCF)<br /><small class="mut">corta agudos o graves</small></span>→<span class="box" style="margin:0;text-align:center">Amplificador (VCA)<br /><small class="mut">volumen y forma ADSR</small></span>
 </div>
 <div class="grid">
   <div class="cd">
-    <h4>1. Osciladores · elige el timbre</h4>
+    <h4>1. Osciladores · tu materia prima</h4>
     <div class="row" id="wf" role="group" aria-label="Forma de onda"></div>
     <svg viewBox="0 0 300 80" class="kb" id="wsv" role="img" aria-label="Forma de onda seleccionada"></svg>
     <ul>
-      <li><b>Seno:</b> onda pura, sin armónicos superiores. Sub-bajo, flautas sintéticas.</li>
-      <li><b>Sierra:</b> todos los armónicos (pares e impares); brillante y rasgante. Leads, pads de synth-pop 80s, super-saws.</li>
-      <li><b>Cuadrada:</b> armónicos impares; sonido hueco, de videojuego retro o clarinete. Bajos synthwave.</li>
-      <li><b>Triangular:</b> suave, con pocos armónicos. Pianos eléctricos simples, bajos sutiles.</li>
+      <li><b>Seno:</b> la onda más pura, sin armónicos superiores: un sonido redondo y sordo. Sub-bajos profundos, flautas sintéticas y tonos de prueba.</li>
+      <li><b>Sierra:</b> contiene todos los armónicos (pares e impares): rica, brillante, afilada y agresiva. Reina de los leads, de los colchones de cuerdas del synth-pop de los 80 y de los bajos gruesos con distorsión.</li>
+      <li><b>Cuadrada:</b> solo armónicos impares; timbre hueco y nasal. Bajos de videojuego retro (8 bits), sonidos tipo clarinete y bajos oscuros de synthwave.</li>
+      <li><b>Triangular:</b> muy pocos armónicos; un punto medio cálido entre el seno y la cuadrada. Bajos suaves y orgánicos, y emulaciones sencillas de pianos eléctricos vintage.</li>
     </ul>
   </div>
   <div class="cd">
-    <h4>2. Envolvente ADSR · moldea el volumen</h4>
+    <h4>2. Envolvente ADSR · el volumen en el tiempo</h4>
     <div class="row" id="pr" role="group" aria-label="Presets de sonido"></div>
     <svg viewBox="0 0 300 80" class="kb" id="env" role="img" aria-label="Envolvente ADSR"></svg>
     <label class="mut" style="display:block">Attack <b id="va"></b> s<input type="range" id="ra" min="0.005" max="2" step="0.005" style="width:100%" /></label>
@@ -24,22 +24,28 @@
     <label class="mut" style="display:block">Sustain <b id="vs"></b><input type="range" id="rs" min="0" max="1" step="0.01" style="width:100%" /></label>
     <label class="mut" style="display:block">Release <b id="vr"></b> s<input type="range" id="rr" min="0.05" max="3" step="0.01" style="width:100%" /></label>
     <ul>
-      <li><b>Attack:</b> tiempo hasta el volumen máximo (corto en pianos y bajos; largo en pads atmosféricos).</li>
-      <li><b>Decay:</b> tiempo en caer del pico al nivel de sostén.</li>
-      <li><b>Sustain:</b> nivel constante mientras la tecla sigue presionada.</li>
-      <li><b>Release:</b> tiempo en extinguirse tras soltar la tecla.</li>
+      <li><b>Attack:</b> cuánto tarda en pasar de cero al volumen máximo. Corto (0,01 s): el sonido explota, ideal para pianos, percusiones y bajos. Largo (1 s o más): aparece como una ola que crece, ideal para pads y colchones de acordes.</li>
+      <li><b>Decay:</b> cuánto tarda en bajar del pico al nivel de sostén.</li>
+      <li><b>Sustain:</b> no es un tiempo sino un nivel de volumen (0–100 %) que se mantiene mientras la tecla sigue presionada.</li>
+      <li><b>Release:</b> cuánto tarda en extinguirse al soltar la tecla. Un release largo deja una cola persistente muy elegante en las baladas.</li>
     </ul>
     <button id="ps" type="button">▶ Probar con C – Am – F – G</button>
   </div>
 </div>
 <script>
-  import { playSequence, setAdsr, setWaveform, type Waveform } from '../lib/audio';
+  import { getConfig, onSynthConfigChange, playSequence, setAdsr, setWaveform, type Waveform } from '../lib/audio';
   import { chordNotes } from '../lib/theory';
 
   type EnvKey = 'a' | 'd' | 's' | 'r';
 
-  const ENV: Record<EnvKey, number> = { a: 0.02, d: 0.3, s: 0.3, r: 0.6 };
-  let WV: Waveform = 'triangle';
+  const initial = getConfig();
+  const ENV: Record<EnvKey, number> = {
+    a: initial.adsr.attack,
+    d: initial.adsr.decay,
+    s: initial.adsr.sustain,
+    r: initial.adsr.release,
+  };
+  let WV: Waveform = initial.waveform;
 
   const WS: Array<[Waveform, string]> = [
     ['sine', 'Seno'],
@@ -80,7 +86,7 @@
     return d;
   }
 
-  function ws(): void {
+  function ws(updateAudio = true): void {
     if (wf) {
       wf.innerHTML = WS.map(
         ([v, n]) =>
@@ -102,6 +108,7 @@
       if (input) input.value = String(ENV[x]);
       if (label) label.textContent = String(ENV[x]);
     });
+    if (!updateAudio) return;
     setWaveform(WV);
     setAdsr({ attack: ENV.a, decay: ENV.d, sustain: ENV.s, release: ENV.r });
   }
@@ -140,6 +147,15 @@
 
   ps?.addEventListener('click', () => {
     playSequence(['C', 'Am', 'F', 'G'].map((name) => chordNotes(name)), 0, 1.4);
+  });
+
+  onSynthConfigChange((next) => {
+    WV = next.waveform;
+    ENV.a = next.adsr.attack;
+    ENV.d = next.adsr.decay;
+    ENV.s = next.adsr.sustain;
+    ENV.r = next.adsr.release;
+    ws(false);
   });
 
   ws();

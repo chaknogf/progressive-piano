@@ -1,0 +1,232 @@
+---
+---
+<div class="box hl">
+  <h3>Experimento: mismos acordes, emociones opuestas</h3>
+  <div class="row">
+    <button id="xa" class="on" type="button">▶ A · Piano íntimo</button>
+    <button id="xb" class="on" type="button">▶ B · Sierra brillante</button>
+  </div>
+  <p class="mut" style="margin:0">Ambos tocan C – Am – F – G. Fíjate en qué cambia: forma de onda, envolvente, ecualización y espacio. Después ajusta los controles de abajo y compara.</p>
+</div>
+
+<h3 style="margin-top:1.4em">A. Ecualización (EQ): moldear el espectro</h3>
+<p>La ecualización no crea frecuencias nuevas: <b>solo ajusta el volumen de las que ya existen</b>. En una mezcla cada instrumento compite por el mismo espacio de aire; sin EQ los graves se empastan y las melodías chocan entre sí. Piensa en tres zonas: <i>corte de graves</i> (limpia el barro del bajo), <i>cuerpo y medios</i> (200 Hz – 5 kHz, donde viven el cuerpo y el ataque) y <i>brillo y aire</i> (por encima de 8 kHz).</p>
+<div class="grid">
+  <div class="cd">
+    <h4>Prueba el EQ · curva en vivo</h4>
+    <svg id="eqv" viewBox="0 0 300 110" class="kb" style="max-width:100%" role="img" aria-label="Curva de ecualización"></svg>
+    <div id="fxe"></div>
+  </div>
+  <div class="cd">
+    <h4>Los 4 controles clave</h4>
+    <ul>
+      <li><b>HPF (Low Cut):</b> corta de forma radical todo lo que está por debajo del umbral. Aplícalo a 80–100 Hz en la mano derecha del piano o en pads: ese grave le pertenece al bombo y al bajo, y si lo dejas la mezcla suena sucia, barrosa y opaca.</li>
+      <li><b>Gain:</b> sube (+dB) o baja (–dB) una zona. Si el piano suena apagado en una mezcla densa, busca con una campana entre 3 y 5 kHz y sube +2 dB: ahí está el ataque de los martillos contra las cuerdas.</li>
+      <li><b>Q (ancho de banda):</b> Q alto (estrecho, como una aguja) para cazar una resonancia molesta, como un zumbido metálico alrededor de 400 Hz. Q bajo (ancho, como una colina) para cambios musicales suaves, como calentar el rango medio-bajo.</li>
+      <li><b>Low / High Shelf:</b> eleva o atenúa todo el espectro por encima o por debajo de una frecuencia. Un high shelf desde 10 kHz con +3 dB da aire, brillo cristalino y atmósfera moderna a un Rhodes o un DX7.</li>
+    </ul>
+  </div>
+</div>
+
+<h3 style="margin-top:1.4em">B. Efectos esenciales: espacio, movimiento y profundidad</h3>
+<p>Un sonido seco y sin efectos suena plano y digital: los efectos le dan contexto dimensional. La <b>reverb</b> recrea las reflexiones de las ondas sonoras rebotando en paredes, techo y suelo de una habitación.</p>
+<div class="grid">
+  <div class="cd">
+    <h4>Prueba la reverb · pre-delay y cola</h4>
+    <svg id="rvv" viewBox="0 0 300 70" class="kb" style="max-width:100%" role="img" aria-label="Pre-delay y cola de la reverb"></svg>
+    <div id="fxr"></div>
+    <div class="row" id="fxp"></div>
+    <button id="pfx" type="button">▶ Escuchar C – Am – F – G</button>
+    <p class="mut">Los efectos de esta sección actúan sobre los acordes del sintetizador (no sobre la guitarra ni la batería).</p>
+  </div>
+  <div class="cd">
+    <h4>Cómo se usa</h4>
+    <ul>
+      <li><b>Pre-delay (10–30 ms):</b> el pequeño retraso antes de que empiece la cola. Con 0 ms la reverb se traga el ataque del acorde y la interpretación pierde definición rítmica; con unos 20 ms pasa primero el golpe seco de la nota y luego llega el espacio.</li>
+      <li><b>Decay / RT60:</b> duración de la cola. <i>Placa o room (0,8–1,5 s)</i>: pianos rítmicos, pop dinámico o funk; da presencia sin ensuciar el siguiente acorde. <i>Hall o ambient (2,5–4 s)</i>: baladas lentas, intros ambientales y música cinematográfica, donde los acordes flotan.</li>
+      <li><b>Wet / Dry:</b> dry es el sonido original limpio; wet, la señal procesada. En un piano principal mantén el wet entre un 15 % y un 30 % para no alejarlo al fondo de la mezcla.</li>
+    </ul>
+  </div>
+</div>
+<script>
+  import {
+    getFx,
+    playSequence,
+    rebuildImpulse,
+    setAdsr,
+    setFx,
+    setWaveform,
+    type Adsr,
+    type FxConfig,
+    type Waveform,
+  } from '../lib/audio';
+  import { chordNotes } from '../lib/theory';
+  import { must } from '../lib/dom';
+
+  type FxKey = keyof FxConfig;
+
+  interface SliderSpec {
+    key: FxKey;
+    label: string;
+    min: number;
+    max: number;
+    step: number;
+    unit: string;
+  }
+
+  const SLIDERS: SliderSpec[] = [
+    { key: 'hp', label: 'HPF (corte de graves)', min: 20, max: 400, step: 1, unit: 'Hz' },
+    { key: 'bf', label: 'Campana: frecuencia', min: 100, max: 8000, step: 10, unit: 'Hz' },
+    { key: 'bg', label: 'Campana: Gain', min: -12, max: 12, step: 0.5, unit: 'dB' },
+    { key: 'bq', label: 'Campana: Q', min: 0.3, max: 12, step: 0.1, unit: '' },
+    { key: 'sg', label: 'High shelf (10 kHz)', min: -12, max: 12, step: 0.5, unit: 'dB' },
+    { key: 'pd', label: 'Pre-delay', min: 0, max: 60, step: 1, unit: 'ms' },
+    { key: 'dc', label: 'Decay (RT60)', min: 0.3, max: 4.5, step: 0.1, unit: 's' },
+    { key: 'wet', label: 'Wet (mezcla)', min: 0, max: 100, step: 1, unit: '%' },
+  ];
+
+  const FX_PRESETS: Record<string, FxConfig> = {
+    Seco: { hp: 20, bf: 1000, bg: 0, bq: 1, sg: 0, dc: 1.2, pd: 20, wet: 0 },
+    'Piano limpio': { hp: 100, bf: 4000, bg: 2, bq: 1.2, sg: 0, dc: 1.2, pd: 20, wet: 0.2 },
+    'Rhodes con aire': { hp: 80, bf: 1000, bg: 0, bq: 1, sg: 3, dc: 1.5, pd: 20, wet: 0.2 },
+    'Hall (balada)': { hp: 100, bf: 3000, bg: 1, bq: 1, sg: 1, dc: 3.5, pd: 25, wet: 0.3 },
+  };
+
+  const eqv = must(document.getElementById('eqv'), '#eqv');
+  const rvv = must(document.getElementById('rvv'), '#rvv');
+  const fxe = must(document.getElementById('fxe'), '#fxe');
+  const fxr = must(document.getElementById('fxr'), '#fxr');
+  const fxp = must(document.getElementById('fxp'), '#fxp');
+  const pfx = must(document.getElementById('pfx'), '#pfx');
+  const xa = must(document.getElementById('xa'), '#xa');
+  const xb = must(document.getElementById('xb'), '#xb');
+
+  const row = (spec: SliderSpec): string =>
+    `<label class="mut" style="display:block">${spec.label} <b id="l_${spec.key}"></b> ${spec.unit}<input type="range" id="x_${spec.key}" min="${spec.min}" max="${spec.max}" step="${spec.step}" style="width:100%"></label>`;
+
+  fxe.innerHTML = SLIDERS.slice(0, 5).map(row).join('');
+  fxr.innerHTML = SLIDERS.slice(5).map(row).join('');
+
+  function eq(): void {
+    const f = getFx();
+    let d = '';
+    for (let i = 0; i < 120; i++) {
+      const freq = 20 * 10 ** ((3 * i) / 119);
+      const x = 10 + (280 * Math.log10(freq / 20)) / 3;
+      const db =
+        -10 * Math.log10(1 + (f.hp / freq) ** 4) +
+        f.bg * Math.exp(-0.5 * (Math.log2(freq / f.bf) / (0.8 / f.bq)) ** 2) +
+        f.sg / (1 + Math.exp(-3 * Math.log2(freq / 10000)));
+      const y = Math.max(4, Math.min(106, 55 - db * 3));
+      d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    let g = `<line x1="10" y1="55" x2="290" y2="55" stroke="currentColor" opacity=".3"/><path d="${d}" fill="none" stroke="var(--acc)" stroke-width="2.5"/>`;
+    const marks: Array<[number, string]> = [
+      [100, '100 Hz'],
+      [1000, '1 kHz'],
+      [10000, '10 kHz'],
+    ];
+    marks.forEach(([freq, label]) => {
+      const x = 10 + (280 * Math.log10(freq / 20)) / 3;
+      g += `<line x1="${x}" y1="8" x2="${x}" y2="100" stroke="currentColor" opacity=".12"/><text x="${x}" y="108" font-size="8" text-anchor="middle" fill="currentColor" opacity=".6">${label}</text>`;
+    });
+    eqv.innerHTML = g;
+  }
+
+  function rv(): void {
+    const f = getFx();
+    const k = 52;
+    const x0 = 10 + (f.pd / 1000) * k;
+    const amp = 8 + 32 * f.wet;
+    let p = `M${x0} 60`;
+    for (let i = 0; i <= 40; i++) {
+      const t = (f.dc * i) / 40;
+      p += `L${(x0 + t * k).toFixed(1)} ${(60 - amp * (1 - i / 40) ** 3).toFixed(1)}`;
+    }
+    rvv.innerHTML = `<line x1="10" y1="60" x2="290" y2="60" stroke="currentColor" opacity=".3"/><line x1="10" y1="14" x2="10" y2="60" stroke="currentColor" stroke-width="3"/><path d="${p}L${x0 + f.dc * k} 60Z" fill="var(--acc2)" stroke="var(--acc)" stroke-width="2"/><text x="14" y="12" font-size="8" fill="currentColor">seco</text><text x="${x0 + 4}" y="${60 - amp - 4}" font-size="8" fill="currentColor">cola · ${f.dc.toFixed(1)} s</text>`;
+  }
+
+  function sync(): void {
+    const f = getFx();
+    SLIDERS.forEach((spec) => {
+      const input = document.getElementById(`x_${spec.key}`) as HTMLInputElement | null;
+      const label = document.getElementById(`l_${spec.key}`);
+      if (!input || !label) return;
+      const value = spec.key === 'wet' ? Math.round(f.wet * 100) : f[spec.key];
+      input.value = String(value);
+      label.textContent = String(value);
+    });
+    eq();
+    rv();
+  }
+
+  SLIDERS.forEach((spec) => {
+    const input = document.getElementById(`x_${spec.key}`) as HTMLInputElement | null;
+    input?.addEventListener('input', () => {
+      const value = spec.key === 'wet' ? Number(input.value) / 100 : Number(input.value);
+      setFx({ [spec.key]: value } as Partial<FxConfig>);
+      sync();
+    });
+    input?.addEventListener('change', () => {
+      if (spec.key === 'dc') rebuildImpulse();
+    });
+  });
+
+  function applyPreset(name: string): void {
+    const preset = FX_PRESETS[name];
+    if (!preset) return;
+    setFx(preset);
+    rebuildImpulse();
+    sync();
+  }
+
+  fxp.innerHTML = Object.keys(FX_PRESETS)
+    .map((name) => `<button type="button" data-n="${name}">${name}</button>`)
+    .join('');
+  fxp.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-n]');
+    if (button?.dataset.n) applyPreset(button.dataset.n);
+  });
+
+  const playProgression = (): void => {
+    playSequence(['C', 'Am', 'F', 'G'].map((name) => chordNotes(name)), 0, 1.4);
+  };
+  pfx.addEventListener('click', playProgression);
+
+  function experiment(wave: Waveform, adsr: Adsr, values: FxConfig): void {
+    setWaveform(wave);
+    setAdsr(adsr);
+    setFx(values);
+    rebuildImpulse();
+    sync();
+    playProgression();
+  }
+
+  xa.addEventListener('click', () => {
+    experiment('triangle', { attack: 0.005, decay: 0.6, sustain: 0.2, release: 0.5 }, {
+      hp: 100,
+      bf: 4000,
+      bg: 2,
+      bq: 1.2,
+      sg: 0,
+      dc: 1.2,
+      pd: 20,
+      wet: 0.2,
+    });
+  });
+
+  xb.addEventListener('click', () => {
+    experiment('sawtooth', { attack: 0.01, decay: 0.1, sustain: 0.7, release: 0.3 }, {
+      hp: 80,
+      bf: 2500,
+      bg: 4,
+      bq: 1,
+      sg: 3,
+      dc: 0.6,
+      pd: 10,
+      wet: 0.1,
+    });
+  });
+
+  sync();
+</script>

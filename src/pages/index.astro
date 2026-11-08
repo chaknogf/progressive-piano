@@ -9,18 +9,13 @@ import Exercise from '../components/Exercise.astro';
 import Emotions from '../components/Emotions.astro';
 import Tips from '../components/Tips.astro';
 import SynthLab from '../components/SynthLab.astro';
-import Logo from '../components/Logo.astro';
+import FxLab from '../components/FxLab.astro';
 import Fretboard from '../components/Fretboard.astro';
 import Beats from '../components/Beats.astro';
 ---
 <Layout>
-  <div class="brand">
-    <Logo />
-    <div>
-      <h1>progressive-music</h1>
-      <p class="lead">De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra. Toca cualquier acorde para ver su teclado y su diagrama de guitarra, y escúchalo.</p>
-    </div>
-  </div>
+  <h1>Manual de progresiones armónicas</h1>
+  <p class="lead">De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra. Toca cualquier acorde para ver su teclado y su diagrama de guitarra, y escúchalo.</p>
   <Nav />
 
   <h2 id="s1">1. Cómo leer una progresión</h2>
@@ -78,45 +73,25 @@ import Beats from '../components/Beats.astro';
   <Tips />
 
   <h2 id="s8">8. Del acorde al sonido: síntesis, efectos y DAW</h2>
-  <p>Una progresión es la partitura; el <b>sonido</b> se moldea con ecualización, efectos y síntesis. Los controles de la sección C cambian el timbre de todo el manual: pruébalos y vuelve a escuchar cualquier progresión.</p>
-  <h3>A. Ecualización (EQ): moldear el espectro</h3>
-  <p>La ecualización no crea frecuencias nuevas: solo ajusta el volumen de las que ya existen.</p>
-  <div class="box">
-    <svg viewBox="0 0 400 120" class="kb" style="max-width:520px" role="img" aria-label="Curva de ecualización con filtro paso alto, campana y high shelf">
-      <line x1="10" y1="60" x2="390" y2="60" class="ln"/>
-      <path d="M10 105 C40 105 50 62 80 60 L140 60 C165 60 170 28 200 28 C230 28 235 60 260 60 L300 60 C330 60 335 38 365 38 L390 38" fill="none" stroke="var(--acc)" stroke-width="2.5"/>
-      <text x="75" y="100" class="sn">HPF 80–100 Hz</text>
-      <text x="200" y="18" class="sn">Campana 200 Hz–5 kHz (Gain + Q)</text>
-      <text x="340" y="28" class="sn">High shelf &gt;8 kHz</text>
-    </svg>
-  </div>
-  <div class="scroll">
-    <table>
-      <tr><th>Control</th><th>Función</th><th>Ejemplo en piano / synth</th></tr>
-      <tr><td><b>HPF / Low Cut</b></td><td>Corta las frecuencias por debajo del umbral elegido.</td><td>HPF a 80–100 Hz en la mano derecha del piano o en pads, para no ensuciar el bajo ni el sub-bajo.</td></tr>
-      <tr><td><b>Gain</b></td><td>Sube (+dB) o baja (–dB) la banda seleccionada.</td><td>+2 dB en 3–5 kHz da ataque y presencia al piano en un arreglo denso.</td></tr>
-      <tr><td><b>Q (ancho de banda)</b></td><td>Qué tan ancha o estrecha es la campana.</td><td>Q alto (estrecho) para localizar y recortar resonancias molestas (p. ej. 400 Hz “encajonado”); Q bajo (ancho) para realces suaves y musicales.</td></tr>
-      <tr><td><b>Low / High Shelf</b></td><td>Sube o baja todo el espectro desde una frecuencia hacia arriba o abajo.</td><td>High shelf a 10 kHz (+3 dB) da “aire” a pianos eléctricos (Rhodes, DX7).</td></tr>
-    </table>
-  </div>
-  <h3 style="margin-top:1.4em">B. Efectos esenciales: reverb</h3>
-  <ul>
-    <li><b>Reverb:</b> recrea la acústica de un espacio físico.</li>
-    <li><b>Pre-delay (10–30 ms):</b> separa el sonido seco del inicio de la reverb y evita que la interpretación pierda definición.</li>
-    <li><b>Decay / RT60:</b> duración de la cola. <i>Placa o Room (0,8–1,5 s)</i>: pianos rítmicos y pop. <i>Hall o Ambient (2,5–4 s)</i>: baladas, ambient y música cinematográfica.</li>
-    <li><b>Wet / Dry:</b> proporción de señal procesada frente a la señal directa.</li>
-  </ul>
-  <h3>C. Arquitectura de un sintetizador sustractivo</h3>
-  <p>Se genera el sonido con una forma de onda base y se esculpe con un filtro y una envolvente:</p>
+  <p>Una progresión armónica es la partitura, el mapa; el <b>sonido</b> es el vehículo. Dos productores pueden tocar exactamente los mismos acordes C – Am – F – G, pero si uno usa un piano de cola con una reverb íntima y el otro una sierra de sintetizador brillante, las emociones serán opuestas. Aquí aprenderás a esculpir el timbre con ecualización, reverberación, síntesis sustractiva y MIDI. Todo lo que muevas se oye en los acordes de este manual.</p>
+  <FxLab />
+  <h3 style="margin-top:1.4em">C. Arquitectura de un sintetizador sustractivo: ¿cómo nace el sonido?</h3>
+  <p>La síntesis sustractiva funciona como una escultura: partes de una onda con un contenido armónico enorme (la piedra) y la recortas con un filtro (el cincel) hasta obtener la forma deseada.</p>
   <SynthLab />
-  <h3 style="margin-top:1.4em">D. Controladores MIDI y flujo en el DAW</h3>
-  <p><b>MIDI</b> (Musical Instrument Digital Interface) no transmite audio, solo datos de interpretación:</p>
+  <h3 style="margin-top:1.4em">D. Controladores MIDI y el flujo en tu DAW</h3>
+  <p>Cuando tocas un controlador MIDI (un teclado maestro o una interfaz) <b>no generas audio</b>: envías ceros y unos, mensajes de datos, a la computadora. El sonido lo produce después el instrumento virtual que elijas.</p>
+  <h4>¿Qué viaja por el cable MIDI?</h4>
   <ul>
-    <li><b>Note On / Note Off:</b> qué tecla tocaste y cuándo la soltaste.</li>
-    <li><b>Velocity (0–127):</b> con qué fuerza presionaste la tecla; afecta al volumen y, en muchos sintetizadores, a la apertura del filtro.</li>
-    <li><b>Pitch Bend / Modulation Wheel (CC1):</b> la rueda desafina las notas o controla la intensidad del vibrato o del filtro.</li>
+    <li><b>Note On / Note Off:</b> qué tecla presionaste (por ejemplo C4) y, milisegundos después, cuándo la soltaste.</li>
+    <li><b>Velocity (0–127):</b> con cuánta fuerza golpeaste la tecla. Una velocity de 15 toca un acorde casi en susurro, melancólico; una de 115 abre el filtro del sintetizador o hace que el piano suene percusivo, enérgico y brillante.</li>
+    <li><b>Control Changes (CC):</b> canales continuos para perillas y ruedas. El CC1 (rueda de modulación) suele abrir el filtro, con lo que el sonido se vuelve más brillante, o introducir un vibrato gradual a medida que la subes con la mano izquierda. El pitch bend desafina las notas.</li>
   </ul>
-  <div class="box hl"><b>En el DAW</b> (Ableton, FL Studio, Logic, Reaper): graba los datos MIDI en una pista de instrumento para corregir notas o cambiar el sonido por completo (piano, synth, cuerdas) sin volver a tocar la pieza.</div>
+  <h4>Flujo de trabajo (Ableton, FL Studio, Logic, Reaper)</h4>
+  <div class="grid">
+    <div class="cd"><span class="tg">Paso 1</span><h3>Grabar la idea MIDI</h3><p>Toca tu progresión C – Am – F – G en el teclado controlador y grábala en un clip MIDI.</p></div>
+    <div class="cd"><span class="tg">Paso 2</span><h3>Corrección quirúrgica</h3><p>Si una nota quedó fuera de tiempo, corrígela con un clic (<i>Quantize</i>). Si tocaste un Mi en vez de un Re, arrastra la nota en el piano roll sin volver a tocar toda la pieza.</p></div>
+    <div class="cd"><span class="tg">Paso 3</span><h3>Cambiar el alma</h3><p>Como tu interpretación son datos MIDI y no audio fijo, puedes probar 50 instrumentos en segundos: empezar con un piano de cola, pasar a un sintetizador analógico de los 80 y terminar con cuerdas orquestales sin perder una sola nota.</p></div>
+  </div>
 
   <Fretboard />
 
