@@ -1,70 +1,152 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Nav from '../components/Nav.astro';
-import Transposer from '../components/Transposer.astro';
-import BaseChords from '../components/BaseChords.astro';
-import ProgressionCatalog from '../components/ProgressionCatalog.astro';
-import Inversions from '../components/Inversions.astro';
-import Exercise from '../components/Exercise.astro';
-import Emotions from '../components/Emotions.astro';
-import Tips from '../components/Tips.astro';
-import SynthLab from '../components/SynthLab.astro';
-import FxLab from '../components/FxLab.astro';
-import Fretboard from '../components/Fretboard.astro';
-import Beats from '../components/Beats.astro';
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Transposer from "../components/Transposer.astro";
+import BaseChords from "../components/BaseChords.astro";
+import ProgressionCatalog from "../components/ProgressionCatalog.astro";
+import Inversions from "../components/Inversions.astro";
+import Exercise from "../components/Exercise.astro";
+import Emotions from "../components/Emotions.astro";
+import Tips from "../components/Tips.astro";
+import SynthLab from "../components/SynthLab.astro";
+import FxLab from "../components/FxLab.astro";
+import Fretboard from "../components/Fretboard.astro";
+import Beats from "../components/Beats.astro";
 ---
+
 <Layout>
-  <h1>Manual de progresiones armónicas</h1>
-  <p class="lead">De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra. Toca cualquier acorde para ver su teclado y su diagrama de guitarra, y escúchalo.</p>
+  <h1>progressive-music: Manual de progresiones armónicas</h1>
+  <p class="lead">
+    De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y
+    baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y
+    guitarra. Toca cualquier acorde para ver su teclado y su diagrama de
+    guitarra, y escúchalo.
+  </p>
   <Nav />
 
   <h2 id="s1">1. Cómo leer una progresión</h2>
-  <p>Hay dos lenguajes. <b>Por nombre</b> (C – Am – F – G) te dice las notas exactas. <b>Por grados</b> (números romanos) funciona en cualquier tono: mayúsculas (I, IV, V) = acorde mayor; minúsculas (ii, vi) = menor.</p>
-  <div class="box hl"><b>Regla de oro:</b> I – vi – IV – V en Do mayor es C – Am – F – G; en Sol mayor, los mismos grados son G – Em – C – D. Los grados no cambian de función, solo la nota raíz.</div>
+  <p>
+    Hay dos lenguajes. <b>Por nombre</b> (C – Am – F – G) te dice las notas exactas.
+    <b>Por grados</b> (números romanos) funciona en cualquier tono: mayúsculas (I,
+    IV, V) = acorde mayor; minúsculas (ii, vi) = menor.
+  </p>
+  <div class="box hl">
+    <b>Regla de oro:</b> I – vi – IV – V en Do mayor es C – Am – F – G; en Sol mayor,
+    los mismos grados son G – Em – C – D. Los grados no cambian de función, solo la
+    nota raíz.
+  </div>
   <Transposer />
   <h4>Cómo leer los diagramas</h4>
   <ul>
-    <li><b>Piano:</b> las teclas naranjas son las que se pulsan; el nombre aparece en las blancas.</li>
-    <li><b>Guitarra:</b> cuerdas de izquierda a derecha: E (grave), A, D, G, B, e (aguda). ✕ = no se toca; ○ = al aire; ● = dedo en ese traste. Si el acorde está lejos de la cejuela, se indica el número de traste.</li>
+    <li>
+      <b>Piano:</b> las teclas naranjas son las que se pulsan; el nombre aparece en
+      las blancas.
+    </li>
+    <li>
+      <b>Guitarra:</b> cuerdas de izquierda a derecha: E (grave), A, D, G, B, e (aguda).
+      ✕ = no se toca; ○ = al aire; ● = dedo en ese traste. Si el acorde está lejos
+      de la cejuela, se indica el número de traste.
+    </li>
   </ul>
 
   <h2 id="s2">2. Los siete grados de Do mayor</h2>
-  <p>Una tríada son tres notas apiladas: fundamental, tercera y quinta. Cada nota de la escala de Do mayor construye un acorde: son los siete grados. I, IV y V son mayores; ii, iii y vi son menores; vii° es disminuido. Los cuatro más usados en la música popular son I, IV, V y vi.</p>
+  <p>
+    Una tríada son tres notas apiladas: fundamental, tercera y quinta. Cada nota
+    de la escala de Do mayor construye un acorde: son los siete grados. I, IV y
+    V son mayores; ii, iii y vi son menores; vii° es disminuido. Los cuatro más
+    usados en la música popular son I, IV, V y vi.
+  </p>
   <BaseChords />
 
   <h2 id="s3">3. Catálogo de progresiones</h2>
   <ProgressionCatalog />
 
   <h2 id="s4">4. Inversiones y conducción de voces</h2>
-  <p>Las inversiones evitan que el piano suene como bloques rígidos: la mano se queda en una zona cómoda y solo se mueve lo mínimo. Según la nota que pongas en el bajo, el acorde cambia de posición.</p>
+  <p>
+    Las inversiones evitan que el piano suene como bloques rígidos: la mano se
+    queda en una zona cómoda y solo se mueve lo mínimo. Según la nota que pongas
+    en el bajo, el acorde cambia de posición.
+  </p>
   <Inversions />
   <ul>
     <li><b>Fundamental:</b> la raíz abajo (Do – Mi – Sol).</li>
-    <li><b>1.ª inversión:</b> la tercera al bajo (Mi – Sol – Do): suena dulce y abierta.</li>
-    <li><b>2.ª inversión:</b> la quinta al bajo (Sol – Do – Mi): pide resolución, ideal antes de un acorde importante.</li>
+    <li>
+      <b>1.ª inversión:</b> la tercera al bajo (Mi – Sol – Do): suena dulce y abierta.
+    </li>
+    <li>
+      <b>2.ª inversión:</b> la quinta al bajo (Sol – Do – Mi): pide resolución, ideal
+      antes de un acorde importante.
+    </li>
   </ul>
-  <div class="box hl"><b>Regla del ancla común:</b> si dos acordes comparten notas (C y Am comparten Do y Mi), deja esos dedos quietos y mueve solo el que cambia.<br><b>Divide el trabajo:</b> mano izquierda = solo la nota fundamental; mano derecha = inversiones en la zona media/aguda, en bloque o arpegio. Así no saturas los graves.</div>
+  <div class="box hl">
+    <b>Regla del ancla común:</b> si dos acordes comparten notas (C y Am comparten
+    Do y Mi), deja esos dedos quietos y mueve solo el que cambia.<br /><b
+      >Divide el trabajo:</b
+    > mano izquierda = solo la nota fundamental; mano derecha = inversiones en la
+    zona media/aguda, en bloque o arpegio. Así no saturas los graves.
+  </div>
 
   <h2 id="s5">5. Ejercicio: arpegios con mínima distancia</h2>
-  <p>Progresión I – vi – IV – V (C – Am – F – G). Mano izquierda: solo la raíz, una octava abajo. Mano derecha: las inversiones de abajo, sin saltos.</p>
+  <p>
+    Progresión I – vi – IV – V (C – Am – F – G). Mano izquierda: solo la raíz,
+    una octava abajo. Mano derecha: las inversiones de abajo, sin saltos.
+  </p>
   <Exercise />
 
   <h2 id="s6">6. Emociones: modos y tonalidades</h2>
-  <p>La emoción de una armonía depende sobre todo del <b>modo</b> (qué notas tiene la escala), no de la tonalidad concreta: Do mayor y Re mayor transmiten lo mismo, solo cambia la altura. Se suele asociar las tonalidades agudas con brillo y las graves con peso, pero eso es más registro y tradición que una propiedad de la tonalidad. Elige una tónica y recorre los modos, del más luminoso al más oscuro.</p>
+  <p>
+    La emoción de una armonía depende sobre todo del <b>modo</b> (qué notas tiene
+    la escala), no de la tonalidad concreta: Do mayor y Re mayor transmiten lo mismo,
+    solo cambia la altura. Se suele asociar las tonalidades agudas con brillo y las
+    graves con peso, pero eso es más registro y tradición que una propiedad de la
+    tonalidad. Elige una tónica y recorre los modos, del más luminoso al más oscuro.
+  </p>
   <Emotions />
   <div class="box">
     <h3>Guía rápida: emoción → recurso</h3>
     <div class="scroll">
       <table>
         <tr><th>Emoción</th><th>Recurso</th><th>Ejemplo</th></tr>
-        <tr><td>Alegría, luz</td><td>Mayor (jónico) o lidio</td><td>C – F – G – C</td></tr>
-        <tr><td>Tristeza, nostalgia</td><td>Menor natural (eólico)</td><td>Am – F – C – G</td></tr>
-        <tr><td>Melancolía con esperanza</td><td>Dórico</td><td>Am – D – Am – G</td></tr>
-        <tr><td>Heroico, rockero</td><td>Mixolidio (♭VII)</td><td>C – B♭ – F – C</td></tr>
-        <tr><td>Oscuridad, tensión</td><td>Frigio / cadencia andaluza</td><td>Am – G – F – E</td></tr>
-        <tr><td>Misterio, ensueño</td><td>Lidio (♯4)</td><td>Cmaj7 – D – Cmaj7 – D</td></tr>
-        <tr><td>Melancolía romántica</td><td>IV menor (intercambio modal)</td><td>C – Am – F – Fm</td></tr>
-        <tr><td>Inquietud extrema</td><td>Locrio (poco usado)</td><td>Bdim – C – Dm – Bdim</td></tr>
+        <tr
+          ><td>Alegría, luz</td><td>Mayor (jónico) o lidio</td><td
+            >C – F – G – C</td
+          ></tr
+        >
+        <tr
+          ><td>Tristeza, nostalgia</td><td>Menor natural (eólico)</td><td
+            >Am – F – C – G</td
+          ></tr
+        >
+        <tr
+          ><td>Melancolía con esperanza</td><td>Dórico</td><td
+            >Am – D – Am – G</td
+          ></tr
+        >
+        <tr
+          ><td>Heroico, rockero</td><td>Mixolidio (♭VII)</td><td
+            >C – B♭ – F – C</td
+          ></tr
+        >
+        <tr
+          ><td>Oscuridad, tensión</td><td>Frigio / cadencia andaluza</td><td
+            >Am – G – F – E</td
+          ></tr
+        >
+        <tr
+          ><td>Misterio, ensueño</td><td>Lidio (♯4)</td><td
+            >Cmaj7 – D – Cmaj7 – D</td
+          ></tr
+        >
+        <tr
+          ><td>Melancolía romántica</td><td>IV menor (intercambio modal)</td><td
+            >C – Am – F – Fm</td
+          ></tr
+        >
+        <tr
+          ><td>Inquietud extrema</td><td>Locrio (poco usado)</td><td
+            >Bdim – C – Dm – Bdim</td
+          ></tr
+        >
       </table>
     </div>
   </div>
@@ -73,24 +155,72 @@ import Beats from '../components/Beats.astro';
   <Tips />
 
   <h2 id="s8">8. Del acorde al sonido: síntesis, efectos y DAW</h2>
-  <p>Una progresión armónica es la partitura, el mapa; el <b>sonido</b> es el vehículo. Dos productores pueden tocar exactamente los mismos acordes C – Am – F – G, pero si uno usa un piano de cola con una reverb íntima y el otro una sierra de sintetizador brillante, las emociones serán opuestas. Aquí aprenderás a esculpir el timbre con ecualización, reverberación, síntesis sustractiva y MIDI. Todo lo que muevas se oye en los acordes de este manual.</p>
+  <p>
+    Una progresión armónica es la partitura, el mapa; el <b>sonido</b> es el vehículo.
+    Dos productores pueden tocar exactamente los mismos acordes C – Am – F – G, pero
+    si uno usa un piano de cola con una reverb íntima y el otro una sierra de sintetizador
+    brillante, las emociones serán opuestas. Aquí aprenderás a esculpir el timbre
+    con ecualización, reverberación, síntesis sustractiva y MIDI. Todo lo que muevas
+    se oye en los acordes de este manual.
+  </p>
   <FxLab />
-  <h3 style="margin-top:1.4em">C. Arquitectura de un sintetizador sustractivo: ¿cómo nace el sonido?</h3>
-  <p>La síntesis sustractiva funciona como una escultura: partes de una onda con un contenido armónico enorme (la piedra) y la recortas con un filtro (el cincel) hasta obtener la forma deseada.</p>
+  <h3 style="margin-top:1.4em">
+    C. Arquitectura de un sintetizador sustractivo: ¿cómo nace el sonido?
+  </h3>
+  <p>
+    La síntesis sustractiva funciona como una escultura: partes de una onda con
+    un contenido armónico enorme (la piedra) y la recortas con un filtro (el
+    cincel) hasta obtener la forma deseada.
+  </p>
   <SynthLab />
   <h3 style="margin-top:1.4em">D. Controladores MIDI y el flujo en tu DAW</h3>
-  <p>Cuando tocas un controlador MIDI (un teclado maestro o una interfaz) <b>no generas audio</b>: envías ceros y unos, mensajes de datos, a la computadora. El sonido lo produce después el instrumento virtual que elijas.</p>
+  <p>
+    Cuando tocas un controlador MIDI (un teclado maestro o una interfaz) <b
+      >no generas audio</b
+    >: envías ceros y unos, mensajes de datos, a la computadora. El sonido lo
+    produce después el instrumento virtual que elijas.
+  </p>
   <h4>¿Qué viaja por el cable MIDI?</h4>
   <ul>
-    <li><b>Note On / Note Off:</b> qué tecla presionaste (por ejemplo C4) y, milisegundos después, cuándo la soltaste.</li>
-    <li><b>Velocity (0–127):</b> con cuánta fuerza golpeaste la tecla. Una velocity de 15 toca un acorde casi en susurro, melancólico; una de 115 abre el filtro del sintetizador o hace que el piano suene percusivo, enérgico y brillante.</li>
-    <li><b>Control Changes (CC):</b> canales continuos para perillas y ruedas. El CC1 (rueda de modulación) suele abrir el filtro, con lo que el sonido se vuelve más brillante, o introducir un vibrato gradual a medida que la subes con la mano izquierda. El pitch bend desafina las notas.</li>
+    <li>
+      <b>Note On / Note Off:</b> qué tecla presionaste (por ejemplo C4) y, milisegundos
+      después, cuándo la soltaste.
+    </li>
+    <li>
+      <b>Velocity (0–127):</b> con cuánta fuerza golpeaste la tecla. Una velocity
+      de 15 toca un acorde casi en susurro, melancólico; una de 115 abre el filtro
+      del sintetizador o hace que el piano suene percusivo, enérgico y brillante.
+    </li>
+    <li>
+      <b>Control Changes (CC):</b> canales continuos para perillas y ruedas. El CC1
+      (rueda de modulación) suele abrir el filtro, con lo que el sonido se vuelve
+      más brillante, o introducir un vibrato gradual a medida que la subes con la
+      mano izquierda. El pitch bend desafina las notas.
+    </li>
   </ul>
   <h4>Flujo de trabajo (Ableton, FL Studio, Logic, Reaper)</h4>
   <div class="grid">
-    <div class="cd"><span class="tg">Paso 1</span><h3>Grabar la idea MIDI</h3><p>Toca tu progresión C – Am – F – G en el teclado controlador y grábala en un clip MIDI.</p></div>
-    <div class="cd"><span class="tg">Paso 2</span><h3>Corrección quirúrgica</h3><p>Si una nota quedó fuera de tiempo, corrígela con un clic (<i>Quantize</i>). Si tocaste un Mi en vez de un Re, arrastra la nota en el piano roll sin volver a tocar toda la pieza.</p></div>
-    <div class="cd"><span class="tg">Paso 3</span><h3>Cambiar el alma</h3><p>Como tu interpretación son datos MIDI y no audio fijo, puedes probar 50 instrumentos en segundos: empezar con un piano de cola, pasar a un sintetizador analógico de los 80 y terminar con cuerdas orquestales sin perder una sola nota.</p></div>
+    <div class="cd">
+      <span class="tg">Paso 1</span><h3>Grabar la idea MIDI</h3><p>
+        Toca tu progresión C – Am – F – G en el teclado controlador y grábala en
+        un clip MIDI.
+      </p>
+    </div>
+    <div class="cd">
+      <span class="tg">Paso 2</span><h3>Corrección quirúrgica</h3><p>
+        Si una nota quedó fuera de tiempo, corrígela con un clic (<i>Quantize</i
+        >). Si tocaste un Mi en vez de un Re, arrastra la nota en el piano roll
+        sin volver a tocar toda la pieza.
+      </p>
+    </div>
+    <div class="cd">
+      <span class="tg">Paso 3</span><h3>Cambiar el alma</h3><p>
+        Como tu interpretación son datos MIDI y no audio fijo, puedes probar 50
+        instrumentos en segundos: empezar con un piano de cola, pasar a un
+        sintetizador analógico de los 80 y terminar con cuerdas orquestales sin
+        perder una sola nota.
+      </p>
+    </div>
   </div>
 
   <Fretboard />
