@@ -189,7 +189,7 @@ try {
   })`);
   assert.equal(stoppedMelody.pressed, 'false');
   assert.ok(stoppedMelody.stopDisabled);
-  assert.match(stoppedMelody.status, /terminó o se detuvo/);
+  assert.match(stoppedMelody.status, /Elige un motivo/);
 
   await evaluate(`(() => {
     window.__oscillatorStarts = 0;
@@ -243,7 +243,7 @@ try {
   assert.deepEqual(relative.names, ['D♯m', 'E♯dim', 'F♯', 'G♯m', 'A♯m', 'B', 'C♯']);
   assert.deepEqual(pageErrors, [], `Errores de navegador: ${pageErrors.join('; ')}`);
 
-  console.log('Prueba de navegador correcta: cambia a F♯ mayor, reproduce E♯dim, muestra piano/guitarra y cambia al relativo D♯ menor.');
+  console.log('Prueba de navegador correcta: cambia tonalidad y relativa, reproduce E♯dim y un motivo modal, anima el teclado y detiene el audio.');
 } finally {
   socket?.close();
   await Promise.all([stopProcess(chrome), stopProcess(devServer)]);

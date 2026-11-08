@@ -221,19 +221,19 @@ function cancelNote(ctx: AudioContext, gain: GainNode, sources: AudioScheduledSo
   };
 }
 
-function scheduleNoteImpl(semitone: number, when: number, duration: number): () => void {
+function scheduleNoteImpl(semitone: number, when: number, duration: number, velocity = 1): () => void {
   const ctx = audioContext();
   const { waveform, adsr } = getConfig();
   // The default Piano patch uses a decaying, slightly inharmonic harmonic
   // stack. A triangle oscillator has an unnaturally steady tone, while a
   // struck piano loses its upper partials quickly after the hammer attack.
   if (waveform === 'triangle') {
-    return schedulePianoNote(ctx, semitone, when, duration, adsr.release);
+    return schedulePianoNote(ctx, semitone, when, duration, adsr.release, velocity);
   }
 
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
-  const peak = 0.14;
+  const peak = 0.14 * Math.max(0, Math.min(1, velocity));
   const attackEnd = when + Math.max(0.001, adsr.attack);
   const decayEnd = attackEnd + Math.max(0.001, adsr.decay);
   const holdEnd = when + Math.max(duration, adsr.attack + adsr.decay);
@@ -252,7 +252,7 @@ function scheduleNoteImpl(semitone: number, when: number, duration: number): () 
   return cancelNote(ctx, gain, [osc]);
 }
 
-function schedulePianoNote(ctx: AudioContext, semitone: number, when: number, duration: number, release: number): () => void {
+function schedulePianoNote(ctx: AudioContext, semitone: number, when: number, duration: number, release: number, velocity = 1): () => void {
   const fundamental = freq(semitone);
   const output = bus();
   const note = ctx.createGain();
@@ -262,7 +262,8 @@ function schedulePianoNote(ctx: AudioContext, semitone: number, when: number, du
   body.frequency.value = Math.min(9000, Math.max(1800, fundamental * 18));
   body.Q.value = 0.55;
   note.gain.setValueAtTime(0.0001, when);
-  note.gain.linearRampToValueAtTime(0.19, when + 0.004);
+  const level = 0.19 * Math.max(0, Math.min(1, velocity));
+  note.gain.linearRampToValueAtTime(level, when + 0.004);
   note.gain.exponentialRampToValueAtTime(0.0001, when + Math.max(0.9, duration + release));
   note.connect(body);
   body.connect(output);
@@ -302,7 +303,7 @@ function schedulePianoNote(ctx: AudioContext, semitone: number, when: number, du
   hammerFilter.type = 'bandpass';
   hammerFilter.frequency.value = Math.min(5200, Math.max(1400, fundamental * 7));
   hammerFilter.Q.value = 0.8;
-  hammerGain.gain.setValueAtTime(0.028, when);
+  hammerGain.gain.setValueAtTime(0.028 * Math.max(0, Math.min(1, velocity)), when);
   hammerGain.gain.exponentialRampToValueAtTime(0.0001, when + 0.018);
   hammer.connect(hammerFilter);
   hammerFilter.connect(hammerGain);
@@ -312,58 +313,116 @@ function schedulePianoNote(ctx: AudioContext, semitone: number, when: number, du
   return cancelNote(ctx, note, sources);
 }
 
-export type MelodyNote = readonly [semitonesFromC4: number, durationInBeats: number];
-export type MelodyNoteCallback = (index: number) => void;
+export interface PianoEvent {
+  /** MIDI pitch, where middle C is 60. */
+  midi: number;
+  /** Start time and duration, both measured in beats. */
+  start: number;
+  dur: number;
+  /** Linear amplitude from 0 to 1. */
+  vel: number;
+  /** Melody notes are focused and reported to the visual keyboard. */
+  focus?: boolean;
+}
 
-let activeMelodyCancel: (() => void) | null = null;
+export interface PianoPlaybackCallbacks {
+  onNote?: (index: number) => void;
+  onEnd?: () => void;
+}
 
-/** Play a monophonic melody through the active synth patch and effect bus.
- * The callback receives each note index at its attack, then -1 at completion/cancel.
- */
-export function playMelody(notes: readonly MelodyNote[], bpm = 96, onNote?: MelodyNoteCallback): () => void {
-  activeMelodyCancel?.();
-  const ctx = audioContext();
-  const scheduledCancels: Array<() => void> = [];
+let activePianoCancel: (() => void) | null = null;
+
+/** Convert a semitone offset from C4 into its MIDI note number. */
+export function toMidi(semitonesFromC4: number): number {
+  return Math.round(semitonesFromC4 + 60);
+}
+
+/** Schedule melody and accompaniment together on the shared synth/effect bus. */
+export function playPiano(events: readonly PianoEvent[], bpm: number, callbacks: PianoPlaybackCallbacks = {}): () => void {
+  activePianoCancel?.();
+  let ctx: AudioContext;
+  try {
+    ctx = audioContext();
+  } catch (error) {
+    console.error('No se pudo iniciar la reproducción', error);
+    callbacks.onEnd?.();
+    return () => {};
+  }
+
   const timers: ReturnType<typeof setTimeout>[] = [];
+  const stopNotes: Array<() => void> = [];
+  const beatSeconds = 60 / Math.max(1, bpm);
   let cancelled = false;
-
-  const cancel = (): void => {
+  let start = 0;
+  const onEnd = (): void => {
     if (cancelled) return;
     cancelled = true;
-    timers.forEach(clearTimeout);
-    scheduledCancels.forEach((stop) => stop());
-    if (activeMelodyCancel === cancel) activeMelodyCancel = null;
-    onNote?.(-1);
+    if (activePianoCancel === cancel) activePianoCancel = null;
+    callbacks.onEnd?.();
   };
-  activeMelodyCancel = cancel;
+  const cancel = (): void => {
+    if (cancelled) return;
+    timers.forEach(clearTimeout);
+    stopNotes.forEach((stop) => stop());
+    onEnd();
+  };
+  activePianoCancel = cancel;
 
   const schedule = (): void => {
     if (cancelled) return;
-    const secondsPerBeat = 60 / Math.max(1, bpm);
-    const start = ctx.currentTime + 0.05;
-    let elapsed = 0;
-    notes.forEach(([semitones, beats], index) => {
-      const duration = Math.max(0.01, beats * secondsPerBeat);
-      const when = start + elapsed;
-      scheduledCancels.push(scheduleNoteImpl(semitones, when, duration));
-      timers.push(setTimeout(() => { if (!cancelled) onNote?.(index); }, Math.max(0, (when - ctx.currentTime) * 1000)));
-      elapsed += duration;
+    start = ctx.currentTime + 0.05;
+    const ordered = events.map((event, order) => ({ event, order })).sort((a, b) => a.event.start - b.event.start || a.order - b.order);
+    for (const { event } of ordered) {
+      const when = start + Math.max(0, event.start) * beatSeconds;
+      const duration = Math.max(0.01, event.dur * beatSeconds);
+      stopNotes.push(scheduleNoteImpl(event.midi - 60, when, duration, event.vel));
+    }
+    const focusEvents = ordered.filter(({ event }) => event.focus);
+    focusEvents.forEach(({ event }, index) => {
+      const when = start + Math.max(0, event.start) * beatSeconds;
+      timers.push(setTimeout(() => { if (!cancelled) callbacks.onNote?.(index); }, Math.max(0, (when - ctx.currentTime) * 1000)));
     });
-    timers.push(setTimeout(() => {
-      if (cancelled) return;
-      cancelled = true;
-      if (activeMelodyCancel === cancel) activeMelodyCancel = null;
-      onNote?.(-1);
-    }, Math.max(0, (start + elapsed - ctx.currentTime) * 1000)));
+    const duration = events.reduce((end, event) => Math.max(end, event.start + event.dur), 0) * beatSeconds;
+    timers.push(setTimeout(onEnd, Math.max(0, (start + duration - ctx.currentTime) * 1000)));
   };
 
   if (ctx.state === 'suspended') void ctx.resume().then(schedule).catch((error) => {
-    console.error('No se pudo iniciar la melodía', error);
+    console.error('No se pudo iniciar la reproducción', error);
     cancel();
   });
   else schedule();
   (window as any).__pulseLogo?.();
   return cancel;
+}
+
+export type MelodyNote = readonly [semitonesFromC4: number, durationInBeats: number];
+export type MelodyNoteCallback = (index: number) => void;
+
+/** Play a monophonic melody. A later melody replaces this one. */
+export function playMelody(notes: readonly MelodyNote[], bpm = 96, onNote?: MelodyNoteCallback): () => void {
+  let start = 0;
+  const events = notes.map(([semitones, dur]) => {
+    const event: PianoEvent = { midi: toMidi(semitones), start, dur, vel: 0.82, focus: true };
+    start += dur;
+    return event;
+  });
+  return playPiano(events, bpm, {
+    onNote,
+    onEnd: () => onNote?.(-1),
+  });
+}
+
+export function playScale(notes: readonly number[], bpm: number, onEnd?: () => void): () => void {
+  const events = notes.map((note, index): PianoEvent => ({ midi: toMidi(note), start: index, dur: 1, vel: 0.82, focus: true }));
+  return playPiano(events, bpm, { onEnd });
+}
+
+export function playChords(chords: readonly number[][], bpm: number, beatsPerChord: number, onEnd?: () => void): () => void {
+  const events: PianoEvent[] = [];
+  chords.forEach((notes, chordIndex) => notes.forEach((note) => {
+    events.push({ midi: toMidi(note), start: chordIndex * beatsPerChord, dur: beatsPerChord, vel: 0.66 });
+  }));
+  return playPiano(events, bpm, { onEnd });
 }
 
 export function playChord(notes: number[], duration = 1.2): void {

@@ -66,7 +66,7 @@
 <script>
   import { MODES } from '../data/modes';
   import { FLAT_NAMES, NOTE_NAMES, chordNotes, displayNote, keyboardSvg } from '../lib/theory';
-  import { playMelody, playSequence } from '../lib/audio';
+  import { playChords, playPiano, playScale, toMidi, type PianoEvent } from '../lib/piano';
   import { $, must } from '../lib/dom';
 
   const root = must(document.getElementById('modes'), '#modes');
@@ -86,10 +86,23 @@
   const exampleKeyboard = must($('#melody-keyboard', root), '#melody-keyboard');
   const melodyStatus = must($('#melody-status', root), '#melody-status');
   const stopButton = must($('#melody-stop', root), '#melody-stop');
+  const idleMessage = 'Elige un motivo para escuchar y ver sus notas.';
+  const melodyTitles = [
+    'Motivo original · lidio',
+    'Himno a la alegría · Beethoven (dominio público)',
+    'Motivo original · mixolidio',
+    'Motivo original · dórico',
+    'Motivo original · eólico',
+    'Motivo original · frigio',
+    'Motivo original · locrio',
+  ];
+  const EXAMPLES = MODES.map((mode, index) => ({
+    title: melodyTitles[index], bpm: mode.bpm, melody: mode.melody, accompaniment: mode.accompaniment,
+  }));
 
   tonicSelect.innerHTML = FLAT_NAMES.map((name, index) => `<option value="${index}">${displayNote(name)}</option>`).join('');
   let current = 1;
-  let cancelMelody: (() => void) | null = null;
+  let cancelPlayback: (() => void) | null = null;
   let activePlayButton: HTMLButtonElement | null = null;
 
   modeButtons.innerHTML = MODES.map((mode, index) =>
@@ -101,7 +114,6 @@
       const references = mode.listen.length
         ? `<div class="listen-list"><b>Escucha sugerida</b>${mode.listen.map((item) => `<p><a href="${item.source}" target="_blank" rel="noreferrer">${item.title} · ${item.artist}</a> <span class="listen-status">${item.status}</span><br /><small>${item.note} <span class="listen-source">Fuente: ${item.sourceLabel}</span></small></p>`).join('')}</div>`
         : '<div class="listen-list"><b>Escucha sugerida</b><p class="mut">Sin atribuciones de obras concretas verificadas para este modo.</p></div>';
-      const melodyName = mode.id === 'jonico' ? 'Himno a la alegría · Beethoven' : 'Motivo de ejemplo (original)';
       return `<article class="mode-example-card" data-mode-card="${mode.id}">
         <span class="mode-icon" aria-hidden="true">${['✨', '☀️', '🛣️', '🌙', '🌧️', '🔥', '🌀'][index]}</span>
         <h4>${mode.name}</h4><p class="mode-emotion">${mode.emotion}</p>
@@ -110,7 +122,7 @@
         <p><b>Progresión:</b> ${mode.degrees}</p>
         <p class="mode-cue">${['Cine fantástico y asombro espacial', 'Himnos luminosos y sensación de llegada', 'Rock abierto y espíritu de carretera', 'Jazz modal y groove nostálgico', 'Drama íntimo y balada', 'Tensión flamenca y final dramático', 'Inquietud y suspenso'][index]}</p>
         ${references}
-        <button type="button" class="mode-melody-play" data-play-melody="${index}" aria-pressed="false">▶ Escuchar melodía de ejemplo <small>${melodyName}</small></button>
+        <button type="button" class="mode-melody-play" data-play-melody="${index}" aria-pressed="false">▶ Escuchar melodía de ejemplo <small>${EXAMPLES[index].title}</small></button>
       </article>`;
     }).join('');
   }
@@ -145,70 +157,96 @@
     });
   }
 
-  function finishMelody(): void {
-    cancelMelody = null;
+  function resetPlayer(): void {
     stopButton.disabled = true;
     activePlayButton?.setAttribute('aria-pressed', 'false');
     activePlayButton = null;
-    melodyStatus.textContent = 'La melodía terminó o se detuvo.';
-    render();
+    exampleKeyboard.innerHTML = '';
+    melodyStatus.textContent = idleMessage;
+  }
+
+  function stopPlayback(): void {
+    const stop = cancelPlayback;
+    cancelPlayback = null;
+    stop?.();
   }
 
   function startMelody(index: number, button: HTMLButtonElement): void {
-    cancelMelody?.();
+    stopPlayback();
     const mode = MODES[index];
+    const example = EXAMPLES[index];
     const key = Number(tonicSelect.value);
-    const base = 60 + key;
-    const characteristicPitch = base + mode.scale[mode.characteristic];
-    const pitches = mode.melody.map(([semitones]) => base + semitones);
+    const characteristicClass = ((mode.scale[mode.characteristic] % 12) + 12) % 12;
+    const pitches = example.melody.map(([semitones]) => key + semitones);
+    const characteristicPitch = key + mode.scale[mode.characteristic];
     const low = Math.floor(Math.min(...pitches) / 12) * 12;
     const high = (Math.floor(Math.max(...pitches) / 12) + 1) * 12;
+    const events: PianoEvent[] = [];
+    let start = 0;
+    example.melody.forEach(([semitones, beats], index) => {
+      const accent = ((semitones % 12) + 12) % 12 === characteristicClass;
+      events.push({ midi: toMidi(pitches[index]), start, dur: beats, vel: accent ? 0.95 : 0.82, focus: true });
+      start += beats;
+    });
+    example.accompaniment.forEach(([notes, begin, length]) => {
+      notes.forEach((semitones, index) => {
+        events.push({ midi: toMidi(key + semitones), start: begin + index * 0.03, dur: length, vel: 0.5 });
+      });
+    });
+
     activePlayButton = button;
     button.setAttribute('aria-pressed', 'true');
     stopButton.disabled = false;
     melodyStatus.textContent = `Reproduciendo: ${mode.name}.`;
-    cancelMelody = playMelody(mode.melody.map(([semitones, beats]) => [base + semitones, beats] as const), 96, (noteIndex) => {
-      if (noteIndex < 0) { finishMelody(); return; }
-      const pitch = pitches[noteIndex];
-      exampleKeyboard.innerHTML = keyboardSvg([pitch], low, high, characteristicPitch);
-      melodyStatus.textContent = `${mode.name}: ${NOTE_NAMES[((pitch % 12) + 12) % 12]} · nota ${noteIndex + 1} de ${pitches.length}`;
+    cancelPlayback = playPiano(events, example.bpm, {
+      onNote: (noteIndex) => {
+        const pitch = pitches[noteIndex];
+        exampleKeyboard.innerHTML = keyboardSvg([pitch], low, high, characteristicPitch);
+        melodyStatus.textContent = `${mode.name}: ${NOTE_NAMES[((pitch % 12) + 12) % 12]} · nota ${noteIndex + 1} de ${pitches.length}`;
+      },
+      onEnd: () => {
+        cancelPlayback = null;
+        resetPlayer();
+      },
     });
   }
 
   modeButtons.addEventListener('click', (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.mm');
     if (!button) return;
-    cancelMelody?.();
+    stopPlayback();
     current = Number(button.dataset.i ?? 0);
     render();
   });
-  tonicSelect.addEventListener('change', () => { cancelMelody?.(); render(); });
+  tonicSelect.addEventListener('change', () => { stopPlayback(); render(); });
   scaleButton.addEventListener('click', () => {
+    stopPlayback();
     const mode = MODES[current];
     const key = Number(tonicSelect.value);
-    playSequence(mode.scale.map((step) => [key + step]), 0, 0.35);
+    cancelPlayback = playScale(mode.scale.map((step) => key + step).concat(key + 12), 140, () => { cancelPlayback = null; });
   });
   progressionButton.addEventListener('click', () => {
-    const mode = MODES[current];
-    const key = Number(tonicSelect.value);
-    const progression = mode.progression.map(
-      ([offset, quality]) => FLAT_NAMES[((key + offset) % 12 + 12) % 12] + quality,
-    );
-    playSequence(progression.map((chord) => chordNotes(chord)), 0, 1.2);
+    stopPlayback();
+    const progression = MODES[current].progression.map(([offset, quality]) => FLAT_NAMES[((Number(tonicSelect.value) + offset) % 12 + 12) % 12] + quality);
+    cancelPlayback = playChords(progression.map((name) => chordNotes(name)), 100, 2, () => { cancelPlayback = null; });
   });
   examples.addEventListener('click', (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-play-melody]');
     if (button) startMelody(Number(button.dataset.playMelody), button);
   });
-  stopButton.addEventListener('click', () => cancelMelody?.());
+  stopButton.addEventListener('click', stopPlayback);
 
   document.querySelectorAll<HTMLButtonElement>('[data-color-progression]').forEach((button) => {
     button.addEventListener('click', () => {
+      stopPlayback();
       document.querySelectorAll<HTMLButtonElement>('[data-color-progression]').forEach((item) => {
         item.setAttribute('aria-pressed', String(item === button));
       });
       const names = (button.dataset.colorProgression ?? '').split(' ');
-      playSequence(names.map((name) => chordNotes(name)), 0, 0.8);
+      cancelPlayback = playChords(names.map((name) => chordNotes(name)), 120, 2, () => {
+        cancelPlayback = null;
+        button.setAttribute('aria-pressed', 'false');
+      });
     });
   });
 
