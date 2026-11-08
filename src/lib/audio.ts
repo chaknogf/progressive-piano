@@ -79,6 +79,7 @@ export function playChord(notes: number[], duration = 1.2): void {
     const ctx = audioContext();
     const when = ctx.currentTime + 0.05;
     notes.forEach((n) => scheduleNote(n, when, duration));
+    (window as any).__pulseLogo?.();
   } catch (error) {
     console.error('No se pudo reproducir el acorde', error);
   }
@@ -94,6 +95,7 @@ export function playSequence(sequence: number[][], gap = 0, length = 1.2): void 
       });
       time += length;
     });
+    (window as any).__pulseLogo?.();
   } catch (error) {
     console.error('No se pudo reproducir la secuencia', error);
   }

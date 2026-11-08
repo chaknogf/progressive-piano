@@ -2,37 +2,75 @@
 import { CATEGORIES, PROGRESSIONS } from '../data/progressions';
 ---
 <div class="row" id="flt"></div>
+<div class="row" id="lvl"></div>
 <div class="grid" id="cat"></div>
 <script>
   import { CATEGORIES, PROGRESSIONS } from '../data/progressions';
   import { displayNote } from '../lib/theory';
   import { must } from '../lib/dom';
 
+  const LEVELS = { principiante: 'Principiante', intermedio: 'Intermedio', avanzado: 'Avanzado' };
+  const LEVEL_COLORS = { principiante: '#22c55e', intermedio: '#f59e0b', avanzado: '#ef4444' };
+
   const filterRow = must(document.getElementById('flt'), '#flt');
   filterRow.innerHTML = [
-    '<button class="f on" type="button" data-c="">Todas</button>',
+    '<button class="f on" type="button" data-c="" aria-pressed="true">Todas</button>',
     ...Object.entries(CATEGORIES).map(
-      ([key, label]) => `<button class="f" type="button" data-c="${key}">${label}</button>`,
+      ([key, label]) => `<button class="f" type="button" data-c="${key}" aria-pressed="false">${label}</button>`,
+    ),
+  ].join('');
+
+  const levelRow = must(document.getElementById('lvl'), '#lvl');
+  levelRow.innerHTML = [
+    '<button class="l on" type="button" data-l="" aria-pressed="true">Todos los niveles</button>',
+    ...Object.entries(LEVELS).map(
+      ([key, label]) => `<button class="l" type="button" data-l="${key}" aria-pressed="false">${label}</button>`,
     ),
   ].join('');
 
   const grid = must(document.getElementById('cat'), '#cat');
   grid.innerHTML = PROGRESSIONS.map(
     (item) => `
-      <article class="cd" data-c="${item.category}">
+      <article class="cd" data-c="${item.category}" data-l="${item.level}">
         <span class="tg">${CATEGORIES[item.category]}</span>
+        <span class="badge" style="background:${LEVEL_COLORS[item.level]}20;color:${LEVEL_COLORS[item.level]};border:1px solid ${LEVEL_COLORS[item.level]}">${LEVELS[item.level]}</span>
         <h3>${item.title}</h3>
         <p class="gr">${item.degrees}</p>
         <div class="chips">
           ${item.chords
-            .split(' ')
             .map((chord) => `<button class="ch" type="button" data-n="${chord}">${displayNote(chord)}</button>`)
             .join('')}
         </div>
         <p>${item.description}</p>
         <p class="sg">♪ ${item.songs}</p>
         <div class="v"></div>
-        <button class="pp" type="button" data-ch="${item.chords}">▶ Tocar progresión</button>
+        <button class="pp" type="button" data-ch="${item.chords.join(' ')}">▶ Tocar progresión</button>
       </article>`,
   ).join('');
+
+  // global filter handler extended in Layout? Add local handlers:
+  function applyFilters() {
+    const cat = document.querySelector<HTMLButtonElement>('.f.on')?.dataset.c ?? '';
+    const lvl = document.querySelector<HTMLButtonElement>('.l.on')?.dataset.l ?? '';
+    document.querySelectorAll<HTMLElement>('#cat .cd').forEach((card) => {
+      const okCat = !cat || card.dataset.c === cat;
+      const okLvl = !lvl || card.dataset.l === lvl;
+      card.style.display = okCat && okLvl ? '' : 'none';
+    });
+  }
+  document.getElementById('flt')?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.f');
+    if (!btn) return;
+    document.querySelectorAll('.f').forEach((b) => { b.classList.toggle('on', b === btn); b.setAttribute('aria-pressed', String(b === btn)); });
+    applyFilters();
+  });
+  document.getElementById('lvl')?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.l');
+    if (!btn) return;
+    document.querySelectorAll('.l').forEach((b) => { b.classList.toggle('on', b === btn); b.setAttribute('aria-pressed', String(b === btn)); });
+    applyFilters();
+  });
 </script>
+<style>
+  .badge { display: inline-block; font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
+</style>

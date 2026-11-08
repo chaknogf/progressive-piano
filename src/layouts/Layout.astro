@@ -6,7 +6,7 @@ interface Props {
   description?: string;
 }
 
-const DEFAULT_TITLE = 'Cadencia';
+const DEFAULT_TITLE = 'progressive-music';
 const DEFAULT_DESCRIPTION =
   'Manual de Progresiones Armónicas para Piano y Guitarra. De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra.';
 
@@ -20,6 +20,8 @@ const {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="keywords" content="progresiones armónicas, acordes de piano, acordes de guitarra, teoría musical, grados, inversiones, modos, pop, rock, jazz, latina" />
@@ -60,13 +62,6 @@ const {
         } else if (button.classList.contains('pp')) {
           const chart = button.dataset.ch;
           if (chart) play(chart.split(' ').map((name) => notes(name)), 0, 1.2);
-        } else if (button.classList.contains('f')) {
-          $$('.f').forEach((filter) => filter.classList.toggle('on', filter === button));
-          $$('#cat .cd').forEach((card) => {
-            const element = card as HTMLElement;
-            const match = !button.dataset.c || element.dataset.c === button.dataset.c;
-            element.style.display = match ? '' : 'none';
-          });
         }
       });
     </script>

@@ -63,7 +63,7 @@ h1, h2, h3, h4 {
 }
 h1 {
   font-size: 2.2rem;
-  background: linear-gradient(90deg, #f97316, #ec4899, #8b5cf6);
+  background: linear-gradient(135deg, #f97316, #ec4899 50%, #8b5cf6);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -98,6 +98,12 @@ h4 {
 .lead {
   color: var(--mut);
   font-size: 1.05rem;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
 }
 nav {
   display: flex;

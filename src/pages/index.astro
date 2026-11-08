@@ -9,12 +9,38 @@ import Exercise from '../components/Exercise.astro';
 import Emotions from '../components/Emotions.astro';
 import Tips from '../components/Tips.astro';
 import SynthLab from '../components/SynthLab.astro';
+import Logo from '../components/Logo.astro';
 ---
 <Layout>
-  <h1>Cadencia</h1>
-  <p class="lead">Manual de Progresiones Armónicas para Piano y Guitarra</p>
+  <div class="brand">
+    <Logo />
+    <div>
+      <h1>progressive-music</h1>
+      <p class="lead">Manual de Progresiones Armónicas para Piano y Guitarra</p>
+    </div>
+  </div>
   <p>De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y guitarra. Toca cualquier acorde para ver su teclado y su diagrama de guitarra, y escúchalo.</p>
   <Nav />
+
+  <h2 id="start">Empieza aquí</h2>
+  <div class="progress-bar"><div class="progress-fill" id="startProgress" style="width:0%"></div></div>
+  <div class="grid">
+    <div class="cd step" data-step="1"><span class="tg">Paso 1</span><h3>Toca C, G, Am y F</h3><p>Toca cada acorde y observa el teclado y el diagrama de guitarra.</p><button class="step-done" type="button" data-step="1">Marcar como hecho</button></div>
+    <div class="cd step" data-step="2"><span class="tg">Paso 2</span><h3>Tu primera progresión: C – G – Am – F</h3><p>La progresión más usada del pop. Tócala en bloque y luego arpegiada.</p><button class="step-done" type="button" data-step="2">Marcar como hecho</button></div>
+    <div class="cd step" data-step="3"><span class="tg">Paso 3</span><h3>Cambia de acorde a tiempo</h3><p>Usa el metrónomo y cambia de acorde en cada compás.</p><button class="step-done" type="button" data-step="3">Marcar como hecho</button></div>
+    <div class="cd step" data-step="4"><span class="tg">Paso 4</span><h3>Tu primera canción</h3><p>Elige una progresión del catálogo y toca la canción completa.</p><button class="step-done" type="button" data-step="4">Marcar como hecho</button></div>
+  </div>
+  <p class="mut" id="startStatus"></p>
+
+  <h3>Glosario</h3>
+  <div class="chips">
+    <button class="gloss" type="button" data-term="triada">Tríada</button>
+    <button class="gloss" type="button" data-term="grado">Grado</button>
+    <button class="gloss" type="button" data-term="inversion">Inversión</button>
+    <button class="gloss" type="button" data-term="intercambio">Intercambio modal</button>
+    <button class="gloss" type="button" data-term="voicing">Voicing</button>
+  </div>
+  <div class="box" id="glossBox" hidden><p id="glossText"></p></div>
 
   <h2 id="s1">1. Cómo leer una progresión</h2>
   <p>Hay dos lenguajes. <b>Por nombre</b> (C – Am – F – G) te dice las notas exactas. <b>Por grados</b> (números romanos) funciona en cualquier tono: mayúsculas (I, IV, V) = acorde mayor; minúsculas (ii, vi) = menor.</p>
@@ -133,4 +159,160 @@ import SynthLab from '../components/SynthLab.astro';
   </div>
 
   <SynthLab />
+
+  <h2 id="rhythm">Ritmo y compás</h2>
+  <p>Pulso, tempo y compás: la misma progresión cambia de carácter según cómo la acentúes.</p>
+  <div class="box">
+    <h3>Secuenciador (8 pasos)</h3>
+    <div class="row" id="seqControls">
+      <label>Tempo <input type="range" id="seqBpm" min="40" max="200" value="90"/> <span id="seqBpmV">90</span> BPM</label>
+      <label>Compás
+        <select id="seqSig"><option value="4">4/4</option><option value="3">3/4</option><option value="6">6/8</option></select>
+      </label>
+      <button id="seqPlay" type="button">▶ Reproducir</button>
+      <button id="seqStop" type="button">■ Detener</button>
+    </div>
+    <div class="seq-grid" id="seqGrid"></div>
+    <p class="mut">Haz clic en un paso para alternar acento fuerte/débil/silencio. El acorde actual se resalta.</p>
+  </div>
+  <div class="grid">
+    <div class="cd"><h3>Guitarra: rasgueo</h3><p class="mut">Patrón base: ↓ ↓↑ ↑↓↑. Acentúa el primer tiempo y deja respirar el 4.</p></div>
+    <div class="cd"><h3>Piano: acompañamiento</h3><p class="mut">Bajo en el tiempo 1, acorde en 2 y 3; en 6/8, bajo en 1 y acorde en 3.</p></div>
+  </div>
+  <div class="box">
+    <h3>Ejercicio: C – Am – F – G en distintos compases</h3>
+    <p class="mut">Escucha la misma progresión en 4/4, 3/4 y 6/8 para sentir la diferencia.</p>
+    <div class="row">
+      <button type="button" id="ex44">▶ 4/4</button>
+      <button type="button" id="ex34">▶ 3/4</button>
+      <button type="button" id="ex68">▶ 6/8</button>
+    </div>
+  </div>
+
+  <script>
+    const seqGrid = document.getElementById('seqGrid');
+    const seqBpm = document.getElementById('seqBpm') as HTMLInputElement | null;
+    const seqBpmV = document.getElementById('seqBpmV');
+    const seqSig = document.getElementById('seqSig') as HTMLSelectElement | null;
+    const seqPlay = document.getElementById('seqPlay');
+    const seqStop = document.getElementById('seqStop');
+    let steps = Array(8).fill(0); // 0 off, 1 weak, 2 strong
+    let playing = false;
+    let timer: number | null = null;
+
+    function renderSeq() {
+      if (!seqGrid) return;
+      seqGrid.innerHTML = steps.map((v, i) => `<button class="seq-step ${v === 2 ? 'strong' : v === 1 ? 'weak' : ''}" data-i="${i}" type="button">${i + 1}</button>`).join('');
+    }
+    seqGrid?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.seq-step');
+      if (!btn) return;
+      const i = Number(btn.dataset.i);
+      steps[i] = (steps[i] + 1) % 3;
+      renderSeq();
+    });
+    seqBpm?.addEventListener('input', () => { if (seqBpmV) seqBpmV.textContent = seqBpm.value; });
+    renderSeq();
+
+    seqPlay?.addEventListener('click', () => {
+      if (playing) return;
+      playing = true;
+      let i = 0;
+      const tick = () => {
+        if (!playing) return;
+        document.querySelectorAll('.seq-step').forEach((el, idx) => el.classList.toggle('current', idx === i));
+        i = (i + 1) % 8;
+        const bpm = Number(seqBpm?.value ?? 90);
+        const sig = Number(seqSig?.value ?? 4);
+        const beatMs = (60000 / bpm) * (sig === 6 ? 0.5 : 1);
+        timer = window.setTimeout(tick, beatMs);
+      };
+      tick();
+    });
+    seqStop?.addEventListener('click', () => {
+      playing = false;
+      if (timer) clearTimeout(timer);
+      document.querySelectorAll('.seq-step').forEach((el) => el.classList.remove('current'));
+    });
+
+    async function playProg(sig: number) {
+      const { playSequence } = await import('../lib/audio');
+      const { chordNotes } = await import('../lib/theory');
+      const gap = sig === 6 ? 0.15 : 0.25;
+      const len = sig === 3 ? 1.0 : 1.2;
+      playSequence(['C', 'Am', 'F', 'G'].map((n) => chordNotes(n)), gap, len);
+    }
+    document.getElementById('ex44')?.addEventListener('click', () => playProg(4));
+    document.getElementById('ex34')?.addEventListener('click', () => playProg(3));
+    document.getElementById('ex68')?.addEventListener('click', () => playProg(6));
+  </script>
+  <style>
+    .seq-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin: 10px 0; }
+    .seq-step { min-height: 44px; border-radius: 8px; border: 1px solid var(--bd); background: var(--card); cursor: pointer; }
+    .seq-step.strong { background: var(--acc); color: #fff; border-color: var(--acc); }
+    .seq-step.weak { background: var(--acc2); }
+    .seq-step.current { outline: 2px solid var(--fg); }
+    .progress-bar { height: 8px; background: var(--bd); border-radius: 999px; overflow: hidden; margin: 8px 0 14px; }
+    .progress-fill { height: 100%; background: linear-gradient(135deg, #f97316, #ec4899, #8b5cf6); transition: width .3s; }
+  </style>
+
+  <script>
+    const GLOSSARY: Record<string, string> = {
+      triada: 'Tríada: acorde de tres notas (fundamental, tercera y quinta).',
+      grado: 'Grado: posición de un acorde dentro de la escala (I, ii, iii...).',
+      inversion: 'Inversión: reordenar las notas de un acorde poniendo otra que no sea la fundamental en el bajo.',
+      intercambio: 'Intercambio modal: tomar un acorde de un modo paralelo (ej. IV menor en mayor).',
+      voicing: 'Voicing: distribución de las notas de un acorde entre las manos o registros.',
+    };
+    const glossBox = document.getElementById('glossBox');
+    const glossText = document.getElementById('glossText');
+    document.querySelectorAll<HTMLButtonElement>('.gloss').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const term = btn.dataset.term ?? '';
+        if (glossText) glossText.textContent = GLOSSARY[term] ?? '';
+        if (glossBox) glossBox.hidden = false;
+      });
+    });
+
+    const KEY = 'cadencia:start';
+    function loadProgress(): Set<string> {
+      try {
+        const raw = localStorage.getItem(KEY);
+        return new Set(raw ? JSON.parse(raw) : []);
+      } catch {
+        return new Set();
+      }
+    }
+    function saveProgress(set: Set<string>) {
+      try { localStorage.setItem(KEY, JSON.stringify([...set])); } catch {}
+    }
+    const done = loadProgress();
+    const progressFill = document.getElementById('startProgress') as HTMLElement | null;
+    const status = document.getElementById('startStatus');
+    function updateProgress() {
+      const pct = (done.size / 4) * 100;
+      if (progressFill) progressFill.style.width = pct + '%';
+      if (status) status.textContent = done.size === 4 ? '¡Completado! Ya puedes seguir con el catálogo.' : `${done.size} de 4 pasos completados.`;
+      document.querySelectorAll<HTMLButtonElement>('.step-done').forEach((btn) => {
+        const step = btn.dataset.step ?? '';
+        if (done.has(step)) {
+          btn.textContent = '✓ Hecho';
+          btn.classList.add('on');
+        }
+      });
+    }
+    document.querySelectorAll<HTMLButtonElement>('.step-done').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const step = btn.dataset.step ?? '';
+        done.add(step);
+        saveProgress(done);
+        updateProgress();
+      });
+    });
+    updateProgress();
+  </script>
+  <style>
+    .progress-bar { height: 8px; background: var(--bd); border-radius: 999px; overflow: hidden; margin: 8px 0 14px; }
+    .progress-fill { height: 100%; background: linear-gradient(135deg, #f97316, #ec4899, #8b5cf6); transition: width .3s; }
+  </style>
 </Layout>
