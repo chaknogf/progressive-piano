@@ -46,6 +46,7 @@
   import { audioContext, scheduleTone } from '../lib/audio';
   import { BEAT_GENRES, BEAT_INSTRUMENTS, HARMONY_CARDS } from '../data/beats';
   import { chordNotes as notes, displayName as dn } from '../lib/theory';
+  import { patternToFigures } from '../lib/beats';
 
   const $ = (s: string, e: ParentNode = document): any => e.querySelector(s);
   const $$ = (s: string, e: ParentNode = document): any[] => [...e.querySelectorAll(s)];
@@ -179,18 +180,20 @@
     for (let st = 0; st < 16; st++) {
       g += `<text x="${XP(st)}" y="108" font-size="11" text-anchor="middle" ${FC2} opacity="${row[st] ? 1 : 0.4}" font-weight="${row[st] ? 700 : 400}">${st % 4 ? ['e', 'y', 'a'][st % 4 - 1] : st / 4 + 1}</text>`;
     }
+    const figures = patternToFigures(row);
     for (let b = 0; b < 4; b++) {
-      const active: number[] = [];
-      for (let i = 0; i < 4; i++) if (row[b * 4 + i]) active.push(b * 4 + i);
       if (b) {
         g += `<line x1="${XP(b * 4) - 16}" y1="58" x2="${XP(b * 4) - 16}" y2="82" ${SC2} opacity=".25" stroke-dasharray="3 3"/>`;
       }
+      const beatFigures = figures.filter((figure) => figure.beat === b);
+      const active = beatFigures.filter((figure) => !figure.rest);
+      const leadingRest = beatFigures.find((figure) => figure.rest);
       if (!active.length) {
-        g += rst(XP(b * 4), 4);
+        if (leadingRest) g += rst(XP(leadingRest.step), leadingRest.durationSteps);
         continue;
       }
-      if (active[0] > b * 4) g += rst(XP(b * 4), active[0] - b * 4);
-      const ns = active.map((st, j) => ({ x: XP(st), d: (active[j + 1] ?? b * 4 + 4) - st }));
+      if (leadingRest) g += rst(XP(leadingRest.step), leadingRest.durationSteps);
+      const ns = active.map((figure) => ({ x: XP(figure.step), d: figure.durationSteps }));
       ns.forEach((n) => {
         g += `<ellipse cx="${n.x}" cy="70" rx="6" ry="4.3" transform="rotate(-20 ${n.x} 70)" ${FC2}/><line x1="${n.x + 5.2}" y1="68" x2="${n.x + 5.2}" y2="35" ${SC2} stroke-width="1.6"/>`;
         if (n.d == 3) g += `<circle cx="${n.x + 12}" cy="73" r="1.8" ${FC2}/>`;

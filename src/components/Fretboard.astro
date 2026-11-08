@@ -1,4 +1,6 @@
 ---
+import FingerPractice from './FingerPractice.astro';
+
 ---
 <section id="s9">
   <h2>9. Simulador de trastes y práctica de dedos</h2>
@@ -18,29 +20,8 @@
     <p id="frd" aria-live="polite"></p>
     <p id="finf"></p>
   </div>
-  <div class="box hl">
-    <h3>🖐 Práctica de dedos</h3>
-    <p>Un mástil vertical a pantalla completa: eliges un acorde, colocas tú mismo los dedos y la página te dice si está bien.</p>
-    <button id="fpm" class="on">Abrir práctica a pantalla completa</button>
-  </div>
-  <ul>
-    <li><b>1.</b> Elige un dedo abajo (1 índice, 2 medio, 3 anular, 4 meñique) y toca la casilla donde va. Hay un dedo por cuerda; el índice puede repetirse para hacer una cejilla.</li>
-    <li><b>2.</b> Toca el símbolo sobre cada cuerda para alternar ○ (al aire) y ✕ (no se toca).</li>
-    <li><b>3.</b> Pulsa <i>Comprobar</i>: las cuerdas incorrectas se marcan en rojo. Si lo necesitas, <i>Pista</i> muestra la respuesta con los números de dedo.</li>
-  </ul>
+  <FingerPractice />
 </section>
-<div id="pm" hidden role="dialog" aria-label="Práctica de dedos">
-  <div class="pt"><button id="pmx">✕ Cerrar</button><b>Práctica de dedos</b><select id="pmc" aria-label="Acorde"></select></div>
-  <div id="pmt"></div>
-  <div class="pbody">
-    <div class="pw"><svg id="pmv" viewBox="0 0 350 440" role="img" aria-label="Mástil vertical para colocar los dedos"></svg></div>
-    <div class="pside">
-      <div class="row" id="pmf"></div>
-      <p id="pmm"></p>
-      <div class="row"><button id="pmk" class="on">Comprobar</button><button id="pmh">Pista</button><button id="pml">Limpiar</button><button id="pms">▶ Acorde</button><button id="pmn">Siguiente ▸</button></div>
-    </div>
-  </div>
-</div>
 <script>
 const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
 const N=['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'],PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11},FL=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
@@ -78,44 +59,6 @@ $('#fm').onclick=e=>{const m=e.target.dataset.m;if(m!=null){S.mode=+m;S.sel=null
 $('#fb').onclick=e=>{const r=e.target.closest('[data-s]');if(!r)return;const s=+r.dataset.s,f=+r.dataset.f;S.sel={s,f};pl(TU[S.tu][1][s]+f);draw()};
 $('#fact').onclick=()=>{if(S.mode==1){const b=40+(S.root+8)%12;SCL[S.sc][1].concat(12).forEach((i,k)=>pl(b+i,k*.28))}else if(S.mode==2){const f=shp();if(f)f.forEach((r,s)=>{if(r>=0)pl(TU[0][1][s]+(r?r+S.capo:S.capo),s*.05)})}};
 ui();draw();
-/* Práctica de dedos */
-const PC=[['Em',[0,2,2,0,0,0],[0,2,3,0,0,0],'Mi menor'],['Am',[-1,0,2,2,1,0],[0,0,2,3,1,0],'La menor'],['E',[0,2,2,1,0,0],[0,2,3,1,0,0],'Mi mayor'],['A',[-1,0,2,2,2,0],[0,0,1,2,3,0],'La mayor'],['D',[-1,-1,0,2,3,2],[0,0,0,1,3,2],'Re mayor'],['C',[-1,3,2,0,1,0],[0,3,2,0,1,0],'Do mayor'],['G',[3,2,0,0,0,3],[2,1,0,0,0,3],'Sol mayor'],['Dm',[-1,-1,0,2,3,1],[0,0,0,2,3,1],'Re menor'],['G7',[3,2,0,0,0,1],[3,2,0,0,0,1],'Sol séptima'],['F',[1,3,3,2,1,1],[1,3,4,2,1,1],'Fa mayor (con cejilla)']];
-const FC=['','#f97316','#ec4899','#8b5cf6','#0ea5e9'],FN=['','Índice','Medio','Anular','Meñique'],T0=TU[0][1];
-const P2={ci:0,fi:1,m:Array(6).fill(null),mu:Array(6).fill(false),bad:[],hint:0};
-function msg(t,ok){$('#pmm').textContent=t;$('#pmm').className=ok?'ok':''}
-function rs(){P2.m=Array(6).fill(null);P2.mu=Array(6).fill(false);P2.bad=[];P2.hint=0;msg('Elige un dedo, toca una casilla del mástil y pulsa Comprobar.');pv()}
-function pv(){const[nm,fr,fi]=PC[P2.ci];$('#pmt').innerHTML=`Forma <b>${dn(nm)}</b> — ${PC[P2.ci][3]}`;
-let g=`<rect x="24" y="50" width="302" height="350" class="wood"/>`;
-P2.bad.forEach(s=>g+=`<rect x="${50+s*52-26}" y="4" width="52" height="400" rx="8" fill="#dc2626" opacity=".18"/>`);
-for(let r=0;r<=5;r++)g+=`<line x1="24" y1="${50+r*70}" x2="326" y2="${50+r*70}" class="${r?'fr':'nut'}"/>`;
-for(let r=1;r<=5;r++)g+=`<text x="12" y="${50+r*70-30}" class="xf">${r}</text>`;
-for(let s=0;s<6;s++){const x=50+s*52;g+=`<line x1="${x}" y1="50" x2="${x}" y2="400" class="st" stroke-width="${1+(5-s)*.4}"/><text x="${x}" y="426" class="xs">${'EADGBe'[s]}</text>`;
-const e=fr[s],p=P2.m[s];
-if(P2.hint&&e<=0)g+=`<text x="${x}" y="34" class="xh" style="fill:var(--acc)">${e<0?'✕':'○'}</text>`;
-else if(!p&&!(P2.hint&&e>0))g+=`<text x="${x}" y="34" class="xh">${P2.mu[s]?'✕':'○'}</text>`;
-if(P2.hint&&e>0)g+=`<circle cx="${x}" cy="${50+(e-1)*70+35}" r="22" class="gh"/><text x="${x}" y="${50+(e-1)*70+42}" class="xt" style="font-size:18px">${fi[s]}</text>`;
-if(p)g+=`<circle cx="${x}" cy="${50+(p.f-1)*70+35}" r="22" fill="${FC[p.fi]}"/><text x="${x}" y="${50+(p.f-1)*70+42}" class="xw" style="font-size:18px">${p.fi}</text>`}
-for(let s=0;s<6;s++){g+=`<rect x="${50+s*52-26}" y="0" width="52" height="48" fill="transparent" data-h="${s}"/>`;for(let r=1;r<=5;r++)g+=`<rect x="${50+s*52-26}" y="${50+(r-1)*70}" width="52" height="70" fill="transparent" data-s="${s}" data-r="${r}"/>`}
-$('#pmv').innerHTML=g}
-$('#pmv').onclick=e=>{const t=e.target;P2.bad=[];if(t.dataset.h!=null){const s=+t.dataset.h;P2.m[s]=null;P2.mu[s]=!P2.mu[s]}
-else if(t.dataset.r!=null){const s=+t.dataset.r,r=+t.dataset.r,p=P2.m[s];if(p&&p.f==r)P2.m[s]=null;else{const fi=P2.fi;if(fi>1)P2.m=P2.m.map(q=>q&&q.fi==fi?null:q);P2.m[s]={f:r,fi};P2.mu[s]=false;pl(T0[s]+r)}}
-msg('');pv()};
-function fgs(){$('#pmf').innerHTML=[1,2,3,4].map(i=>`<button class="fg${P2.fi==i?' on':''}" data-f="${i}" style="--c:${FC[i]}" aria-pressed="${P2.fi==i}"><b>${i}</b><small>${FN[i]}</small></button>`).join('')}
-$('#pmf').onclick=e=>{const b=e.target.closest('[data-f]');if(b){P2.fi=+b.dataset.f;fgs()}};
-$('#pmc').innerHTML=opt(PC,x=>`${x[0]} · ${x[3]}`);
-$('#pmc').onchange=e=>{P2.ci=+e.target.value;rs()};
-$('#pmn').onclick=()=>{P2.ci=(P2.ci+1)%PC.length;$('#pmc').value=P2.ci;rs()};
-$('#pml').onclick=rs;$('#pmh').onclick=()=>{P2.hint=1-P2.hint;pv()};
-const strum=fr=>fr.forEach((e,s)=>{if(e>=0)pl(T0[s]+e,s*.05)});
-$('#pms').onclick=()=>strum(PC[P2.ci][1]);
-$('#pmk').onclick=()=>{const[nm,fr,fi]=PC[P2.ci],bad=[];for(let s=0;s<6;s++){const e=fr[s],p=P2.m[s];if(e<0?(p||!P2.mu[s]):e==0?(p||P2.mu[s]):(!p||p.f!=e))bad.push(s)}
-P2.bad=bad;pv();if(bad.length){msg(`Casi: revisa las cuerdas en rojo (${bad.map(s=>6-s).join(', ')}). Marca con ✕ las que no se tocan.`);return}
-const wf=[];fr.forEach((e,s)=>{if(e>0&&P2.m[s].fi!=fi[s])wf.push(`cuerda ${6-s}: dedo ${fi[s]}`)});
-msg(wf.length?`✓ ¡Posición correcta! Para más comodidad usa ${wf.join('; ')}.`:`✓ ¡Perfecto! Así se toca ${dn(nm)}.`,1);strum(fr)};
-let prevFocus=null;
-$('#fpm').onclick=()=>{prevFocus=document.activeElement;$('#pm').hidden=false;document.body.style.overflow='hidden';try{$('#pm').requestFullscreen&&$('#pm').requestFullscreen().catch(()=>{})}catch(e){}fgs();rs();setTimeout(()=>$('#pmx')?.focus(),50)};
-const cl=()=>{$('#pm').hidden=true;document.body.style.overflow='';try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}if(prevFocus&&prevFocus.focus)prevFocus.focus()};
-$('#pmx').onclick=cl;document.addEventListener('keydown',e=>{if(e.key=='Escape'&&!$('#pm').hidden)cl()});
 })();
 </script>
 <style is:global>
@@ -129,14 +72,6 @@ $('#pmx').onclick=cl;document.addEventListener('keydown',e=>{if(e.key=='Escape'&
   .wood{fill:var(--wood)}.fr{stroke:var(--mut);stroke-width:2;opacity:.6}.st{stroke:var(--str)}.mk{fill:var(--mut);opacity:.35}.dim{fill:var(--bg);opacity:.6}.cap{fill:var(--acc)}
   .rt{fill:var(--acc)}.nt{fill:var(--card);stroke:var(--acc);stroke-width:2}.ho{fill:none;stroke:var(--acc);stroke-width:2.5}.ring{fill:none;stroke:var(--acc);stroke-width:3}
   .xw,.xt,.xf,.xs,.xh{font:700 10px system-ui;text-anchor:middle}.xw{fill:#fff}.xt{fill:var(--fg)}.xf{fill:var(--mut);font-weight:400;font-size:11px}.xs{fill:var(--fg);font-size:11px}.xh{font-size:22px;fill:var(--mut)}
-  .gh{fill:none;stroke:var(--acc);stroke-width:3;stroke-dasharray:5 4}
-  #pm{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;gap:6px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 8px)}
-  #pm[hidden]{display:none}
-  .pt{display:flex;gap:10px;align-items:center;justify-content:space-between}.pt b{font:1.05rem Georgia,serif}
-  .pbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}.pw{flex:1;min-height:0}.pw svg{width:100%;height:100%;display:block}.pside{display:flex;flex-direction:column;gap:6px}
-  @media(orientation:landscape){.pbody{flex-direction:row}.pside{width:46%;justify-content:center}}
-  .fg{border:2px solid var(--c);border-radius:14px;min-width:64px;display:flex;flex-direction:column;align-items:center;line-height:1.1;padding:6px 8px}.fg small{font-size:.65rem;color:var(--mut)}.fg.on{background:var(--c);border-color:var(--c);color:#fff}.fg.on small{color:#fff}
-  #pmm{min-height:2.6em;font-size:.92rem;margin:0}#pmm.ok{color:#15803d;font-weight:700}
   :root{--wood:#ead6b8;--str:#7a6f60}
   @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--wood:#4a3524;--str:#c9bba6}}
   :root[data-theme="dark"]{--wood:#4a3524;--str:#c9bba6}

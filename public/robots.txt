@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://progressive-piano.vercel.app/sitemap.xml
+Sitemap: https://progressive-music.vercel.app/sitemap.xml

@@ -1,0 +1,275 @@
+<div class="box hl">
+  <h3>🖐 Práctica de dedos</h3>
+  <p>Elige un acorde, coloca los dedos en el mástil y comprueba la posición.</p>
+  <button id="finger-practice-open" class="on" type="button">Abrir práctica de dedos</button>
+</div>
+<ul>
+  <li><b>1.</b> Elige un dedo (1 índice, 2 medio, 3 anular, 4 meñique) y toca la casilla donde va. Puedes repetir el índice para hacer una cejilla.</li>
+  <li><b>2.</b> Toca el símbolo sobre una cuerda para alternar ○ (al aire) y ✕ (no se toca).</li>
+  <li><b>3.</b> Pulsa <i>Comprobar</i> para revisar la digitación; <i>Pista</i> muestra una propuesta.</li>
+</ul>
+
+<div id="finger-practice-modal" class="fp-modal" hidden role="dialog" aria-modal="true" aria-labelledby="finger-practice-title" tabindex="-1">
+  <div class="fp-header">
+    <button id="finger-practice-close" type="button">✕ Cerrar</button>
+    <h2 id="finger-practice-title">Práctica de dedos</h2>
+    <label>Acorde <select id="finger-practice-chord" aria-label="Acorde"></select></label>
+  </div>
+  <p id="finger-practice-name"></p>
+  <div class="fp-body">
+    <div class="fp-neck"><svg id="finger-practice-neck" viewBox="0 0 350 440" role="img" aria-label="Mástil vertical para colocar los dedos"></svg></div>
+    <div class="fp-controls">
+      <div class="row" id="finger-practice-fingers" role="group" aria-label="Seleccionar dedo"></div>
+      <p id="finger-practice-message" aria-live="polite"></p>
+      <div class="row">
+        <button id="finger-practice-check" class="on" type="button">Comprobar</button>
+        <button id="finger-practice-hint" type="button" aria-pressed="false">Pista</button>
+        <button id="finger-practice-clear" type="button">Limpiar</button>
+        <button id="finger-practice-play" type="button">▶ Acorde</button>
+        <button id="finger-practice-next" type="button">Siguiente ▸</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { FINGER_PRACTICE_CHORDS } from '../data/chords';
+  import { validateFingerPractice, type FingerPlacement } from '../lib/finger-practice';
+  import { audioContext } from '../lib/audio';
+
+  const $ = <T extends Element = HTMLElement>(id: string, _type?: { prototype: T }): T => {
+    const element = document.getElementById(id);
+    if (!element) throw new Error(`No se encontró #${id}`);
+    return element as T;
+  };
+  const modal = $('finger-practice-modal');
+  const openButton = $('finger-practice-open', HTMLButtonElement);
+  const closeButton = $('finger-practice-close', HTMLButtonElement);
+  const chordSelect = $('finger-practice-chord', HTMLSelectElement);
+  const neck = $('finger-practice-neck', SVGSVGElement);
+  const message = $('finger-practice-message');
+  const fingers = $('finger-practice-fingers');
+  const COLORS = ['', '#f97316', '#ec4899', '#8b5cf6', '#0ea5e9'];
+  const FINGER_NAMES = ['', 'Índice', 'Medio', 'Anular', 'Meñique'];
+  const OPEN_MIDI = [40, 45, 50, 55, 59, 64];
+  let chordIndex = 0;
+  let selectedFinger = 1;
+  let placements: Array<FingerPlacement | null> = Array(6).fill(null);
+  let muted = Array(6).fill(false);
+  let incorrect: number[] = [];
+  let hintShown = false;
+  let previousFocus: HTMLElement | null = null;
+  let previousOverflow = '';
+
+  chordSelect.innerHTML = FINGER_PRACTICE_CHORDS.map(
+    (chord, index) => `<option value="${index}">${chord.name} · ${chord.label}</option>`,
+  ).join('');
+
+  function announce(text: string, success = false): void {
+    message.textContent = text;
+    message.classList.toggle('success', success);
+  }
+
+  function draw(): void {
+    const chord = FINGER_PRACTICE_CHORDS[chordIndex];
+    const content = [`<rect x="24" y="50" width="302" height="350" class="fp-wood"/>`];
+    for (const stringIndex of incorrect) {
+      content.push(`<rect x="${50 + stringIndex * 52 - 26}" y="4" width="52" height="400" rx="8" class="fp-wrong"/>`);
+    }
+    for (let fret = 0; fret <= 5; fret++) {
+      const y = 50 + fret * 70;
+      content.push(`<line x1="24" y1="${y}" x2="326" y2="${y}" class="${fret ? 'fp-fret' : 'fp-nut'}"/>`);
+      if (fret > 0) content.push(`<text x="12" y="${y - 30}" class="fp-label">${fret}</text>`);
+    }
+    for (let stringIndex = 0; stringIndex < 6; stringIndex++) {
+      const x = 50 + stringIndex * 52;
+      const expectedFret = chord.frets[stringIndex];
+      const placement = placements[stringIndex];
+      content.push(`<line x1="${x}" y1="50" x2="${x}" y2="400" class="fp-string" stroke-width="${1 + (5 - stringIndex) * 0.4}"/>`);
+      content.push(`<text x="${x}" y="426" class="fp-string-name">${'EADGBe'[stringIndex]}</text>`);
+      if (hintShown && expectedFret <= 0) {
+        content.push(`<text x="${x}" y="34" class="fp-open-mark">${expectedFret < 0 ? '✕' : '○'}</text>`);
+      } else if (!placement) {
+        content.push(`<text x="${x}" y="34" class="fp-open-mark">${muted[stringIndex] ? '✕' : '○'}</text>`);
+      }
+      if (hintShown && expectedFret > 0) {
+        content.push(`<circle cx="${x}" cy="${50 + (expectedFret - 1) * 70 + 35}" r="22" class="fp-hint"/><text x="${x}" y="${50 + (expectedFret - 1) * 70 + 42}" class="fp-hint-label">${chord.fingers[stringIndex]}</text>`);
+      }
+      if (placement) {
+        content.push(`<circle cx="${x}" cy="${50 + (placement.fret - 1) * 70 + 35}" r="22" fill="${COLORS[placement.finger]}"/><text x="${x}" y="${50 + (placement.fret - 1) * 70 + 42}" class="fp-dot-label">${placement.finger}</text>`);
+      }
+    }
+    for (let stringIndex = 0; stringIndex < 6; stringIndex++) {
+      const x = 50 + stringIndex * 52 - 26;
+      content.push(`<rect x="${x}" y="0" width="52" height="48" fill="transparent" data-mute="${stringIndex}"/>`);
+      for (let fret = 1; fret <= 5; fret++) {
+        content.push(`<rect x="${x}" y="${50 + (fret - 1) * 70}" width="52" height="70" fill="transparent" data-string="${stringIndex}" data-fret="${fret}"/>`);
+      }
+    }
+    neck.innerHTML = content.join('');
+  }
+
+  function renderFingers(): void {
+    fingers.innerHTML = [1, 2, 3, 4].map((finger) =>
+      `<button class="fp-finger${selectedFinger === finger ? ' selected' : ''}" type="button" data-finger="${finger}" style="--finger-color:${COLORS[finger]}" aria-pressed="${selectedFinger === finger}"><b>${finger}</b><small>${FINGER_NAMES[finger]}</small></button>`,
+    ).join('');
+  }
+
+  function reset(): void {
+    placements = Array(6).fill(null);
+    muted = Array(6).fill(false);
+    incorrect = [];
+    hintShown = false;
+    $('finger-practice-hint', HTMLButtonElement).setAttribute('aria-pressed', 'false');
+    announce('Elige un dedo, coloca las notas y pulsa Comprobar.');
+    draw();
+  }
+
+  function pluck(midi: number, delaySeconds = 0): void {
+    const context = audioContext();
+    if (context.state === 'suspended') void context.resume();
+    const frequency = 440 * 2 ** ((midi - 69) / 12);
+    const length = Math.floor(context.sampleRate * 1.5);
+    const period = Math.max(2, Math.round(context.sampleRate / frequency));
+    const buffer = context.createBuffer(1, length, context.sampleRate);
+    const samples = buffer.getChannelData(0);
+    for (let i = 0; i < period; i++) samples[i] = Math.random() * 2 - 1;
+    for (let i = period + 1; i < length; i++) samples[i] = 0.4985 * (samples[i - period] + samples[i - period - 1]);
+    const source = context.createBufferSource();
+    const gain = context.createGain();
+    source.buffer = buffer;
+    gain.gain.value = 0.45;
+    source.connect(gain);
+    gain.connect(context.destination);
+    source.start(context.currentTime + delaySeconds);
+  }
+
+  function playChord(): void {
+    FINGER_PRACTICE_CHORDS[chordIndex].frets.forEach((fret, stringIndex) => {
+      if (fret >= 0) pluck(OPEN_MIDI[stringIndex] + fret, stringIndex * 0.05);
+    });
+  }
+
+  function open(): void {
+    previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    previousOverflow = document.body.style.overflow;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    renderFingers();
+    reset();
+    closeButton.focus();
+    if ('requestFullscreen' in modal) {
+      void modal.requestFullscreen().catch(() => { /* Fixed overlay is the fallback. */ });
+    }
+  }
+
+  function close(): void {
+    modal.hidden = true;
+    document.body.style.overflow = previousOverflow;
+    if (document.fullscreenElement === modal) void document.exitFullscreen().catch(() => undefined);
+    previousFocus?.focus();
+  }
+
+  openButton.addEventListener('click', open);
+  closeButton.addEventListener('click', close);
+  chordSelect.addEventListener('change', () => {
+    chordIndex = Number(chordSelect.value);
+    reset();
+  });
+  fingers.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-finger]') : null;
+    if (!target) return;
+    selectedFinger = Number(target.dataset.finger);
+    renderFingers();
+  });
+  neck.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    const muteTarget = target?.closest<SVGElement>('[data-mute]');
+    if (muteTarget) {
+      const stringIndex = Number(muteTarget.dataset.mute);
+      placements[stringIndex] = null;
+      muted[stringIndex] = !muted[stringIndex];
+    } else {
+      const fretTarget = target?.closest<SVGElement>('[data-string][data-fret]');
+      if (!fretTarget) return;
+      const stringIndex = Number(fretTarget.dataset.string);
+      const fret = Number(fretTarget.dataset.fret);
+      const existing = placements[stringIndex];
+      if (existing?.fret === fret) placements[stringIndex] = null;
+      else {
+        if (selectedFinger > 1) placements = placements.map((placement) => placement?.finger === selectedFinger ? null : placement);
+        placements[stringIndex] = { fret, finger: selectedFinger };
+        muted[stringIndex] = false;
+        pluck(OPEN_MIDI[stringIndex] + fret);
+      }
+    }
+    incorrect = [];
+    announce('');
+    draw();
+  });
+  $('finger-practice-next', HTMLButtonElement).addEventListener('click', () => {
+    chordIndex = (chordIndex + 1) % FINGER_PRACTICE_CHORDS.length;
+    chordSelect.value = String(chordIndex);
+    reset();
+  });
+  $('finger-practice-clear', HTMLButtonElement).addEventListener('click', reset);
+  $('finger-practice-hint', HTMLButtonElement).addEventListener('click', (event) => {
+    hintShown = !hintShown;
+    (event.currentTarget as HTMLButtonElement).setAttribute('aria-pressed', String(hintShown));
+    draw();
+  });
+  $('finger-practice-play', HTMLButtonElement).addEventListener('click', playChord);
+  $('finger-practice-check', HTMLButtonElement).addEventListener('click', () => {
+    const chord = FINGER_PRACTICE_CHORDS[chordIndex];
+    const result = validateFingerPractice(chord, placements, muted);
+    incorrect = result.incorrectStrings;
+    draw();
+    if (incorrect.length) {
+      announce(`Revisa las cuerdas ${incorrect.map((index) => 6 - index).join(', ')} marcadas en rojo.`);
+    } else if (result.suggestions.length) {
+      announce(`✓ Posición correcta. Digitación sugerida: ${result.suggestions.join('; ')}.`, true);
+      playChord();
+    } else {
+      announce(`✓ ¡Perfecto! Así se toca ${chord.name}.`, true);
+      playChord();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (modal.hidden) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      close();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const focusable = [...modal.querySelectorAll<HTMLElement>('button:not([disabled]), select:not([disabled])')];
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
+    }
+  });
+</script>
+
+<style is:global>
+  .fp-modal{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;gap:6px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 8px);overflow:auto}
+  .fp-modal[hidden]{display:none!important}
+  .fp-header{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .fp-header h2{font-size:1.2rem;margin:0;padding:0;border:0}
+  .fp-header label{display:flex;align-items:center;gap:8px}
+  .fp-body{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
+  .fp-neck{flex:1;min-height:280px;overflow:auto}.fp-neck svg{width:100%;height:100%;min-height:360px;display:block}
+  .fp-controls{display:flex;flex-direction:column;gap:6px}.fp-controls .row{margin:0}
+  .fp-finger{border:2px solid var(--finger-color);border-radius:14px;min-width:64px;display:flex;flex-direction:column;align-items:center;line-height:1.1;padding:6px 8px}
+  .fp-finger small{font-size:.65rem;color:var(--mut)}.fp-finger.selected{background:var(--finger-color);color:#fff}.fp-finger.selected small{color:#fff}
+  #finger-practice-message{min-height:2.6em;font-size:.92rem;margin:0}#finger-practice-message.success{color:#15803d;font-weight:700}
+  .fp-wood{fill:var(--wood)}.fp-fret{stroke:var(--mut);stroke-width:2;opacity:.6}.fp-nut{stroke:var(--fg);stroke-width:4}.fp-string{stroke:var(--str)}
+  .fp-label,.fp-string-name{font:700 11px system-ui;fill:var(--mut);text-anchor:middle}.fp-open-mark{font:700 22px system-ui;fill:var(--mut);text-anchor:middle}
+  .fp-wrong{fill:#dc2626;opacity:.18}.fp-hint{fill:none;stroke:var(--acc);stroke-width:3;stroke-dasharray:5 4}.fp-hint-label{font:700 18px system-ui;fill:var(--fg);text-anchor:middle}.fp-dot-label{font:700 18px system-ui;fill:#fff;text-anchor:middle}
+  @media(orientation:landscape){.fp-body{flex-direction:row}.fp-neck{width:52%}.fp-controls{width:48%;justify-content:center}}
+</style>

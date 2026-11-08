@@ -12,13 +12,12 @@ import SynthLab from "../components/SynthLab.astro";
 import FxLab from "../components/FxLab.astro";
 import Fretboard from "../components/Fretboard.astro";
 import Beats from "../components/Beats.astro";
+import { SITE_NAME, SITE_SUBTITLE } from "../data/site";
 ---
 
 <Layout>
-  <h1>
-    progressive-music: Manual de Progresiones Armónicas y Ritmo para el Músico
-    Principiante y Amateur
-  </h1>
+  <h1>{SITE_NAME}</h1>
+  <p class="subtitle">{SITE_SUBTITLE}</p>
   <p class="lead">
     De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y
     baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y
