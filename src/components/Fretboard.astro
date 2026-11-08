@@ -1,0 +1,142 @@
+---
+---
+<section id="s9">
+  <h2>9. Simulador de trastes y práctica de dedos</h2>
+  <p>Explora el mástil: toca cualquier casilla para oír la nota y muestra escalas o acordes sobre él. Cambia la afinación o pon un capo y mira cómo se mueve todo.</p>
+  <div class="sim">
+    <div class="seg" id="fm"><button data-m="0">Libre</button><button data-m="1" class="on">Escala</button><button data-m="2">Acorde</button></div>
+    <div class="row">
+      <label>Afinación <select id="ftu"></select></label>
+      <label>Capo <select id="fcp"></select></label>
+      <label id="fgr">Tónica <select id="frt"></select></label>
+      <label id="fgs">Escala <select id="fsc"></select></label>
+      <label id="fgq">Acorde <select id="fcq"></select></label>
+      <label>Etiquetas <select id="flb"><option value="0">Notas</option><option value="1">Grados</option></select></label>
+      <button id="fact">▶ Tocar escala</button>
+    </div>
+    <div class="fb" id="fb" role="img" aria-label="Mástil de guitarra con 15 trastes"></div>
+    <p id="frd" aria-live="polite"></p>
+    <p id="finf"></p>
+  </div>
+  <div class="box hl">
+    <h3>🖐 Práctica de dedos</h3>
+    <p>Un mástil vertical a pantalla completa: eliges un acorde, colocas tú mismo los dedos y la página te dice si está bien.</p>
+    <button id="fpm" class="on">Abrir práctica a pantalla completa</button>
+  </div>
+  <ul>
+    <li><b>1.</b> Elige un dedo abajo (1 índice, 2 medio, 3 anular, 4 meñique) y toca la casilla donde va.</li>
+    <li><b>2.</b> Toca el símbolo sobre cada cuerda para alternar ○ (al aire) y ✕ (no se toca).</li>
+    <li><b>3.</b> Pulsa <i>Comprobar</i>: las cuerdas incorrectas se marcan en rojo.</li>
+  </ul>
+</section>
+<div id="pm" hidden role="dialog" aria-label="Práctica de dedos">
+  <div class="pt"><button id="pmx">✕ Cerrar</button><b>Práctica de dedos</b><select id="pmc" aria-label="Acorde"></select></div>
+  <div id="pmt"></div>
+  <div class="pbody">
+    <div class="pw"><svg id="pmv" viewBox="0 0 350 440" role="img" aria-label="Mástil vertical para colocar los dedos"></svg></div>
+    <div class="pside">
+      <div class="row" id="pmf"></div>
+      <p id="pmm"></p>
+      <div class="row"><button id="pmk" class="on">Comprobar</button><button id="pmh">Pista</button><button id="pml">Limpiar</button><button id="pms">▶ Acorde</button><button id="pmn">Siguiente ▸</button></div>
+    </div>
+  </div>
+</div>
+<script is:inline>
+const $=(s,e=document)=>e.querySelector(s),$$=(s,e=document)=>[...e.querySelectorAll(s)];
+const N=['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'],PC={C:0,D:2,E:4,F:5,G:7,A:9,B:11},FL=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const OP={Bdim:[-1,2,3,4,3,-1],C:[-1,3,2,0,1,0],Am:[-1,0,2,2,1,0],G:[3,2,0,0,0,3],F:[1,3,3,2,1,1],Dm:[-1,-1,0,2,3,1],Em:[0,2,2,0,0,0],E:[0,2,2,1,0,0],D:[-1,-1,0,2,3,2],A:[-1,0,2,2,2,0],G7:[3,2,0,0,0,1],E7:[0,2,0,1,0,0],D7:[-1,-1,0,2,1,2],Cmaj7:[-1,3,2,0,0,0],Fmaj7:[-1,-1,3,2,1,0],Am7:[-1,0,2,0,1,0],Dm7:[-1,-1,0,2,1,1],Em7:[0,2,0,0,0,0]};
+const dn=n=>n.replace(/^([A-G])b/,'$1♭').replace(/\/([A-G])b/,'/$1♭').replace(/#/g,'♯').replace('b5','♭5');
+(()=>{ const DG=['1','♭2','2','♭3','3','4','♯4','5','♭6','6','♭7','7'];
+const TU=[['Estándar (E A D G B e)',[40,45,50,55,59,64]],['Drop D',[38,45,50,55,59,64]],['Medio tono abajo',[39,44,49,54,58,63]],['DADGAD',[38,45,50,55,57,62]],['Open G',[38,43,50,55,59,62]],['Open D',[38,45,50,54,57,62]]];
+const SCL=[['Mayor',[0,2,4,5,7,9,11]],['Menor natural',[0,2,3,5,7,8,10]],['Pentatónica menor',[0,3,5,7,10]],['Pentatónica mayor',[0,2,4,7,9]],['Blues',[0,3,5,6,7,10]],['Dórico',[0,2,3,5,7,9,10]],['Mixolidio',[0,2,4,5,7,9,10]],['Frigio',[0,1,3,5,7,8,10]]];
+const CQ=[['Mayor','',[0,4,7]],['Menor','m',[0,3,7]],['Séptima (7)','7',[0,4,7,10]],['Menor 7 (m7)','m7',[0,3,7,10]],['Mayor 7 (maj7)','maj7',[0,4,7,11]]];
+const TE={'':[0,2,2,1,0,0],m:[0,2,2,0,0,0],7:[0,2,0,1,0,0],m7:[0,2,0,0,0,0],maj7:[0,2,1,1,0,0]},TA={'':[-1,0,2,2,2,0],m:[-1,0,2,2,1,0],7:[-1,0,2,0,2,0],m7:[-1,0,2,0,1,0],maj7:[-1,0,2,1,2,0]};
+const S={tu:0,capo:0,mode:1,root:0,sc:0,cq:0,lab:0,sel:null},NF=15,X=f=>56+1500*(1-2**(-f/12)),CX=f=>f?(X(f-1)+X(f))/2:30,Y=s=>34+(5-s)*34;
+function shp(){if(S.tu)return null;const q=CQ[S.cq][1],n=FL[S.root]+q;if(OP[n])return OP[n];const e=(S.root+8)%12,a=(S.root+3)%12,t=a<e?[TA[q],a]:[TE[q],e];return t[0].map(x=>x<0?x:x+t[1])}
+function pl(m,t=0){let AC=window.AC;if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();window.AC=AC}if(AC.state=='suspended')AC.resume();const f=440*2**((m-69)/12),sr=AC.sampleRate,n=sr*2|0,p=Math.max(2,Math.round(sr/f)),b=AC.createBuffer(1,n,sr),d=b.getChannelData(0);for(let i=0;i<p;i++)d[i]=Math.random()*2-1;for(let i=p+1;i<n;i++)d[i]=.4985*(d[i-p]+d[i-p-1]);const o=AC.createBufferSource(),g=AC.createGain();g.gain.value=.5;o.buffer=b;o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+t)}
+const mark=(s,f,t,k)=>`<circle cx="${CX(f)}" cy="${Y(s)}" r="11" class="${k}"/><text x="${CX(f)}" y="${Y(s)+4}" class="${k=='rt'?'xw':'xt'}">${t}</text>`;
+function draw(){const T=TU[S.tu][1],c=S.capo;let g=`<rect x="56" y="18" width="${X(NF)-56}" height="168" class="wood"/>`;
+for(let f=1;f<=NF;f++)g+=`<line x1="${X(f)}" y1="18" x2="${X(f)}" y2="186" class="fr"/><text x="${CX(f)}" y="206" class="xf">${f}</text>`;
+g+=`<line x1="56" y1="18" x2="56" y2="186" class="nut"/>`;
+[3,5,7,9,15].forEach(f=>g+=`<circle cx="${CX(f)}" cy="102" r="5" class="mk"/>`);[68,136].forEach(v=>g+=`<circle cx="${CX(12)}" cy="${v}" r="5" class="mk"/>`);
+for(let s=0;s<6;s++)g+=`<line x1="56" y1="${Y(s)}" x2="${X(NF)}" y2="${Y(s)}" class="st" stroke-width="${1+s*.35}"/>`;
+if(c)g+=`<rect x="0" y="14" width="${X(c)-12}" height="176" class="dim"/><rect x="${X(c)-12}" y="12" width="9" height="180" rx="4" class="cap"/>`;
+for(let s=0;s<6;s++)g+=`<text x="10" y="${Y(s)+4}" class="xs">${N[(T[s]+c)%12]}</text>`;
+if(S.mode==1){const st=SCL[S.sc][1];for(let s=0;s<6;s++)for(let f=c;f<=NF;f++){const m=T[s]+f,iv=(m-S.root+120)%12;if(st.includes(iv))g+=mark(s,f,S.lab?DG[iv]:N[m%12],iv?'nt':'rt')}}
+else if(S.mode==2){const sh=shp();if(sh){const sr=(S.root+c)%12;sh.forEach((r,s)=>{if(r<0){g+=`<text x="30" y="${Y(s)+4}" class="xf">✕</text>`;return}const a=r?r+c:c;if(a>NF)return;const iv=(T[s]+a-sr+120)%12;g+=mark(s,a,S.lab?DG[iv]:N[(T[s]+a)%12],r?(iv?'nt':'rt'):'ho')})}}
+if(S.sel){const{s,f}=S.sel;if(S.mode==0)g+=mark(s,f,N[(T[s]+f)%12],'rt');g+=`<circle cx="${CX(f)}" cy="${Y(s)}" r="15" class="ring"/>`}
+for(let s=0;s<6;s++)for(let f=c;f<=NF;f++){const x=f?X(f-1):4,w=f?X(f)-X(f-1):52;g+=`<rect x="${x}" y="${Y(s)-17}" width="${w}" height="34" fill="transparent" data-s="${s}" data-f="${f}"/>`}
+$('#fb').innerHTML=`<svg viewBox="0 0 960 216">${g}</svg>`;inf();rdo()}
+function rdo(){const T=TU[S.tu][1];if(!S.sel){$('#frd').textContent='Toca un traste para oírlo.';return}const{s,f}=S.sel,m=T[s]+f;$('#frd').textContent=`Cuerda ${6-s} · ${f?'traste '+f:'al aire'} → ${N[m%12]}${Math.floor(m/12)-1}`}
+function inf(){let t='Modo libre: toca cualquier casilla del mástil.';if(S.mode==1)t=`<b>${N[S.root]} ${SCL[S.sc][0]}</b>: ${SCL[S.sc][1].map(i=>N[(S.root+i)%12]).join(' – ')}`;else if(S.mode==2){if(S.tu)t='Las formas de acorde están pensadas para la afinación estándar.';else{const q=CQ[S.cq],sr=(S.root+S.capo)%12;t=`<b>Forma de ${dn(FL[S.root]+q[1])}</b>`+(S.capo?` con capo en el traste ${S.capo}: suena ${dn(FL[sr]+q[1])}`:'')+` — notas: ${q[2].map(i=>N[(sr+i)%12]).join(' – ')}`}}$('#finf').innerHTML=t}
+function ui(){$('#fgr').hidden=S.mode==0;$('#fgs').hidden=S.mode!=1;$('#fgq').hidden=S.mode!=2;$('#fact').hidden=S.mode==0;$('#fact').textContent=S.mode==1?'▶ Tocar escala':'▶ Rasgueo';document.querySelectorAll('#fm button').forEach(b=>b.classList.toggle('on',+b.dataset.m==S.mode))}
+const opt=(a,f)=>a.map((x,i)=>`<option value="${i}">${f(x,i)}</option>`).join('');
+$('#ftu').innerHTML=opt(TU,x=>x[0]);$('#fcp').innerHTML=opt([...Array(8)],(_,i)=>i?'Traste '+i:'Sin capo');$('#frt').innerHTML=opt(N,x=>x);$('#fsc').innerHTML=opt(SCL,x=>x[0]);$('#fcq').innerHTML=opt(CQ,x=>x[0]);
+const bind=(id,k,r)=>$(id).onchange=e=>{S[k]=+e.target.value;if(r)S.sel=null;draw()};
+bind('#ftu','tu',1);bind('#fcp','capo',1);bind('#frt','root');bind('#fsc','sc');bind('#fcq','cq');bind('#flb','lab');
+$('#fm').onclick=e=>{const m=e.target.dataset.m;if(m!=null){S.mode=+m;S.sel=null;ui();draw()}};
+$('#fb').onclick=e=>{const r=e.target.closest('[data-s]');if(!r)return;const s=+r.dataset.s,f=+r.dataset.f;S.sel={s,f};pl(TU[S.tu][1][s]+f);draw()};
+$('#fact').onclick=()=>{if(S.mode==1){const b=40+(S.root+8)%12;SCL[S.sc][1].concat(12).forEach((i,k)=>pl(b+i,k*.28))}else if(S.mode==2){const f=shp();if(f)f.forEach((r,s)=>{if(r>=0)pl(TU[0][1][s]+(r?r+S.capo:S.capo),s*.05)})}};
+ui();draw();
+/* Práctica de dedos */
+const PC=[['Em',[0,2,2,0,0,0],[0,2,3,0,0,0],'Mi menor'],['Am',[-1,0,2,2,1,0],[0,0,2,3,1,0],'La menor'],['E',[0,2,2,1,0,0],[0,2,3,1,0,0],'Mi mayor'],['A',[-1,0,2,2,2,0],[0,0,1,2,3,0],'La mayor'],['D',[-1,-1,0,2,3,2],[0,0,0,1,3,2],'Re mayor'],['C',[-1,3,2,0,1,0],[0,3,2,0,1,0],'Do mayor'],['G',[3,2,0,0,0,3],[2,1,0,0,0,3],'Sol mayor'],['Dm',[-1,-1,0,2,3,1],[0,0,0,2,3,1],'Re menor'],['G7',[3,2,0,0,0,1],[3,2,0,0,0,1],'Sol séptima'],['F',[1,3,3,2,1,1],[1,3,4,2,1,1],'Fa mayor (con cejilla)']];
+const FC=['','#f97316','#ec4899','#8b5cf6','#0ea5e9'],FN=['','Índice','Medio','Anular','Meñique'],T0=TU[0][1];
+const P2={ci:0,fi:1,m:Array(6).fill(null),mu:Array(6).fill(false),bad:[],hint:0};
+function msg(t,ok){$('#pmm').textContent=t;$('#pmm').className=ok?'ok':''}
+function rs(){P2.m=Array(6).fill(null);P2.mu=Array(6).fill(false);P2.bad=[];P2.hint=0;msg('Elige un dedo, toca una casilla del mástil y pulsa Comprobar.');pv()}
+function pv(){const[nm,fr,fi]=PC[P2.ci];$('#pmt').innerHTML=`Forma <b>${dn(nm)}</b> — ${PC[P2.ci][3]}`;
+let g=`<rect x="24" y="50" width="302" height="350" class="wood"/>`;
+P2.bad.forEach(s=>g+=`<rect x="${50+s*52-26}" y="4" width="52" height="400" rx="8" fill="#dc2626" opacity=".18"/>`);
+for(let r=0;r<=5;r++)g+=`<line x1="24" y1="${50+r*70}" x2="326" y2="${50+r*70}" class="${r?'fr':'nut'}"/>`;
+for(let r=1;r<=5;r++)g+=`<text x="12" y="${50+r*70-30}" class="xf">${r}</text>`;
+for(let s=0;s<6;s++){const x=50+s*52;g+=`<line x1="${x}" y1="50" x2="${x}" y2="400" class="st" stroke-width="${1+(5-s)*.4}"/><text x="${x}" y="426" class="xs">${'EADGBe'[s]}</text>`;
+const e=fr[s],p=P2.m[s];
+if(P2.hint&&e<=0)g+=`<text x="${x}" y="34" class="xh" style="fill:var(--acc)">${e<0?'✕':'○'}</text>`;
+else if(!p&&!(P2.hint&&e>0))g+=`<text x="${x}" y="34" class="xh">${P2.mu[s]?'✕':'○'}</text>`;
+if(P2.hint&&e>0)g+=`<circle cx="${x}" cy="${50+(e-1)*70+35}" r="22" class="gh"/><text x="${x}" y="${50+(e-1)*70+42}" class="xt" style="font-size:18px">${fi[s]}</text>`;
+if(p)g+=`<circle cx="${x}" cy="${50+(p.f-1)*70+35}" r="22" fill="${FC[p.fi]}"/><text x="${x}" y="${50+(p.f-1)*70+42}" class="xw" style="font-size:18px">${p.fi}</text>`}
+for(let s=0;s<6;s++){g+=`<rect x="${50+s*52-26}" y="0" width="52" height="48" fill="transparent" data-h="${s}"/>`;for(let r=1;r<=5;r++)g+=`<rect x="${50+s*52-26}" y="${50+(r-1)*70}" width="52" height="70" fill="transparent" data-s="${s}" data-r="${r}"/>`}
+$('#pmv').innerHTML=g}
+$('#pmv').onclick=e=>{const t=e.target;P2.bad=[];if(t.dataset.h!=null){const s=+t.dataset.h;P2.m[s]=null;P2.mu[s]=!P2.mu[s]}
+else if(t.dataset.r!=null){const s=+t.dataset.r,r=+t.dataset.r,p=P2.m[s];if(p&&p.f==r)P2.m[s]=null;else{const fi=P2.fi;if(fi>1)P2.m=P2.m.map(q=>q&&q.fi==fi?null:q);P2.m[s]={f:r,fi};P2.mu[s]=false;pl(T0[s]+r)}}
+msg('');pv()};
+function fgs(){$('#pmf').innerHTML=[1,2,3,4].map(i=>`<button class="fg${P2.fi==i?' on':''}" data-f="${i}" style="--c:${FC[i]}"><b>${i}</b><small>${FN[i]}</small></button>`).join('')}
+$('#pmf').onclick=e=>{const b=e.target.closest('[data-f]');if(b){P2.fi=+b.dataset.f;fgs()}};
+$('#pmc').innerHTML=opt(PC,x=>`${x[0]} · ${x[3]}`);
+$('#pmc').onchange=e=>{P2.ci=+e.target.value;rs()};
+$('#pmn').onclick=()=>{P2.ci=(P2.ci+1)%PC.length;$('#pmc').value=P2.ci;rs()};
+$('#pml').onclick=rs;$('#pmh').onclick=()=>{P2.hint=1-P2.hint;pv()};
+const strum=fr=>fr.forEach((e,s)=>{if(e>=0)pl(T0[s]+e,s*.05)});
+$('#pms').onclick=()=>strum(PC[P2.ci][1]);
+$('#pmk').onclick=()=>{const[nm,fr,fi]=PC[P2.ci],bad=[];for(let s=0;s<6;s++){const e=fr[s],p=P2.m[s];if(e<0?(p||!P2.mu[s]):e==0?(p||P2.mu[s]):(!p||p.f!=e))bad.push(s)}
+P2.bad=bad;pv();if(bad.length){msg(`Casi: revisa las cuerdas en rojo (${bad.map(s=>6-s).join(', ')}). Marca con ✕ las que no se tocan.`);return}
+const wf=[];fr.forEach((e,s)=>{if(e>0&&P2.m[s].fi!=fi[s])wf.push(`cuerda ${6-s}: dedo ${fi[s]}`)});
+msg(wf.length?`✓ ¡Posición correcta! Para más comodidad usa ${wf.join('; ')}.`:`✓ ¡Perfecto! Así se toca ${dn(nm)}.`,1);strum(fr)};
+$('#fpm').onclick=()=>{$('#pm').hidden=false;document.body.style.overflow='hidden';try{$('#pm').requestFullscreen&&$('#pm').requestFullscreen().catch(()=>{})}catch(e){}fgs();rs()};
+const cl=()=>{$('#pm').hidden=true;document.body.style.overflow='';try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}};
+$('#pmx').onclick=cl;document.addEventListener('keydown',e=>{if(e.key=='Escape'&&!$('#pm').hidden)cl()});
+})();
+</script>
+<style>
+  [hidden]{display:none!important}
+  .sim label{display:flex;flex-direction:column;font-size:.78rem;color:var(--mut);gap:3px}
+  .sim select{border-radius:10px}
+  .seg{display:flex;gap:6px;margin:8px 0}
+  .fb{overflow-x:auto;border:1px solid var(--bd);border-radius:14px;background:var(--card);padding:8px}
+  .fb svg{display:block;min-width:780px;width:100%;height:auto}
+  #frd{color:var(--acc);font-weight:700;min-height:1.5em;margin:6px 0}
+  .wood{fill:var(--wood)}.fr{stroke:var(--mut);stroke-width:2;opacity:.6}.st{stroke:var(--str)}.mk{fill:var(--mut);opacity:.35}.dim{fill:var(--bg);opacity:.6}.cap{fill:var(--acc)}
+  .rt{fill:var(--acc)}.nt{fill:var(--card);stroke:var(--acc);stroke-width:2}.ho{fill:none;stroke:var(--acc);stroke-width:2.5}.ring{fill:none;stroke:var(--acc);stroke-width:3}
+  .xw,.xt,.xf,.xs,.xh{font:700 10px system-ui;text-anchor:middle}.xw{fill:#fff}.xt{fill:var(--fg)}.xf{fill:var(--mut);font-weight:400;font-size:11px}.xs{fill:var(--fg);font-size:11px}.xh{font-size:22px;fill:var(--mut)}
+  .gh{fill:none;stroke:var(--acc);stroke-width:3;stroke-dasharray:5 4}
+  #pm{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;gap:6px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 8px)}
+  #pm[hidden]{display:none}
+  .pt{display:flex;gap:10px;align-items:center;justify-content:space-between}.pt b{font:1.05rem Georgia,serif}
+  .pbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}.pw{flex:1;min-height:0}.pw svg{width:100%;height:100%;display:block}.pside{display:flex;flex-direction:column;gap:6px}
+  @media(orientation:landscape){.pbody{flex-direction:row}.pside{width:46%;justify-content:center}}
+  .fg{border:2px solid var(--c);border-radius:14px;min-width:64px;display:flex;flex-direction:column;align-items:center;line-height:1.1;padding:6px 8px}.fg small{font-size:.65rem;color:var(--mut)}.fg.on{background:var(--c);border-color:var(--c);color:#fff}.fg.on small{color:#fff}
+  #pmm{min-height:2.6em;font-size:.92rem;margin:0}#pmm.ok{color:#15803d;font-weight:700}
+  :root{--wood:#ead6b8;--str:#7a6f60}
+  @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--wood:#4a3524;--str:#c9bba6}}
+  :root[data-theme="dark"]{--wood:#4a3524;--str:#c9bba6}
+</style>
