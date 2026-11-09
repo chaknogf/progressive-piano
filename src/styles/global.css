@@ -111,6 +111,16 @@ h1 {
   .kb { max-width: 100%; }
   table { min-width: 560px; }
   h2 { font-size: 1.42rem; scroll-margin-top: 16px; }
+  .learning-path, .guided-lesson { margin: 24px 0; padding: 16px; border-radius: 18px; }
+  .section-intro, .lesson-header, .lesson-footer { display: block; }
+  .path-note { max-width: none; text-align: left; margin-top: 8px; }
+  .path-card { grid-template-columns: 34px 1fr; gap: 9px; padding: 12px 10px; }
+  .path-state { grid-column: 2; margin-top: -5px; }
+  .lesson-badge { display: inline-block; margin-top: 6px; }
+  .lesson-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 16px; }
+  .lesson-explain, .lesson-action { padding: 13px; }
+  .lesson-footer { margin-top: 14px; }
+  .lesson-footer a { display: block; margin-top: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -383,6 +393,60 @@ code {
 ul {
   padding-left: 1.2em;
 }
+.learning-path,
+.guided-lesson {
+  margin: 32px 0;
+  padding: 22px;
+  border: 1px solid var(--bd);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--card) 92%, var(--acc2));
+}
+.section-intro,
+.lesson-header,
+.lesson-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.section-intro h2,
+.lesson-header h2 {
+  margin-top: 8px;
+  border: 0;
+  padding: 0;
+}
+.path-note,
+.lesson-badge,
+.action-label {
+  color: var(--mut);
+  font-size: 0.78rem;
+}
+.path-note { max-width: 150px; margin: 4px 0 0; text-align: right; }
+.path-list { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 8px; }
+.path-card { display: grid; grid-template-columns: 42px 1fr auto; align-items: center; gap: 12px; padding: 13px 14px; border: 1px solid var(--bd); border-radius: 14px; color: inherit; text-decoration: none; transition: border-color .2s, transform .2s, background .2s; }
+.path-card:hover { border-color: var(--acc); transform: translateX(3px); }
+.path-card strong, .path-card span { display: block; }
+.path-card strong { margin-bottom: 2px; }
+.path-copy span { color: var(--mut); font-size: 0.86rem; line-height: 1.35; }
+.path-number { color: var(--acc); font: 700 0.78rem "SFMono-Regular", Consolas, monospace; }
+.path-state { color: var(--mut); font-size: 0.72rem; white-space: nowrap; }
+.path-list .is-current .path-card { border-color: var(--acc); background: var(--acc2); }
+.guided-lesson { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.guided-lesson .tg, .guided-lesson .action-label { color: color-mix(in srgb, var(--acc) 75%, white); }
+.lesson-badge { border: 1px solid color-mix(in srgb, var(--bg) 35%, transparent); border-radius: 999px; padding: 5px 9px; }
+.lesson-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; margin-top: 20px; }
+.lesson-explain, .lesson-action { padding: 16px; border: 1px solid color-mix(in srgb, var(--bg) 16%, transparent); border-radius: 16px; }
+.lesson-lead { font-size: 1.05rem; margin-top: 0; }
+.note-cycle { display: flex; flex-wrap: wrap; gap: 7px; margin: 18px 0 10px; }
+.note-cycle button, .answer-grid button { min-width: 48px; min-height: 44px; background: transparent; color: inherit; border-color: color-mix(in srgb, var(--bg) 35%, transparent); }
+.note-cycle button.is-selected, .answer-grid button:hover, .answer-grid button:focus-visible { background: var(--acc); border-color: var(--acc); color: #fff; }
+.guided-lesson .mut { color: color-mix(in srgb, var(--bg) 70%, transparent); }
+.lesson-action h3 { margin: 8px 0 16px; font-size: 1.25rem; }
+.answer-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+.answer-feedback { margin: 14px 0 0; color: color-mix(in srgb, var(--bg) 84%, transparent); }
+.answer-feedback.is-correct { color: #a7f3d0; }
+.lesson-footer { align-items: center; margin-top: 18px; color: color-mix(in srgb, var(--bg) 65%, transparent); font-size: 0.8rem; }
+.lesson-footer a { color: var(--bg); font-weight: 700; text-underline-offset: 3px; }
 .source-note {
   margin-top: 1.2em;
   color: var(--mut);

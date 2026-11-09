@@ -1,6 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Nav from "../components/Nav.astro";
+import LearningPath from "../components/LearningPath.astro";
+import GuidedLesson from "../components/GuidedLesson.astro";
 import Transposer from "../components/Transposer.astro";
 import BaseChords from "../components/BaseChords.astro";
 import ProgressionCatalog from "../components/ProgressionCatalog.astro";
@@ -24,12 +26,13 @@ import Logo from "../components/Logo.astro";
   </h1>
   <h2 class="subtitle">{SITE_SUBTITLE}</h2>
   <p class="lead">
-    De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y
-    baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y
-    guitarra. Toca cualquier acorde para ver su teclado y su diagrama de
-    guitarra, y escúchalo.
+    Un método práctico para pasar de “me gusta cómo suena” a “sé por qué suena así”.
+    Empieza desde cero, escucha cada idea, toca una pequeña prueba y avanza a tu ritmo.
+    Después podrás llevarlo al piano, la guitarra o tu DAW.
   </p>
   <Nav />
+  <LearningPath />
+  <GuidedLesson />
 
   <h2 id="s1">1. Cómo leer una progresión</h2>
   <p>

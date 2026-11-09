@@ -1,0 +1,48 @@
+<section id="lesson-1" class="guided-lesson" aria-labelledby="lesson-title">
+  <div class="lesson-header">
+    <div>
+      <span class="tg">Clase 1 · 5 minutos</span>
+      <h2 id="lesson-title">Tu primer mapa musical</h2>
+    </div>
+    <span class="lesson-badge">Principiante absoluto</span>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-explain">
+      <p class="lesson-lead">Antes de tocar acordes, vamos a reconocer una idea: las notas se repiten en un ciclo de siete nombres.</p>
+      <div class="note-cycle" aria-label="Ciclo de notas musicales">
+        {['Do','Re','Mi','Fa','Sol','La','Si'].map((note, index) => <button type="button" data-note={note} class:list={{ "is-selected": index === 0 }}>{note}</button>)}
+      </div>
+      <p class="mut" data-note-feedback aria-live="polite">Do es tu punto de partida. Escucha su sonido y vuelve a él.</p>
+    </div>
+    <div class="lesson-action">
+      <span class="action-label">Prueba activa</span>
+      <h3>¿Qué nota viene después de Mi?</h3>
+      <div class="answer-grid">
+        {['Re','Fa','Sol'].map((answer) => <button type="button" data-answer={answer}>{answer}</button>)}
+      </div>
+      <p class="answer-feedback" data-answer-feedback aria-live="polite" hidden></p>
+    </div>
+  </div>
+  <div class="lesson-footer"><span>Objetivo: orientarte sin miedo</span><a href="#s2">Siguiente: construir acordes <span aria-hidden="true">→</span></a></div>
+  <script>
+    import { must } from "../lib/dom";
+    const root = must(document.querySelector<HTMLElement>("#lesson-1"), "#lesson-1");
+    const feedback = must(root.querySelector<HTMLElement>("[data-note-feedback]"), "[data-note-feedback]");
+    const answerFeedback = must(root.querySelector<HTMLElement>("[data-answer-feedback]"), "[data-answer-feedback]");
+    root.querySelectorAll<HTMLButtonElement>("[data-note]").forEach((button) => {
+      button.addEventListener("click", () => {
+        root.querySelectorAll("[data-note]").forEach((item) => item.classList.remove("is-selected"));
+        button.classList.add("is-selected");
+        feedback.textContent = button.dataset.note === "Do" ? "Do es tu casa. Desde aquí puedes contar hasta cualquier otra nota." : `${button.dataset.note} es una nueva parada. Vuelve a Do para sentir cómo se cierra el ciclo.`;
+      });
+    });
+    root.querySelectorAll<HTMLButtonElement>("[data-answer]").forEach((button) => {
+      button.addEventListener("click", () => {
+        answerFeedback.hidden = false;
+        const correct = button.dataset.answer === "Fa";
+        answerFeedback.textContent = correct ? "Correcto. Después de Mi viene Fa: acabas de reconocer un paso de la escala." : "Casi. Di los nombres en orden: Do, Re, Mi, Fa. Prueba otra vez.";
+        answerFeedback.classList.toggle("is-correct", correct);
+      });
+    });
+  </script>
+</section>

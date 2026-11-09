@@ -1,0 +1,28 @@
+---
+const lessons = [
+  { number: "01", title: "Encuentra tu mapa", text: "Conoce las teclas, el pulso y las siete notas sin memorizar de golpe.", anchor: "lesson-1", state: "Ahora" },
+  { number: "02", title: "Construye tus primeros acordes", text: "Aprende C, Am, F y G con una regla visual que puedes reutilizar.", anchor: "s2", state: "Después" },
+  { number: "03", title: "Toca una canción completa", text: "Une cuatro acordes con un patrón sencillo y escucha cómo aparece la música.", anchor: "s5", state: "Después" },
+  { number: "04", title: "Dale intención", text: "Usa inversiones, dinámica y timbre para que tu interpretación diga algo.", anchor: "s6", state: "Después" },
+];
+---
+<section class="learning-path" aria-labelledby="path-title">
+  <div class="section-intro">
+    <div>
+      <span class="tg">Tu recorrido</span>
+      <h2 id="path-title">Aprende en el orden que tu cerebro necesita</h2>
+    </div>
+    <p class="path-note">Una idea, una escucha, una acción. Sin saltos.</p>
+  </div>
+  <ol class="path-list">
+    {lessons.map((lesson, index) => (
+      <li class:list={{ "is-current": index === 0 }}>
+        <a href={`#${lesson.anchor}`} class="path-card">
+          <span class="path-number">{lesson.number}</span>
+          <span class="path-copy"><strong>{lesson.title}</strong><span>{lesson.text}</span></span>
+          <span class="path-state">{lesson.state}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</section>
