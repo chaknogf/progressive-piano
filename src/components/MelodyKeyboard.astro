@@ -61,6 +61,7 @@ function fullLabel(midi: number): string {
         <select id="mk-melody">
           <option value="melody-1">Melodía 1 · Sol → Do mayor · 3/4</option>
           <option value="melody-2">Melodía 2 · Do mayor · 4/4</option>
+          <option value="melody-3">Melodía 3 · La♭ mayor · 4/4</option>
         </select>
       </label>
       <div class="mk-view" role="group" aria-label="Qué ver y escuchar">
@@ -183,6 +184,7 @@ function fullLabel(midi: number): string {
     borrowed: string;
     applied: number; // grado al que resuelve (dominante secundario), 0 = ninguno
     tri: boolean; // sustitución tritonal
+    sus: number[]; // suspensiones (4 = sus4, 2 = sus2)
     tonic: number; // MIDI de la tónica de la tonalidad en la que está escrito
   };
   type MelodyDefinition = {
@@ -221,6 +223,7 @@ function fullLabel(midi: number): string {
     borrowed = "",
     applied = 0,
     tri = false,
+    sus: number[] = [],
   ): HarmonyChord => ({
     beat,
     duration,
@@ -231,8 +234,19 @@ function fullLabel(midi: number): string {
     borrowed,
     applied,
     tri,
+    sus,
     tonic: 0,
   });
+  // Acorde con cuarta suspendida (sus4).
+  const cs = (
+    beat: number,
+    duration: number,
+    root: number,
+    type: number,
+  ): HarmonyChord => c(beat, duration, root, type, 0, [], "", 0, false, [4]);
+  // Lista compacta de notas: [pulso, duración, grado, octava].
+  const ns = (rows: [number, number, string, number][]): MelodyNote[] =>
+    rows.map(([beat, duration, sd, octave]) => n(beat, duration, sd, octave));
 
   // Asigna la tonalidad (MIDI de la tónica) y desplaza los pulsos de una sección.
   const inKey = <T extends { beat: number; tonic: number }>(
@@ -378,6 +392,408 @@ function fullLabel(midi: number): string {
     c(37, 4, 1, 9),
   ];
 
+  // Melodía 2 · continuación en Do mayor (empieza en el pulso 41).
+  const MELODY_2B: MelodyNote[] = ns([
+    [1, 1, "6", 1],
+    [2, 3, "3", 1],
+    [5, 1, "2", 1],
+    [6, 2.5, "5", 1],
+    [9, 1, "6", 1],
+    [10, 3, "3", 1],
+    [13, 1, "7", 1],
+    [14, 2, "5", 1],
+    [17, 1, "6", 1],
+    [18, 3, "3", 1],
+    [21, 1, "2", 1],
+    [22, 2.5, "5", 1],
+    [25, 1, "1", 2],
+    [26, 3, "5", 1],
+    [29, 1, "4", 1],
+    [30, 2.5, "5", 1],
+  ]);
+  const CHORDS_2B: HarmonyChord[] = [
+    c(1, 4, 4, 7),
+    c(5, 4, 5, 5),
+    c(9, 4, 4, 7),
+    c(13, 4, 5, 5),
+    c(17, 4, 4, 7),
+    c(21, 4, 5, 5),
+    c(25, 4, 6, 7, 0, [], "minor"), // bVImaj7 (préstamo modal)
+    c(29, 4, 5, 7, 1, [], "minor"), // v7 en primera inversión
+  ];
+
+  // Melodía 3 · La♭ mayor · 4/4 · 138 BPM. Seis secciones seguidas, en el orden en que se importaron.
+  // Parte 1 (16 pulsos): línea de bajo.
+  const M3_P1: MelodyNote[] = ns([
+    [1, 0.5, "4", -2],
+    [2, 0.5, "4", -2],
+    [3, 0.5, "4", -2],
+    [4, 0.5, "4", -2],
+    [4.5, 0.5, "5", -2],
+    [5.5, 0.5, "5", -2],
+    [6.5, 0.5, "5", -2],
+    [7, 0.5, "5", -2],
+    [8, 0.5, "5", -2],
+    [9, 0.5, "1", -2],
+    [10, 0.5, "1", -2],
+    [11, 0.5, "1", -2],
+    [12, 0.5, "1", -2],
+    [12.5, 0.5, "6", -3],
+    [13.5, 0.5, "6", -3],
+    [14.5, 0.5, "6", -3],
+    [15, 0.5, "6", -3],
+    [16, 0.5, "6", -3],
+  ]);
+  const M3_C1: HarmonyChord[] = [
+    c(1, 3.5, 4, 5),
+    cs(4.5, 4.5, 5, 7),
+    c(9, 3.5, 1, 5),
+    c(12.5, 4.5, 6, 5),
+  ];
+
+  // Parte 2 (36 pulsos): empieza con 4 pulsos de silencio.
+  const M3_P2: MelodyNote[] = ns([
+    [2.5, 0.5, "3", -1],
+    [3, 1, "3", -1],
+    [4, 1, "3", -1],
+    [5, 3, "3", -1],
+    [8, 0.5, "4", -1],
+    [8.5, 2, "2", -1],
+    [11.5, 1, "2", -1],
+    [12.5, 0.5, "2", -2],
+    [13, 1, "2", -1],
+    [14, 0.5, "2", -1],
+    [14.5, 0.5, "1", -1],
+    [15, 1, "3", -1],
+    [16, 0.5, "5", -2],
+    [16.5, 1, "6", -2],
+    [17.5, 0.5, "3", -1],
+    [18, 0.5, "3", -1],
+    [18.5, 0.5, "3", -1],
+    [19, 0.5, "3", -1],
+    [19.5, 0.5, "3", -1],
+    [20, 1, "3", -1],
+    [21, 3, "3", -1],
+    [24, 0.5, "4", -1],
+    [24.5, 2, "2", -1],
+    [27.5, 1, "2", -1],
+    [28.5, 0.5, "2", -2],
+    [29, 1, "2", -1],
+    [30, 1, "2", -1],
+    [31, 1, "2", -1],
+    [32, 0.5, "3", -1],
+    [32.5, 0.5, "1", -1],
+    [33, 0.5, "7", -2],
+    [33.5, 1.5, "6", -2],
+  ]);
+  const M3_C2: HarmonyChord[] = [
+    c(5, 3.5, 4, 7),
+    cs(8.5, 4.5, 5, 7),
+    c(13, 3.5, 1, 5),
+    c(16.5, 4.5, 6, 5),
+    c(21, 3.5, 4, 7),
+    cs(24.5, 4.5, 5, 7),
+    c(29, 3.5, 1, 5),
+    c(32.5, 4.5, 6, 5),
+  ];
+
+  // Parte 3 (68 pulsos)
+  const M3_P3: MelodyNote[] = ns([
+    [2.5, 0.5, "3", -1],
+    [3, 1, "3", -1],
+    [4, 1, "3", -1],
+    [5, 3, "3", -1],
+    [8, 0.5, "4", -1],
+    [8.5, 2, "2", -1],
+    [11.5, 1, "2", -1],
+    [12.5, 0.5, "2", -2],
+    [13, 1, "2", -1],
+    [14, 0.5, "2", -1],
+    [14.5, 0.5, "1", -1],
+    [15, 0.5, "2", -1],
+    [15.5, 0.5, "2", -1],
+    [16, 0.5, "3", -1],
+    [16.5, 0.5, "1", -1],
+    [17, 0.5, "7", -2],
+    [17.5, 0.5, "6", -2],
+    [19, 0.5, "3", -1],
+    [19.5, 0.5, "3", -1],
+    [20, 0.5, "3", -1],
+    [20.5, 0.5, "3", -1],
+    [21, 2.5, "3", -1],
+    [23.5, 1, "4", -1],
+    [24.5, 2, "2", -1],
+    [28, 0.5, "1", -1],
+    [28.5, 0.5, "1", -1],
+    [29, 0.5, "b3", -1],
+    [29.5, 0.5, "2", -1],
+    [30, 0.5, "1", -1],
+    [30.5, 1.5, "1", -1],
+    [32, 0.5, "b3", -1],
+    [32.5, 0.5, "2", -1],
+    [33, 0.5, "1", -1],
+    [33.5, 1, "1", -1],
+    [34.5, 0.5, "6", -1],
+    [35, 0.5, "6", -1],
+    [35.5, 0.5, "6", -1],
+    [36, 1, "6", -1],
+    [37, 3, "6", -1],
+    [40, 0.5, "3", -1],
+    [40.5, 2, "5", -1],
+    [43.5, 1, "5", -1],
+    [44.5, 0.5, "5", -1],
+    [45, 1.5, "5", -1],
+    [46.5, 0.5, "6", -2],
+    [47, 0.5, "5", -1],
+    [47.5, 0.5, "4", -1],
+    [48, 0.5, "4", -1],
+    [48.5, 0.5, "3", -1],
+    [49, 0.5, "3", -1],
+    [49.5, 0.5, "3", -2],
+    [50, 0.5, "3", -1],
+    [50.5, 0.5, "3", -1],
+    [51, 0.5, "3", -1],
+    [51.5, 0.5, "3", -1],
+    [52, 0.5, "3", -1],
+    [52.5, 0.5, "3", -1],
+    [53, 2.5, "3", -1],
+    [55.5, 1, "4", -1],
+    [56.5, 1.5, "2", -1],
+    [59.5, 0.5, "6", -2],
+    [60, 1, "1", -1],
+    [61, 0.5, "b3", -1],
+    [61.5, 0.5, "2", -1],
+    [62, 0.5, "1", -1],
+    [62.5, 1, "1", -1],
+    [63.5, 0.5, "1", -1],
+    [64, 0.5, "b3", -1],
+    [64.5, 0.5, "2", -1],
+    [65, 0.5, "1", -1],
+    [65.5, 1.5, "1", -1],
+    [68.5, 0.5, "1", -1],
+  ]);
+  const M3_C3: HarmonyChord[] = [
+    c(5, 3.5, 4, 7),
+    cs(8.5, 4.5, 5, 7),
+    c(13, 3.5, 1, 5),
+    c(16.5, 4.5, 6, 5),
+    c(21, 3.5, 4, 7),
+    cs(24.5, 4.5, 5, 7),
+    c(29, 3.5, 1, 5),
+    c(32.5, 4.5, 6, 5),
+    c(37, 3.5, 4, 7),
+    cs(40.5, 4.5, 5, 7),
+    c(45, 3.5, 1, 5),
+    c(48.5, 4.5, 6, 5),
+    c(53, 3.5, 4, 7),
+    cs(56.5, 4.5, 5, 7),
+    c(61, 3.5, 1, 5),
+    c(64.5, 4.5, 6, 5),
+  ];
+
+  // Parte 4 (64 pulsos)
+  const M3_P4: MelodyNote[] = ns([
+    [1, 1, "6", -1],
+    [2, 1, "6", -1],
+    [3, 0.5, "6", -1],
+    [3.5, 0.5, "5", -1],
+    [4, 0.5, "6", -1],
+    [4.5, 1.5, "5", -1],
+    [6, 0.5, "2", -1],
+    [6.5, 1, "3", -1],
+    [7.5, 1, "4", -1],
+    [9, 1, "5", -1],
+    [10, 1, "5", -1],
+    [11, 0.5, "5", -1],
+    [11.5, 0.5, "3", -1],
+    [12, 0.5, "5", -1],
+    [12.5, 1.5, "3", -1],
+    [14, 0.5, "6", -2],
+    [14.5, 1, "7", -2],
+    [15.5, 1, "1", -1],
+    [17, 1, "6", -1],
+    [18, 1, "6", -1],
+    [19, 0.5, "6", -1],
+    [19.5, 0.5, "5", -1],
+    [20, 0.5, "6", -1],
+    [20.5, 1.5, "5", -1],
+    [22, 0.5, "2", -1],
+    [22.5, 1, "3", -1],
+    [23.5, 1, "4", -1],
+    [24.5, 0.5, "4", -1],
+    [25, 0.5, "5", -1],
+    [25.5, 0.5, "3", -1],
+    [26, 1, "5", -1],
+    [27, 0.5, "5", -1],
+    [27.5, 0.5, "3", -1],
+    [28, 0.5, "5", -1],
+    [28.5, 1, "3", -1],
+    [29.5, 1, "6", -2],
+    [30.5, 1, "7", -2],
+    [31.5, 1, "1", -1],
+    [33, 1, "6", -1],
+    [34, 1, "6", -1],
+    [35, 0.5, "6", -1],
+    [35.5, 0.5, "5", -1],
+    [36, 0.5, "6", -1],
+    [36.5, 1, "7", -1],
+    [37.5, 1, "7", -1],
+    [38.5, 1.5, "7", -1],
+    [41, 1, "5", -1],
+    [42, 1, "5", -1],
+    [43, 1, "5", -1],
+    [44, 0.5, "5", -1],
+    [44.5, 0.5, "4", -1],
+    [45, 0.5, "4", -1],
+    [45.5, 1, "3", -1],
+    [47, 0.5, "3", -1],
+    [47.5, 0.5, "3", -1],
+    [48, 0.5, "3", -1],
+    [48.5, 3, "3", -1],
+    [51.5, 1, "4", -1],
+    [52.5, 2.5, "2", -1],
+    [55.5, 0.5, "2", -1],
+    [56, 0.5, "2", -1],
+    [56.5, 0.5, "1", -1],
+    [57, 0.5, "7", -2],
+    [57.5, 1.5, "7", -2],
+    [59, 1, "3", -1],
+    [60, 0.5, "7", -2],
+    [60.5, 3.5, "1", -1],
+  ]);
+  const M3_C4: HarmonyChord[] = [
+    c(1, 3.5, 4, 7),
+    cs(4.5, 4.5, 5, 7),
+    c(9, 3.5, 1, 5),
+    c(12.5, 4.5, 6, 11),
+    c(17, 3.5, 4, 7),
+    cs(20.5, 4.5, 5, 7),
+    c(25, 3.5, 1, 5),
+    c(28.5, 4.5, 6, 11),
+    c(33, 3.5, 4, 7),
+    c(36.5, 4.5, 5, 7, 0, [4]),
+    c(41, 3.5, 1, 5, 1),
+    c(44.5, 4.5, 6, 11),
+    c(49, 3.5, 4, 7),
+    c(52.5, 4.5, 5, 7),
+    c(57, 3.5, 1, 9),
+    c(60.5, 4.5, 6, 5),
+  ];
+
+  // Parte 5 (64 pulsos): pulso rápido en la tónica y la sensible, luego frases largas.
+  const P5_ONES: [number, number][] = [
+    [1, 0.5],
+    [2, 0.5],
+    [3, 0.5],
+    [4, 0.25],
+    [4.5, 0.5],
+    [5.5, 0.5],
+    [6.5, 0.25],
+    [7, 0.5],
+    [8, 0.5],
+    [9, 0.5],
+    [10, 0.5],
+    [11, 0.5],
+    [12, 0.25],
+    [12.5, 0.5],
+    [13.5, 0.5],
+    [14.5, 0.25],
+    [15, 0.5],
+    [16, 0.5],
+    [17, 0.5],
+    [18, 0.5],
+    [19, 0.5],
+    [20, 0.25],
+    [20.5, 0.5],
+    [21.5, 0.5],
+    [22.5, 0.25],
+    [23, 0.5],
+    [24, 0.5],
+  ];
+  const P5_SEVENS = [
+    1.5, 2.5, 3.5, 5, 6, 7.5, 8.5, 9.5, 10.5, 11.5, 13, 14, 15.5, 16.5, 17.5,
+    18.5, 19.5, 21, 22, 23.5, 24.5,
+  ];
+  const M3_P5: MelodyNote[] = [
+    ...P5_ONES.map(([beat, duration]) => n(beat, duration, "1", 0)),
+    ...P5_SEVENS.map((beat) => n(beat, 0.25, "7", -1)),
+    ...ns([
+      [25.5, 0.5, "2", 0],
+      [26.5, 0.5, "2", 0],
+      [27, 0.5, "2", 0],
+      [28, 0.5, "2", 0],
+      [29.5, 0.5, "3", -1],
+      [30, 0.5, "5", -1],
+      [30.5, 1.5, "1", 0],
+      [32, 0.5, "7", -1],
+      [32.5, 4, "6", -1],
+      [36.5, 0.5, "5", -1],
+      [37.5, 0.5, "3", -1],
+      [38, 0.5, "5", -1],
+      [38.5, 1.5, "1", 0],
+      [40, 0.5, "7", -1],
+      [40.5, 4, "5", -1],
+      [44.5, 0.5, "3", -1],
+      [45.5, 0.5, "3", -1],
+      [46, 0.5, "5", -1],
+      [46.5, 1.5, "1", 0],
+      [48, 0.5, "7", -1],
+      [48.5, 4, "6", -1],
+      [52.5, 0.5, "5", -1],
+      [53.5, 0.5, "3", -1],
+      [54, 0.5, "5", -1],
+      [54.5, 1.5, "1", 0],
+      [56, 0.5, "7", -1],
+      [56.5, 4, "5", -1],
+      [60.5, 0.5, "3", -1],
+      [61.5, 0.5, "3", -1],
+      [62, 0.5, "5", -1],
+      [62.5, 1.5, "1", 0],
+      [64, 0.5, "7", -1],
+      [64.5, 0.5, "6", -1],
+    ]),
+  ].sort((a, b) => a.beat - b.beat);
+  const M3_C5: HarmonyChord[] = [
+    c(1, 3.5, 4, 5),
+    c(4.5, 4.5, 6, 5),
+    c(9, 3.5, 4, 5),
+    c(12.5, 4.5, 6, 5),
+    c(17, 3.5, 4, 5),
+    c(20.5, 5, 6, 5),
+    cs(25.5, 7.5, 5, 7),
+    c(33, 3.5, 4, 7),
+    cs(36.5, 4.5, 5, 7),
+    c(41, 3.5, 1, 5),
+    c(44.5, 4.5, 6, 11),
+    c(49, 3.5, 4, 7),
+    cs(52.5, 4.5, 5, 7),
+    c(57, 3.5, 1, 5),
+    c(60.5, 4.5, 6, 11),
+  ];
+
+  // Parte 6 (32 pulsos): notas largas.
+  const M3_P6: MelodyNote[] = ns([
+    [1, 3.5, "3", -1],
+    [4.5, 4.5, "4", -1],
+    [9, 3.5, "3", -1],
+    [12.5, 3.5, "1", -1],
+    [17, 3.5, "3", -1],
+    [20.5, 4.5, "4", -1],
+    [25, 3.5, "3", -1],
+    [28.5, 3.5, "1", -1],
+  ]);
+  const M3_C6: HarmonyChord[] = [
+    c(1, 3.5, 4, 7),
+    c(4.5, 4.5, 5, 7),
+    c(9, 3.5, 1, 9),
+    c(12.5, 4.5, 6, 5),
+    c(17, 3.5, 4, 7),
+    c(20.5, 4.5, 5, 7),
+    c(25, 3.5, 1, 9),
+    c(28.5, 4.5, 6, 5),
+  ];
+  const AB = 68; // tónica de La♭ (La♭4)
+
   const MELODIES: Record<string, MelodyDefinition> = {
     "melody-1": {
       name: "Zelda's Lullaby · Sol → Do mayor",
@@ -393,11 +809,35 @@ function fullLabel(midi: number): string {
       name: "Legend of Zelda Ocarina of Time · Do mayor",
       meter: 4,
       bpm: 72,
-      totalBeats: 40,
+      totalBeats: 72,
       bassLow: 38,
       upperLow: 53,
-      notes: inKey(MELODY_2, 60),
-      chords: inKey(CHORDS_2, 60),
+      notes: [...inKey(MELODY_2, 60), ...inKey(MELODY_2B, 60, 40)],
+      chords: [...inKey(CHORDS_2, 60), ...inKey(CHORDS_2B, 60, 40)],
+    },
+    "melody-3": {
+      name: "Viva La Vida Coldplay · La♭ mayor",
+      meter: 4,
+      bpm: 138,
+      totalBeats: 280,
+      bassLow: 36,
+      upperLow: 50,
+      notes: [
+        ...inKey(M3_P1, AB, 0),
+        ...inKey(M3_P2, AB, 16),
+        ...inKey(M3_P3, AB, 52),
+        ...inKey(M3_P4, AB, 120),
+        ...inKey(M3_P5, AB, 184),
+        ...inKey(M3_P6, AB, 248),
+      ],
+      chords: [
+        ...inKey(M3_C1, AB, 0),
+        ...inKey(M3_C2, AB, 16),
+        ...inKey(M3_C3, AB, 52),
+        ...inKey(M3_C4, AB, 120),
+        ...inKey(M3_C5, AB, 184),
+        ...inKey(M3_C6, AB, 248),
+      ],
     },
   };
 
@@ -419,6 +859,7 @@ function fullLabel(midi: number): string {
   const SCALES: Record<string, number[]> = {
     major: [0, 2, 4, 5, 7, 9, 11],
     locrian: [0, 1, 3, 5, 6, 8, 10],
+    minor: [0, 2, 3, 5, 7, 8, 10],
   };
   // Pasos diatónicos sobre la fundamental para cada extensión ("add6" = 5 pasos arriba).
   const ADD_STEPS: Record<number, number> = {
@@ -522,7 +963,7 @@ function fullLabel(midi: number): string {
   type Voicing = { bass: number; upper: number[]; all: number[]; name: string };
 
   function buildVoicing(chord: HarmonyChord, def: MelodyDefinition): Voicing {
-    const scale = SCALES[chord.borrowed === "locrian" ? "locrian" : "major"];
+    const scale = SCALES[SCALES[chord.borrowed] ? chord.borrowed : "major"];
     // Dominante secundario: la escala se construye sobre el grado al que resuelve;
     // la sustitución tritonal sube todo el acorde seis semitonos.
     const shift =
@@ -532,8 +973,20 @@ function fullLabel(midi: number): string {
       scale[index % 7] + 12 * Math.floor(index / 7) + shift;
     const rootIndex = chord.root - 1;
     const rootSemi = scale[rootIndex] + shift;
-    const count = chord.type === 5 ? 3 : chord.type === 7 ? 4 : 5;
-    const steps = [0, 2, 4, 6, 8].slice(0, count);
+    const count =
+      ({ 5: 3, 7: 4, 9: 5, 11: 6, 13: 7 } as Record<number, number>)[
+        chord.type
+      ] ?? 4;
+    // Suspensión: la tercera se sustituye por la cuarta (sus4) o la segunda (sus2).
+    const steps = [0, 2, 4, 6, 8, 10, 12]
+      .slice(0, count)
+      .map((step) =>
+        step === 2 && chord.sus.includes(4)
+          ? 3
+          : step === 2 && chord.sus.includes(2)
+            ? 1
+            : step,
+      );
     for (const add of chord.adds) {
       const step = ADD_STEPS[add];
       if (step !== undefined) steps.push(step);
@@ -556,9 +1009,10 @@ function fullLabel(midi: number): string {
     ].sort((a, b) => a - b);
 
     // Nombre del acorde
-    const names = SHARP_TONICS.has(mod12(chord.tonic))
-      ? NAMES_SHARP
-      : NAMES_FLAT;
+    const names =
+      SHARP_TONICS.has(mod12(chord.tonic)) && !chord.borrowed
+        ? NAMES_SHARP
+        : NAMES_FLAT;
     const rel = new Set(raw.map((semis) => mod12(semis - rootSemi)));
     const minor = rel.has(3) && !rel.has(4);
     const dim5 = rel.has(6) && !rel.has(7);
@@ -569,7 +1023,7 @@ function fullLabel(midi: number): string {
         : rel.has(9) && dim5
           ? "dim7"
           : "";
-    const num = chord.type === 9 ? "9" : "7";
+    const num = chord.type >= 7 ? String(chord.type) : "7";
     let quality: string;
     if (chord.type === 5)
       quality = dim5 ? (minor ? "dim" : "♭5") : minor ? "m" : "";
@@ -579,8 +1033,9 @@ function fullLabel(midi: number): string {
     else if (minor) quality = `m${num}`;
     else quality = seventh === "maj" ? `maj${num}` : num;
     const adds = chord.adds.length ? `(add${chord.adds.join(",")})` : "";
+    const sus = chord.sus.map((value) => `sus${value}`).join("");
     const slash = chord.inversion > 0 ? `/${names[pcOf(inverted[0])]}` : "";
-    const name = `${names[pcOf(rootSemi)]}${quality}${adds}${slash}${chord.tri ? " · sust. tritonal" : ""}`;
+    const name = `${names[pcOf(rootSemi)]}${quality}${sus}${adds}${slash}${chord.tri ? " · sust. tritonal" : ""}`;
 
     return { bass, upper, all: [bass, ...upper], name };
   }
