@@ -1,20 +1,20 @@
 ---
 // src/components/MelodyKeyboard.astro
 // Teclado de dos octavas que reproduce la melodía y ilumina cada tecla.
-const WHITE_KEYS = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83];
-// Posición horizontal de cada tecla negra, en porcentaje del ancho total.
-const BLACK_KEYS = [
-  { midi: 61, left: 4.893 },
-  { midi: 63, left: 12.036 },
-  { midi: 66, left: 26.321 },
-  { midi: 68, left: 33.464 },
-  { midi: 70, left: 40.607 },
-  { midi: 73, left: 54.893 },
-  { midi: 75, left: 62.036 },
-  { midi: 78, left: 76.321 },
-  { midi: 80, left: 83.464 },
-  { midi: 82, left: 90.607 },
-];
+const WHITE_PITCHES = [0, 2, 4, 5, 7, 9, 11];
+const BLACK_PITCHES = [1, 3, 6, 8, 10];
+const FIRST_MIDI = 60;
+const LAST_MIDI = 95;
+const WHITE_KEYS = Array.from({ length: LAST_MIDI - FIRST_MIDI + 1 }, (_, index) => FIRST_MIDI + index)
+  .filter((midi) => WHITE_PITCHES.includes(midi % 12));
+const BLACK_WIDTH = 3.2;
+// Posición horizontal de cada tecla negra, medida desde el total de teclas blancas.
+const BLACK_KEYS = Array.from({ length: LAST_MIDI - FIRST_MIDI + 1 }, (_, index) => FIRST_MIDI + index)
+  .filter((midi) => BLACK_PITCHES.includes(midi % 12))
+  .map((midi) => {
+    const whitesBefore = WHITE_KEYS.filter((white) => white < midi).length;
+    return { midi, left: ((whitesBefore + 1) / WHITE_KEYS.length) * 100 - BLACK_WIDTH / 2 };
+  });
 const NOTE_NAMES = [
   "Do",
   "Do♯",
@@ -43,11 +43,29 @@ function fullLabel(midi: number): string {
       <span class="mk-kicker">Escucha primero</span>
       <h2 id="mk-title">La melodía en el teclado</h2>
       <p class="mk-sub">
-        Pulsa reproducir y observa cómo se iluminan las teclas al avanzar la
-        melodía. Toca cualquier tecla para probarla.
+        Elige una melodía, escucha sus acordes y observa cómo se iluminan las
+        teclas. También puedes tocar cualquier tecla para probarla.
       </p>
     </div>
     <div class="mk-transport">
+      <label class="mk-melody-select" for="mk-melody">
+        Melodía
+        <select id="mk-melody">
+          <option value="melody-1">Melodía 1 · C mayor</option>
+          <option value="melody-2">Melodía 2 · C mayor</option>
+        </select>
+      </label>
+      <div class="mk-view" role="group" aria-label="Qué ver y escuchar">
+        <button type="button" class="mk-view-btn" data-view="melody" aria-pressed="false"
+          >Melodía</button
+        >
+        <button type="button" class="mk-view-btn" data-view="chords" aria-pressed="false"
+          >Acordes</button
+        >
+        <button type="button" class="mk-view-btn" data-view="both" aria-pressed="true"
+          >Ambos</button
+        >
+      </div>
       <button type="button" class="mk-play" id="mk-play" aria-pressed="false">
         ▶ Reproducir
       </button>
@@ -87,7 +105,7 @@ function fullLabel(midi: number): string {
     class="mk-keys"
     id="mk-keys"
     role="group"
-    aria-label="Teclado de dos octavas"
+    aria-label="Teclado de tres octavas"
   >
     {
       WHITE_KEYS.map((midi) => (
@@ -116,18 +134,23 @@ function fullLabel(midi: number): string {
     }
   </div>
 
-  <p class="mk-hint">
-    La melodía está en Do mayor y dura 25 pulsos. El acompañamiento suena en
-    bajo para no tapar la melodía.
-  </p>
+  <p class="mk-hint" id="mk-hint">Melodía en Do mayor · 25 pulsos. El acompañamiento suena en el registro grave.</p>
 </section>
 
 <script>
   import { $, $$, must } from "../lib/dom";
   import { playPiano, playChord, type PianoEvent } from "../lib/audio";
 
-  // ── Melodía: grados de la escala en Do mayor (sd 1–7) ──────────────
-  const MELODY = [
+  type MelodyNote = { beat: number; duration: number; sd: number | string; octave: number; isRest?: boolean };
+  type HarmonyChord = {
+    beat: number; duration: number; root: number; type: number;
+    inversion: number; applied: number; adds: number[]; substitutions: string[];
+  };
+  type MelodyDefinition = { name: string; notes: MelodyNote[]; chords: HarmonyChord[]; totalBeats: number };
+  type ViewMode = 'melody' | 'chords' | 'both';
+
+  // Melodía original del teclado, con el acompañamiento que corresponde a su frase.
+  const MELODY_1: MelodyNote[] = [
     { beat: 1, duration: 2, sd: 2, octave: 1 },
     { beat: 3, duration: 0.5, sd: 1, octave: 1 },
     { beat: 3.5, duration: 0.5, sd: 7, octave: 0 },
@@ -149,29 +172,83 @@ function fullLabel(midi: number): string {
     { beat: 18, duration: 1, sd: 1, octave: 1 },
     { beat: 19, duration: 6, sd: 5, octave: 1 },
   ];
-  // Acuerdes diatónicos de acompañamiento (raíz = grado de la escala).
-  const CHORDS = [
-    { beat: 1, duration: 3, root: 4 },
-    { beat: 4, duration: 3, root: 3 },
-    { beat: 7, duration: 3, root: 2 },
-    { beat: 10, duration: 3, root: 1 },
-    { beat: 13, duration: 3, root: 4 },
-    { beat: 16, duration: 3, root: 3 },
-    { beat: 19, duration: 3, root: 2 },
-    { beat: 22, duration: 1.5, root: 2 },
-    { beat: 23.5, duration: 1.5, root: 5 },
+  const CHORDS_1: HarmonyChord[] = [
+    { beat: 1, duration: 3, root: 4, type: 7, inversion: 0, applied: 0, adds: [], substitutions: [] },
+    { beat: 4, duration: 3, root: 3, type: 7, inversion: 0, applied: 0, adds: [], substitutions: [] },
+    { beat: 7, duration: 3, root: 2, type: 7, inversion: 0, applied: 0, adds: [], substitutions: [] },
+    { beat: 10, duration: 3, root: 1, type: 7, inversion: 0, applied: 0, adds: [], substitutions: [] },
+    { beat: 13, duration: 3, root: 4, type: 7, inversion: 0, applied: 0, adds: [], substitutions: [] },
+    { beat: 16, duration: 3, root: 3, type: 7, inversion: 0, applied: 0, adds: [], substitutions: [] },
+    { beat: 19, duration: 3, root: 2, type: 7, inversion: 0, applied: 5, adds: [], substitutions: ['tri'] },
+    { beat: 22, duration: 1.5, root: 2, type: 7, inversion: 0, applied: 0, adds: [], substitutions: [] },
+    { beat: 23.5, duration: 1.5, root: 5, type: 5, inversion: 0, applied: 0, adds: [], substitutions: [] },
   ];
-  const SCALE_OFFSETS = [0, 2, 4, 5, 7, 9, 11];
-  const CHORD_QUALITIES: Record<number, number[]> = {
-    1: [0, 4, 7],
-    2: [0, 3, 7],
-    3: [0, 3, 7],
-    4: [0, 4, 7],
-    5: [0, 4, 7],
-    6: [0, 3, 7],
-    7: [0, 3, 6],
+
+  // Nueva melodía importada del archivo compartido; las pausas también conservan el tiempo.
+  const MELODY_2: MelodyNote[] = [
+    { beat: 1, duration: 6, sd: '1', octave: 0, isRest: true },
+    { beat: 7, duration: 1, sd: '2', octave: 1 },
+    { beat: 8, duration: 1, sd: '3', octave: 1 },
+    { beat: 9, duration: 1.6666666667, sd: '2', octave: 2 },
+    { beat: 10.6666666667, duration: 1 / 6, sd: 'b2', octave: 2 },
+    { beat: 10.8333333333, duration: 1 / 6, sd: '1', octave: 2 },
+    { beat: 11, duration: 3.5, sd: '7', octave: 1 },
+    { beat: 14.5, duration: 0.5, sd: '6', octave: 1 },
+    { beat: 15, duration: 1, sd: '5', octave: 1 },
+    { beat: 16, duration: 0.5, sd: '2', octave: 1 },
+    { beat: 16.5, duration: 0.5, sd: '3', octave: 1 },
+    { beat: 17, duration: 1.6666666667, sd: '2', octave: 2 },
+    { beat: 18.6666666667, duration: 1 / 6, sd: 'b2', octave: 2 },
+    { beat: 18.8333333333, duration: 1 / 6, sd: '1', octave: 2 },
+    { beat: 19, duration: 1.6666666667, sd: '7', octave: 1 },
+    { beat: 20.6666666667, duration: 1 / 3, sd: '1', octave: 2 },
+    { beat: 21, duration: 2, sd: '7', octave: 1 },
+    { beat: 23, duration: 1, sd: '1', octave: 0, isRest: true },
+    { beat: 24, duration: 0.5, sd: '2', octave: 1 },
+    { beat: 24.5, duration: 0.5, sd: '3', octave: 1 },
+    { beat: 25, duration: 1.6666666667, sd: '2', octave: 2 },
+    { beat: 26.6666666667, duration: 1 / 6, sd: 'b2', octave: 2 },
+    { beat: 26.8333333333, duration: 1 / 6, sd: '1', octave: 2 },
+    { beat: 27, duration: 3.5, sd: '7', octave: 1 },
+    { beat: 30.5, duration: 0.5, sd: '6', octave: 1 },
+    { beat: 31, duration: 1, sd: '5', octave: 1 },
+    { beat: 32, duration: 0.5, sd: '2', octave: 1 },
+    { beat: 32.5, duration: 0.5, sd: '3', octave: 1 },
+    { beat: 33, duration: 1.6666666667, sd: '2', octave: 2 },
+    { beat: 34.6666666667, duration: 1 / 6, sd: 'b2', octave: 2 },
+    { beat: 34.8333333333, duration: 1 / 6, sd: '1', octave: 2 },
+    { beat: 35, duration: 1.6666666667, sd: '7', octave: 1 },
+    { beat: 36.6666666667, duration: 1 / 3, sd: '3', octave: 2 },
+    { beat: 37, duration: 4, sd: '7', octave: 1 },
+  ];
+  const CHORDS_2: HarmonyChord[] = [
+    { beat: 1, duration: 4, root: 4, type: 7, inversion: 0, applied: 0, adds: [6], substitutions: [] },
+    { beat: 5, duration: 4, root: 1, type: 9, inversion: 0, applied: 0, adds: [], substitutions: [] },
+    { beat: 9, duration: 4, root: 4, type: 7, inversion: 0, applied: 0, adds: [6], substitutions: [] },
+    { beat: 13, duration: 4, root: 1, type: 9, inversion: 0, applied: 0, adds: [], substitutions: [] },
+    { beat: 17, duration: 4, root: 4, type: 7, inversion: 0, applied: 0, adds: [6], substitutions: [] },
+    { beat: 21, duration: 4, root: 1, type: 9, inversion: 0, applied: 0, adds: [], substitutions: [] },
+    { beat: 25, duration: 4, root: 4, type: 7, inversion: 0, applied: 0, adds: [6], substitutions: [] },
+    { beat: 29, duration: 4, root: 1, type: 9, inversion: 0, applied: 0, adds: [], substitutions: [] },
+    { beat: 33, duration: 4, root: 4, type: 7, inversion: 0, applied: 0, adds: [6], substitutions: [] },
+    { beat: 37, duration: 4, root: 1, type: 9, inversion: 0, applied: 0, adds: [], substitutions: [] },
+  ];
+
+  const MELODIES: Record<string, MelodyDefinition> = {
+    'melody-1': { name: 'Melodía 1 · C mayor', notes: MELODY_1, chords: CHORDS_1, totalBeats: 25 },
+    'melody-2': { name: 'Melodía 2 · C mayor', notes: MELODY_2, chords: CHORDS_2, totalBeats: 41 },
   };
-  const CHORD_NAMES = ["Do", "Rem", "Mim", "Fa", "Sol", "Lam", "Si°"];
+  const SCALE_OFFSETS: Record<string, number> = {
+    '1': 0, b2: 1, '2': 2, b3: 3, '3': 4, '4': 5, '#4': 6, b5: 6,
+    '5': 7, b6: 8, '6': 9, b7: 10, '7': 11,
+  };
+  const CHORD_INTERVALS: Record<number, number[]> = {
+    5: [0, 7],
+    7: [0, 4, 7, 10],
+    9: [0, 4, 7, 10, 14],
+  };
+  const CHORD_ROOT_NAMES = ['Do', 'Re♭', 'Re', 'Mi♭', 'Mi', 'Fa', 'Sol♭', 'Sol', 'La♭', 'La', 'Si♭', 'Si'];
+  const ADDED_INTERVALS: Record<number, number> = { 2: 2, 4: 5, 6: 9, 7: 10, 9: 14, 11: 17, 13: 21 };
   const NOTE_NAMES = [
     "Do",
     "Do♯",
@@ -186,9 +263,8 @@ function fullLabel(midi: number): string {
     "La♯",
     "Si",
   ];
-  const TOTAL_BEATS = 25;
-
   const root = must(document.querySelector<HTMLElement>(".mk"), ".mk");
+  const melodySelect = must(document.querySelector<HTMLSelectElement>("#mk-melody"), "#mk-melody");
   const keysEl = must(
     document.querySelector<HTMLElement>("#mk-keys"),
     "#mk-keys",
@@ -219,36 +295,76 @@ function fullLabel(midi: number): string {
     "#mk-chord",
   );
   const beatEl = must(document.querySelector<HTMLElement>("#mk-beat"), "#mk-beat");
+  const hintEl = must(document.querySelector<HTMLElement>("#mk-hint"), "#mk-hint");
+  const viewButtons = $$<HTMLButtonElement>(".mk-view-btn", root);
 
-  const midiOf = (sd: number, octave: number): number =>
-    60 + octave * 12 + SCALE_OFFSETS[sd - 1];
+  const midiOf = (sd: number | string, octave: number): number => {
+    const offset = SCALE_OFFSETS[String(sd).replace('♭', 'b').replace('♯', '#')];
+    return 60 + octave * 12 + (offset ?? 0);
+  };
   const fullLabel = (midi: number): string =>
     `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`;
 
-  const melodyEvents: PianoEvent[] = MELODY.map((note) => ({
-    midi: midiOf(note.sd, note.octave),
-    start: note.beat - 1,
-    dur: note.duration,
-    vel: 0.85,
-    focus: true,
-  }));
+  let activeMelody = MELODIES[melodySelect.value] ?? MELODIES['melody-1'];
+  let melodyEvents: PianoEvent[] = [];
+  let chordEvents: PianoEvent[] = [];
+  let events: PianoEvent[] = [];
+  let totalBeats = activeMelody.totalBeats;
 
-  const chordEvents: PianoEvent[] = CHORDS.flatMap((chord) => {
-    const bass = midiOf(chord.root, 0) - 24;
-    return (CHORD_QUALITIES[chord.root] ?? [0, 4, 7]).map((interval) => ({
-      midi: bass + interval,
-      start: chord.beat - 1,
-      dur: chord.duration,
-      vel: 0.2,
-    }));
-  });
+  function chordRootMidi(chord: HarmonyChord): number {
+    const bass = midiOf(chord.root, 0);
+    return chord.substitutions.includes('tri') ? bass + 6 : bass;
+  }
 
-  const events = [...melodyEvents, ...chordEvents];
+  function chordMidis(chord: HarmonyChord): number[] {
+    const bass = chordRootMidi(chord);
+    const intervals = [
+      ...(CHORD_INTERVALS[chord.type] ?? CHORD_INTERVALS[7]),
+      ...chord.adds.map((add) => ADDED_INTERVALS[add]).filter((interval): interval is number => interval !== undefined),
+    ];
+    return [...new Set(intervals)].map((interval) => bass + interval);
+  }
+
+  function chordName(chord: HarmonyChord): string {
+    const root = CHORD_ROOT_NAMES[((chordRootMidi(chord) % 12) + 12) % 12];
+    const suffix = chord.type === 5 ? '5' : String(chord.type);
+    const adds = chord.adds.length ? `(add${chord.adds.join(', add')})` : '';
+    const substituted = chord.substitutions.includes('tri') ? ' · sustituto tritonal' : '';
+    return `${root}${suffix}${adds}${substituted}`;
+  }
+
+  function buildTrack(): void {
+    activeMelody = MELODIES[melodySelect.value] ?? MELODIES['melody-1'];
+    totalBeats = activeMelody.totalBeats;
+    melodyEvents = activeMelody.notes
+      .filter((note) => !note.isRest)
+      .map((note) => ({ midi: midiOf(note.sd, note.octave), start: note.beat - 1, dur: note.duration, vel: 0.85, focus: true }));
+    chordEvents = activeMelody.chords.flatMap((chord) =>
+      chordMidis(chord).map((midi) => ({
+        midi,
+        start: chord.beat - 1,
+        dur: chord.duration,
+        vel: 0.32,
+      })),
+    );
+    events =
+      view === 'melody'
+        ? [...melodyEvents]
+        : view === 'chords'
+          ? [...chordEvents]
+          : [...melodyEvents, ...chordEvents];
+    hintEl.textContent = `${activeMelody.name} · ${totalBeats} pulsos. Naranja = melodía, azul = acordes.`;
+    progressBar.style.width = '0%';
+    setChord(0);
+    setNote(null);
+  }
 
   let cancelPlayback: (() => void) | null = null;
   let playing = false;
   let bpm = 120;
+  let view: ViewMode = 'both';
   let highlightTimer = 0;
+  let chordTimers: number[] = [];
   let rafId = 0;
   let startTime = 0;
 
@@ -260,10 +376,45 @@ function fullLabel(midi: number): string {
   }
 
   function setChord(beat: number): void {
-    const chord = CHORDS.find(
+    const chord = activeMelody.chords.find(
       (item) => beat >= item.beat - 1 && beat < item.beat - 1 + item.duration,
     );
-    chordEl.textContent = chord ? CHORD_NAMES[chord.root - 1] : "—";
+    chordEl.textContent = chord ? chordName(chord) : "—";
+  }
+
+  function clearChordHighlights(): void {
+    chordTimers.forEach((timer) => window.clearTimeout(timer));
+    chordTimers = [];
+    $$(".mk-key", keysEl).forEach((key) => key.classList.remove("is-chord"));
+  }
+
+  function scheduleChordHighlights(): void {
+    clearChordHighlights();
+    if (view === 'melody') return;
+    const beatSeconds = 60 / bpm;
+    for (const chord of activeMelody.chords) {
+      const startMs = (chord.beat - 1) * beatSeconds * 1000;
+      const endMs = (chord.beat - 1 + chord.duration) * beatSeconds * 1000;
+      const midis = chordMidis(chord);
+      chordTimers.push(
+        window.setTimeout(() => {
+          $$(".mk-key", keysEl).forEach((key) => {
+            if (midis.includes(Number(key.dataset.midi))) {
+              key.classList.add("is-chord");
+            }
+          });
+        }, startMs),
+      );
+      chordTimers.push(
+        window.setTimeout(() => {
+          $$(".mk-key", keysEl).forEach((key) => {
+            if (midis.includes(Number(key.dataset.midi))) {
+              key.classList.remove("is-chord");
+            }
+          });
+        }, endMs),
+      );
+    }
   }
 
   function onNote(index: number): void {
@@ -281,7 +432,7 @@ function fullLabel(midi: number): string {
     if (!playing) return;
     const elapsed = (performance.now() - startTime) / 1000;
     const beat = elapsed * (bpm / 60);
-    progressBar.style.width = `${Math.min(100, (beat / TOTAL_BEATS) * 100)}%`;
+    progressBar.style.width = `${Math.min(100, (beat / totalBeats) * 100)}%`;
     rafId = requestAnimationFrame(tick);
   }
 
@@ -293,6 +444,7 @@ function fullLabel(midi: number): string {
     playButton.textContent = "▶ Reproducir";
     setNote(null);
     setChord(0);
+    clearChordHighlights();
     beatEl.textContent = "Compás 1";
     progressBar.style.width = "0%";
   }
@@ -304,6 +456,7 @@ function fullLabel(midi: number): string {
     playButton.textContent = "■ Detener";
     startTime = performance.now();
     cancelPlayback = playPiano(events, bpm, { onNote, onEnd });
+    scheduleChordHighlights();
     rafId = requestAnimationFrame(tick);
   }
 
@@ -324,6 +477,26 @@ function fullLabel(midi: number): string {
       cancelPlayback?.();
       window.setTimeout(play, 30);
     }
+  });
+  melodySelect.addEventListener('change', () => {
+    if (playing) cancelPlayback?.();
+    buildTrack();
+    beatEl.textContent = 'Compás 1';
+  });
+  viewButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextView = (button.dataset.view ?? 'both') as ViewMode;
+      if (nextView === view) return;
+      const wasPlaying = playing;
+      if (wasPlaying) cancelPlayback?.();
+      view = nextView;
+      viewButtons.forEach((item) =>
+        item.setAttribute('aria-pressed', String(item === button)),
+      );
+      buildTrack();
+      beatEl.textContent = 'Compás 1';
+      if (wasPlaying) window.setTimeout(play, 30);
+    });
   });
   function triggerKey(event: Event): void {
     const key = (event.target as HTMLElement).closest<HTMLButtonElement>(
@@ -351,6 +524,8 @@ function fullLabel(midi: number): string {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden && playing) stop();
   });
+
+  buildTrack();
 </script>
 
 <style>
@@ -395,6 +570,40 @@ function fullLabel(midi: number): string {
     align-items: center;
     flex-wrap: wrap;
     gap: 10px;
+  }
+  .mk-melody-select { display:grid; gap:4px; color:var(--mut); font-size:.78rem; font-weight:700; }
+  .mk-melody-select select { min-height:44px; border-radius:12px; }
+  .mk-view {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--bd);
+    border-radius: 12px;
+    background: var(--bg);
+  }
+  .mk-view-btn {
+    min-height: 44px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--mut);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      background 0.18s ease,
+      color 0.18s ease,
+      transform 0.12s ease;
+  }
+  .mk-view-btn:hover { color: var(--fg); }
+  .mk-view-btn:active { transform: scale(0.96); }
+  .mk-view-btn[aria-pressed="true"] {
+    background: var(--card);
+    color: var(--fg);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
   }
   .mk-play {
     min-height: 48px;
@@ -517,7 +726,7 @@ function fullLabel(midi: number): string {
     position: absolute;
     top: 0;
     z-index: 2;
-    width: 4.5%;
+    width: 3.2%;
     height: 60%;
     display: flex;
     align-items: flex-end;
@@ -567,6 +776,20 @@ function fullLabel(midi: number): string {
     box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.6);
   }
   .mk-key--black.is-active .mk-key-label {
+    color: #fff;
+  }
+  .mk-key--white.is-chord:not(.is-active) {
+    background: linear-gradient(180deg, #93c5fd, #60a5fa);
+    box-shadow: inset 0 -3px 0 #3b82f6;
+  }
+  .mk-key--white.is-chord:not(.is-active) .mk-key-label {
+    color: #fff;
+  }
+  .mk-key--black.is-chord:not(.is-active) {
+    background: linear-gradient(180deg, #60a5fa, #2563eb);
+    box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.6);
+  }
+  .mk-key--black.is-chord:not(.is-active) .mk-key-label {
     color: #fff;
   }
   .mk-key:focus-visible {
