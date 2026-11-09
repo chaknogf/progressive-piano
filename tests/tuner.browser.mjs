@@ -150,15 +150,24 @@ try {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   const initial = await evaluate(`({
-    mode: document.querySelector('#af-mode')?.value,
+    mode: document.querySelector('#af-mode-guitar')?.getAttribute('aria-pressed'),
     strings: document.querySelectorAll('#af-strings .af-str').length,
     tuningHidden: document.querySelector('#af-tuning-field')?.hidden,
-    privacy: document.querySelector('.afinador .af-privacy')?.textContent.replace(/\\s+/g, ' ').trim()
+    privacy: document.querySelector('.afinador .af-privacy')?.textContent.replace(/\\s+/g, ' ').trim(),
+    sheet: !!document.querySelector('#af-sheet')
   })`);
-  assert.equal(initial.mode, 'guitar');
+  assert.equal(initial.mode, 'true');
   assert.equal(initial.strings, 6);
   assert.equal(initial.tuningHidden, false);
   assert.match(initial.privacy, /no se graba/);
+  assert.equal(initial.sheet, true);
+
+  const sheetOpened = await evaluate(`(() => {
+    const dialog = document.querySelector('#af-sheet');
+    dialog.showModal();
+    return dialog.open;
+  })()`);
+  assert.equal(sheetOpened, true);
 
   const refpitch = await evaluate(`(() => {
     const select = document.querySelector('#af-refpitch');
@@ -172,23 +181,27 @@ try {
   assert.equal(refpitch.value, '432');
   assert.match(refpitch.first, /80\.9 Hz/);
 
-  await evaluate(`(() => {
+  const sheetClosed = await evaluate(`(() => {
     const select = document.querySelector('#af-refpitch');
     select.value = '440';
     select.dispatchEvent(new Event('change', { bubbles: true }));
+    const dialog = document.querySelector('#af-sheet');
+    dialog.close();
+    return dialog.open;
   })()`);
+  assert.equal(sheetClosed, false);
 
   const chromatic = await evaluate(`(() => {
-    const select = document.querySelector('#af-mode');
-    select.value = 'chromatic';
-    select.dispatchEvent(new Event('change', { bubbles: true }));
+    document.querySelector('#af-mode-chromatic').click();
     return {
+      pressed: document.querySelector('#af-mode-chromatic').getAttribute('aria-pressed'),
       tuningHidden: document.querySelector('#af-tuning-field').hidden,
       notes: document.querySelectorAll('#af-strings .af-str').length,
       first: document.querySelector('#af-strings .af-str b').textContent,
       last: [...document.querySelectorAll('#af-strings .af-str b')].at(-1).textContent
     };
   })()`);
+  assert.equal(chromatic.pressed, 'true');
   assert.equal(chromatic.tuningHidden, true);
   assert.equal(chromatic.notes, 12);
   assert.equal(chromatic.first, 'Do');

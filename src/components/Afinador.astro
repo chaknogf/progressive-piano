@@ -1,6 +1,8 @@
 ---
 // src/components/Afinador.astro
-// Afinador de guitarra en tiempo real: micrófono + detección de tono (YIN).
+// Afinador de guitarra y cromático en tiempo real: micrófono + detección YIN.
+// La interfaz sigue el sistema visual del sitio (paleta cálida, serif en títulos)
+// y usa patrones de app móvil: modo segmentado, acciones al inicio, bottom sheet.
 ---
 
 <section
@@ -8,43 +10,66 @@
   id="afinador-app"
   aria-label="Afinador de guitarra y cromático"
 >
-  <div class="af-top">
-    <label class="af-field" for="af-mode"
-      >Modo
-      <select id="af-mode">
-        <option value="guitar">Guitarra (cuerdas al aire)</option>
-        <option value="chromatic">Cromático (cualquier nota)</option>
-      </select>
-    </label>
-    <label class="af-field" for="af-tuning" id="af-tuning-field"
-      >Afinación
-      <select id="af-tuning"></select>
-    </label>
-    <label class="af-field" for="af-refpitch"
-      >Referencia A4
-      <select id="af-refpitch">
-        <option value="432">432 Hz</option>
-        <option value="440" selected>440 Hz (estándar)</option>
-        <option value="442">442 Hz</option>
-        <option value="444">444 Hz</option>
-      </select>
-    </label>
-    <button type="button" id="af-auto" class="af-chip" aria-pressed="true"
-      >Automático</button
+  <header class="af-head">
+    <div class="af-title">
+      <span class="af-logo" aria-hidden="true">🎸</span>
+      <div class="af-title-text">
+        <h2 class="af-heading">Afinador</h2>
+        <p class="af-status" id="af-status" aria-hidden="true">Inactivo</p>
+      </div>
+    </div>
+    <button
+      type="button"
+      class="af-iconbtn"
+      id="af-settings"
+      aria-label="Abrir ajustes del afinador"
+      aria-haspopup="dialog"
+      aria-controls="af-sheet"
     >
-    <button type="button" id="af-start" class="af-primary"
-      >🎤 Activar micrófono</button
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="3"></circle>
+        <path
+          d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+        ></path>
+      </svg>
+    </button>
+  </header>
+
+  <div class="af-mode" id="af-mode" role="group" aria-label="Modo de afinación">
+    <button type="button" class="af-seg" id="af-mode-guitar" aria-pressed="true"
+      >Guitarra</button
+    >
+    <button type="button" class="af-seg" id="af-mode-chromatic" aria-pressed="false"
+      >Cromático</button
     >
   </div>
-  <p class="af-privacy">
-    El audio se analiza en tiempo real en tu dispositivo: no se graba ni se
-    envía. Acerca el móvil a la guitarra, toca una sola cuerda y deja que suene;
-    evita el ruido de fondo.
-  </p>
+
+  <div class="af-actions">
+    <button type="button" class="af-primary" id="af-start" aria-pressed="false">
+      <span class="af-start-icon" aria-hidden="true">🎤</span>
+      <span id="af-start-label">Activar micrófono</span>
+    </button>
+    <button type="button" class="af-secondary" id="af-ref">
+      <span aria-hidden="true">🔊</span> Referencia
+    </button>
+  </div>
 
   <div class="af-display" id="af-display" data-state="idle">
-    <div class="af-note" id="af-note" aria-hidden="true">—</div>
-    <div class="af-sub" id="af-sub">Activa el micrófono y toca una cuerda.</div>
+    <div class="af-note-wrap">
+      <div class="af-note" id="af-note" aria-hidden="true">—</div>
+      <div class="af-cents"><span id="af-cents-value">0</span> cents</div>
+      <p class="af-sub" id="af-sub">Activa el micrófono y toca una cuerda.</p>
+    </div>
 
     <svg
       class="af-meter"
@@ -57,35 +82,27 @@
       aria-valuenow="0"
       aria-valuetext="Sin señal"
     >
-      <rect x="20" y="30" width="280" height="14" rx="7" class="af-track"
-      ></rect>
-      <rect x="146" y="30" width="28" height="14" class="af-zone"></rect>
+      <rect x="20" y="30" width="280" height="12" rx="6" class="af-track"></rect>
+      <rect x="20" y="30" width="70" height="12" rx="6" class="af-zone-low"></rect>
+      <rect x="230" y="30" width="70" height="12" rx="6" class="af-zone-high"></rect>
+      <rect x="146" y="30" width="28" height="12" class="af-zone-ok"></rect>
       <g class="af-ticks">
-        <line x1="20" y1="26" x2="20" y2="48"></line><line
-          x1="90"
-          y1="30"
-          x2="90"
-          y2="44"></line>
-        <line x1="160" y1="24" x2="160" y2="50"></line><line
-          x1="230"
-          y1="30"
-          x2="230"
-          y2="44"></line>
-        <line x1="300" y1="26" x2="300" y2="48"></line>
+        <line x1="20" y1="24" x2="20" y2="48"></line>
+        <line x1="90" y1="28" x2="90" y2="44"></line>
+        <line x1="160" y1="22" x2="160" y2="50"></line>
+        <line x1="230" y1="28" x2="230" y2="44"></line>
+        <line x1="300" y1="24" x2="300" y2="48"></line>
       </g>
       <g id="af-needle" class="af-needle"
-        ><line x1="160" y1="18" x2="160" y2="58"></line><circle
+        ><line x1="160" y1="16" x2="160" y2="54"></line><circle
           cx="160"
-          cy="18"
+          cy="16"
           r="6"></circle></g
       >
-      <text x="20" y="76" class="af-lbl" text-anchor="start"
-        >▲ Falta tensión</text
-      >
-      <text x="300" y="76" class="af-lbl" text-anchor="end"
-        >Demasiada tensión ▼</text
-      >
-      <text x="160" y="90" class="af-lbl" text-anchor="middle">0</text>
+      <text x="20" y="72" class="af-lbl" text-anchor="start">-50</text>
+      <text x="160" y="72" class="af-lbl" text-anchor="middle">0</text>
+      <text x="300" y="72" class="af-lbl" text-anchor="end">+50</text>
+      <text x="160" y="90" class="af-lbl af-lbl-unit" text-anchor="middle">cents</text>
     </svg>
 
     <p class="af-verdict" id="af-verdict" role="status" aria-live="polite">
@@ -93,24 +110,78 @@
     </p>
   </div>
 
-  <p class="af-target" id="af-target"></p>
-  <div
-    class="af-strings"
-    id="af-strings"
-    role="group"
-    aria-label="Cuerdas de la guitarra"
-  >
+  <div class="af-board">
+    <div class="af-board-head">
+      <h3 class="af-board-title" id="af-board-title">Cuerdas</h3>
+      <div class="af-board-tools">
+        <button type="button" class="af-chip" id="af-auto" aria-pressed="true"
+          >Auto</button
+        >
+        <button type="button" class="af-chip" id="af-reset">Limpiar</button>
+      </div>
+    </div>
+    <div
+      class="af-strings"
+      id="af-strings"
+      role="group"
+      aria-labelledby="af-board-title"
+    >
+    </div>
   </div>
 
-  <div class="af-bottom">
-    <button type="button" id="af-ref" class="af-chip"
-      >🔊 Escuchar tono de referencia</button
-    >
-    <div class="af-level" aria-hidden="true">
-      <span>Nivel</span><div class="af-bar"><i id="af-level"></i></div>
-    </div>
-    <button type="button" id="af-reset" class="af-chip">Borrar ✓</button>
+  <div class="af-signal" aria-hidden="true">
+    <span class="af-signal-dot" id="af-signal-dot"></span>
+    <span class="af-signal-label">Señal</span>
+    <div class="af-bar"><i id="af-level"></i></div>
   </div>
+
+  <p class="af-hint" id="af-hint">
+    Acerca el móvil a la guitarra, toca una sola cuerda y deja que suene.
+  </p>
+  <p class="af-privacy">
+    🔒 El audio se analiza en tiempo real en tu dispositivo: no se graba ni se
+    envía a ningún servidor.
+  </p>
+
+  <dialog class="af-sheet" id="af-sheet" aria-labelledby="af-sheet-title">
+    <div class="af-sheet-bar" id="af-sheet-bar" aria-hidden="true"></div>
+    <div class="af-sheet-head">
+      <h2 class="af-sheet-title" id="af-sheet-title">Ajustes</h2>
+      <button
+        type="button"
+        class="af-iconbtn"
+        id="af-sheet-close"
+        aria-label="Cerrar ajustes"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+          ><path d="M18 6 6 18M6 6l12 12"></path></svg
+        >
+      </button>
+    </div>
+    <div class="af-sheet-body">
+      <label class="af-field" for="af-tuning" id="af-tuning-field">
+        Afinación
+        <select id="af-tuning"></select>
+      </label>
+      <label class="af-field" for="af-refpitch">
+        Referencia A4
+        <select id="af-refpitch">
+          <option value="432">432 Hz</option>
+          <option value="440" selected>440 Hz (estándar)</option>
+          <option value="442">442 Hz</option>
+          <option value="444">444 Hz</option>
+        </select>
+      </label>
+    </div>
+  </dialog>
 </section>
 
 <script>
@@ -154,10 +225,24 @@
 
   // ── Referencias DOM ────────────────────────────────────────────────
   const root = must(document.getElementById("afinador-app"), "#afinador-app");
-  const modeSelect = must(
-    $<HTMLSelectElement>("#af-mode", root),
-    "#af-mode",
+  const modeGuitar = must(
+    $<HTMLButtonElement>("#af-mode-guitar", root),
+    "#af-mode-guitar",
   );
+  const modeChromatic = must(
+    $<HTMLButtonElement>("#af-mode-chromatic", root),
+    "#af-mode-chromatic",
+  );
+  const settingsButton = must(
+    $<HTMLButtonElement>("#af-settings", root),
+    "#af-settings",
+  );
+  const sheet = must($<HTMLDialogElement>("#af-sheet", root), "#af-sheet");
+  const sheetClose = must(
+    $<HTMLButtonElement>("#af-sheet-close", root),
+    "#af-sheet-close",
+  );
+  const sheetBar = must($("#af-sheet-bar", root), "#af-sheet-bar");
   const tuningField = must(
     $("#af-tuning-field", root),
     "#af-tuning-field",
@@ -170,31 +255,44 @@
     $<HTMLSelectElement>("#af-refpitch", root),
     "#af-refpitch",
   );
-  const autoButton = must($<HTMLButtonElement>("#af-auto", root), "#af-auto");
-  const startButton = must(
-    $<HTMLButtonElement>("#af-start", root),
-    "#af-start",
-  );
+  const statusEl = must($("#af-status", root), "#af-status");
   const display = must($("#af-display", root), "#af-display");
   const noteEl = must($("#af-note", root), "#af-note");
+  const centsValue = must($("#af-cents-value", root), "#af-cents-value");
   const subEl = must($("#af-sub", root), "#af-sub");
   const meter = must($("#af-meter", root), "#af-meter");
   const needle = must($("#af-needle", root), "#af-needle");
   const verdict = must($("#af-verdict", root), "#af-verdict");
-  const targetHintEl = must($("#af-target", root), "#af-target");
-  const stringsEl = must($("#af-strings", root), "#af-strings");
-  const refButton = must($<HTMLButtonElement>("#af-ref", root), "#af-ref");
+  const boardTitle = must($("#af-board-title", root), "#af-board-title");
+  const autoButton = must($<HTMLButtonElement>("#af-auto", root), "#af-auto");
   const resetButton = must(
     $<HTMLButtonElement>("#af-reset", root),
     "#af-reset",
   );
+  const stringsEl = must($("#af-strings", root), "#af-strings");
+  const startButton = must(
+    $<HTMLButtonElement>("#af-start", root),
+    "#af-start",
+  );
+  const startLabel = must($("#af-start-label", root), "#af-start-label");
+  const refButton = must($<HTMLButtonElement>("#af-ref", root), "#af-ref");
+  const signalDot = must($("#af-signal-dot", root), "#af-signal-dot");
   const levelBar = must($("#af-level", root), "#af-level");
+  const hintEl = must($("#af-hint", root), "#af-hint");
 
   // ── Estado ─────────────────────────────────────────────────────────
   interface WebkitWindow extends Window {
     webkitAudioContext?: typeof AudioContext;
   }
   type Mode = "guitar" | "chromatic";
+  type State = "idle" | "ok" | "low" | "high" | "listening";
+  const STATUS: Record<State, string> = {
+    idle: "Inactivo",
+    listening: "Escuchando",
+    ok: "Afinada",
+    low: "Baja",
+    high: "Alta",
+  };
   let mode: Mode = "guitar";
   let a4 = 440;
   let tuningIndex = 0;
@@ -241,34 +339,64 @@
   ).join("");
 
   function renderStrings(active: number | null = null): void {
-    targetHintEl.textContent =
-      mode === "guitar"
-        ? "Cuerda objetivo: toca una al aire o elige una para fijarla."
-        : "Tonalidad / nota objetivo: elige una nota o déjalo en automático.";
     lastHighlight = active;
     if (mode === "guitar") {
+      boardTitle.textContent = "Cuerdas";
       stringsEl.setAttribute("aria-label", "Cuerdas de la guitarra");
       stringsEl.innerHTML = strings()
         .map((s, i) => {
           const isDone = done.has(doneKey(i));
           return `<button type="button" class="af-str${active === i ? " is-active" : ""}${isDone ? " is-done" : ""}" data-i="${i}" aria-pressed="${manual === i}" aria-label="Cuerda ${s.number}, ${s.name}${isDone ? ", afinada" : ""}">
-        <small>${s.number}ª</small><b>${s.name}</b><span>${s.freq.toFixed(1)} Hz${isDone ? " ✓" : ""}</span></button>`;
+        <small class="af-str-num">${s.number}ª</small><b>${s.name}</b><span class="af-str-freq">${s.freq.toFixed(1)} Hz${isDone ? " ✓" : ""}</span></button>`;
         })
         .join("");
       return;
     }
 
+    boardTitle.textContent = "Notas";
     stringsEl.setAttribute("aria-label", "Notas para afinar");
     stringsEl.innerHTML = NOTES.map((name, pc) => {
       const isDone = done.has(doneKey(pc));
       const isSelected = targetPc === pc;
       return `<button type="button" class="af-str${active === pc ? " is-active" : ""}${isDone ? " is-done" : ""}" data-pc="${pc}" aria-pressed="${isSelected}" aria-label="${name}${isDone ? ", afinada" : ""}">
-        <b>${name}</b><span>${isDone ? "✓" : isSelected ? "objetivo" : "&nbsp;"}</span></button>`;
+        <b>${name}</b><span class="af-str-status">${isDone ? "✓" : isSelected ? "Objetivo" : "&nbsp;"}</span></button>`;
     }).join("");
   }
 
-  function setState(state: "idle" | "ok" | "low" | "high" | "listening"): void {
-    display.setAttribute("data-state", state);
+  function setHint(state: State): void {
+    if (state === "ok") {
+      hintEl.textContent =
+        mode === "guitar"
+          ? "¡Afinada! Puedes pasar a la siguiente cuerda."
+          : "¡Afinada! Puedes pasar a la siguiente nota.";
+    } else if (state === "low") {
+      hintEl.textContent =
+        mode === "guitar"
+          ? "La nota está baja: tensa la cuerda poco a poco."
+          : "La nota está baja: sube la afinación poco a poco.";
+    } else if (state === "high") {
+      hintEl.textContent =
+        mode === "guitar"
+          ? "La nota está alta: afloja la cuerda con cuidado."
+          : "La nota está alta: baja la afinación con cuidado.";
+    } else if (state === "listening") {
+      hintEl.textContent =
+        mode === "guitar"
+          ? "Toca una cuerda al aire o elige una para fijarla."
+          : "Toca una nota o elige la tonalidad que quieres afinar.";
+    } else {
+      hintEl.textContent =
+        mode === "guitar"
+          ? "Acerca el móvil a la guitarra, toca una sola cuerda y deja que suene."
+          : "Acerca el móvil al instrumento y toca una nota clara.";
+    }
+  }
+
+  function setState(state: State): void {
+    root.dataset.state = state;
+    display.dataset.state = state;
+    statusEl.textContent = STATUS[state];
+    setHint(state);
   }
 
   function setNeedle(cents: number | null): void {
@@ -283,10 +411,12 @@
     inTuneSince = 0;
     lowSignalSince = 0;
     noteEl.textContent = "—";
+    centsValue.textContent = "0";
     subEl.textContent = message;
     verdict.textContent = ctx ? "Escuchando…" : "Esperando micrófono…";
     meter.setAttribute("aria-valuetext", "Sin señal");
     setNeedle(null);
+    signalDot.dataset.signal = "low";
     setState(ctx ? "listening" : "idle");
     renderStrings(mode === "guitar" ? manual : null);
   }
@@ -301,6 +431,7 @@
     levelBar.style.width = `${Math.min(100, rms * 800)}%`;
     const strong = rms >= MIN_RMS;
     levelBar.dataset.signal = strong ? "ok" : "low";
+    signalDot.dataset.signal = strong ? "ok" : "low";
     const now = performance.now();
     if (now < ignoreUntil) return; // no analizar mientras suena la referencia
 
@@ -391,15 +522,17 @@
     lastTargetMidi = targetMidi;
     shown = shown === null ? cents : shown + (cents - shown) * 0.4;
     const rounded = Math.round(shown);
+    const name = noteName(noteMidi);
 
-    noteEl.textContent = noteName(noteMidi);
+    noteEl.textContent = name;
+    centsValue.textContent = String(rounded);
     subEl.textContent = targetLabel;
     setNeedle(shown);
 
     let text: string;
     if (Math.abs(shown) <= TOLERANCE) {
       setState("ok");
-      text = "✓ Afinada. ¡Perfecto!";
+      text = `✓ Afinada (${name}). ¡Perfecto!`;
       if (!inTuneSince) inTuneSince = now;
       if (now - inTuneSince > HOLD_MS && !done.has(doneKey(doneIndex))) {
         done.add(doneKey(doneIndex));
@@ -412,11 +545,11 @@
     } else if (shown < 0) {
       setState("low");
       inTuneSince = 0;
-      text = `▲ Está baja (${Math.abs(rounded)} cents): ${mode === "guitar" ? "aprieta la clavija" : "sube la afinación"}.${Math.abs(shown) > 50 ? " Estás lejos: gira poco a poco." : ""}`;
+      text = `▲ ${name} está baja (${Math.abs(rounded)} cents): ${mode === "guitar" ? "aprieta la clavija" : "sube la afinación"}.${Math.abs(shown) > 50 ? " Estás lejos: gira poco a poco." : ""}`;
     } else {
       setState("high");
       inTuneSince = 0;
-      text = `▼ Está alta (${rounded} cents): ${mode === "guitar" ? "afloja la clavija" : "bájala"}.${shown > 50 ? " Estás lejos: gira poco a poco." : ""}`;
+      text = `▼ ${name} está alta (${rounded} cents): ${mode === "guitar" ? "afloja la clavija" : "bájala"}.${shown > 50 ? " Estás lejos: gira poco a poco." : ""}`;
     }
     verdict.textContent = text + hint;
     meter.setAttribute(
@@ -434,7 +567,8 @@
     verdict.textContent = message;
     setState("idle");
     startButton.disabled = false;
-    startButton.textContent = "🎤 Activar micrófono";
+    startButton.setAttribute("aria-pressed", "false");
+    startLabel.textContent = "Activar micrófono";
   }
 
   async function start(): Promise<void> {
@@ -445,6 +579,7 @@
       return;
     }
     startButton.disabled = true;
+    startLabel.textContent = "Solicitando permiso…";
     verdict.textContent = "Solicitando permiso del micrófono…";
     try {
       const constraints: MediaStreamConstraints = {
@@ -482,8 +617,8 @@
       highpass.connect(analyser); // no se conecta a la salida: evita acople
       timer = window.setInterval(tick, 50);
       startButton.disabled = false;
-      startButton.textContent = "■ Detener";
       startButton.setAttribute("aria-pressed", "true");
+      startLabel.textContent = "Detener micrófono";
       resetReading();
     } catch (error) {
       stopCapture();
@@ -513,9 +648,11 @@
 
   function stop(): void {
     stopCapture();
-    startButton.textContent = "🎤 Activar micrófono";
     startButton.setAttribute("aria-pressed", "false");
+    startLabel.textContent = "Activar micrófono";
     levelBar.style.width = "0%";
+    levelBar.dataset.signal = "low";
+    signalDot.dataset.signal = "low";
     lastStringTarget = null;
     lastTargetMidi = null;
     resetReading(waitingMessage());
@@ -573,6 +710,51 @@
         : `Referencia: ${noteName(midi)} (${freq.toFixed(1)} Hz).`;
   }
 
+  // ── Hoja de ajustes (bottom sheet) ─────────────────────────────────
+  let lastFocus: Element | null = null;
+  let dragStartY: number | null = null;
+  let dragOffset = 0;
+
+  function openSheet(): void {
+    if (sheet.open) return;
+    lastFocus = document.activeElement;
+    sheet.showModal();
+  }
+
+  function closeSheet(): void {
+    if (!sheet.open) return;
+    sheet.close();
+  }
+
+  sheet.addEventListener("close", () => {
+    sheet.style.transform = "";
+    if (lastFocus instanceof HTMLElement) lastFocus.focus();
+    lastFocus = null;
+  });
+  sheet.addEventListener("click", (event) => {
+    if (event.target === sheet) closeSheet();
+  });
+  sheetBar.addEventListener("pointerdown", (event) => {
+    dragStartY = event.clientY;
+    sheetBar.setPointerCapture(event.pointerId);
+  });
+  sheetBar.addEventListener("pointermove", (event) => {
+    if (dragStartY === null) return;
+    dragOffset = Math.max(0, event.clientY - dragStartY);
+    sheet.style.transform = `translateY(${dragOffset}px)`;
+  });
+  sheetBar.addEventListener("pointerup", () => {
+    if (dragOffset > 80) closeSheet();
+    dragStartY = null;
+    dragOffset = 0;
+    sheet.style.transform = "";
+  });
+  sheetBar.addEventListener("pointercancel", () => {
+    dragStartY = null;
+    dragOffset = 0;
+    sheet.style.transform = "";
+  });
+
   // ── Eventos ────────────────────────────────────────────────────────
   function setMode(next: Mode): void {
     mode = next;
@@ -582,6 +764,8 @@
     lastTargetMidi = null;
     done = new Set();
     tuningField.hidden = mode !== "guitar";
+    modeGuitar.setAttribute("aria-pressed", String(mode === "guitar"));
+    modeChromatic.setAttribute("aria-pressed", String(mode === "chromatic"));
     autoButton.setAttribute("aria-pressed", "true");
     resetReading(ctx ? playMessage() : waitingMessage());
   }
@@ -590,9 +774,10 @@
     if (ctx) stop();
     else void start();
   });
-  modeSelect.addEventListener("change", () => {
-    setMode(modeSelect.value === "chromatic" ? "chromatic" : "guitar");
-  });
+  modeGuitar.addEventListener("click", () => setMode("guitar"));
+  modeChromatic.addEventListener("click", () => setMode("chromatic"));
+  settingsButton.addEventListener("click", openSheet);
+  sheetClose.addEventListener("click", closeSheet);
   tuningSelect.addEventListener("change", () => {
     tuningIndex = Number(tuningSelect.value);
     manual = null;
@@ -659,7 +844,8 @@
     if (ctx) stopCapture();
   });
 
-  modeSelect.value = mode;
+  modeGuitar.setAttribute("aria-pressed", "true");
+  modeChromatic.setAttribute("aria-pressed", "false");
   tuningField.hidden = mode !== "guitar";
   renderStrings();
   resetReading(waitingMessage());
@@ -667,106 +853,355 @@
 
 <style is:global>
   .afinador {
-    --af-ok: #16a34a;
+    --af-ok: #15803d;
     --af-low: #7c3aed;
-    --af-high: #ea580c;
+    --af-high: #c2410c;
+    --af-danger: #dc2626;
+    --af-surface-2: color-mix(in srgb, var(--bg) 72%, var(--card));
+    --af-shadow-1: 0 1px 2px rgb(36 31 26 / 0.08);
+    --af-shadow-2: 0 10px 30px rgb(36 31 26 / 0.14);
+    --af-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
     display: grid;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 14px;
+    padding: 18px;
     border: 1px solid var(--bd);
-    border-radius: 18px;
+    border-radius: 24px;
     background: var(--card);
+    box-shadow: var(--af-shadow-1);
   }
-  .afinador .af-top {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    align-items: flex-end;
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .afinador {
+      --af-ok: #4ade80;
+      --af-low: #a78bfa;
+      --af-high: #fb923c;
+      --af-danger: #f87171;
+      --af-shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+      --af-shadow-2: 0 10px 30px rgb(0 0 0 / 0.5);
+    }
   }
-  .afinador .af-field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    font-size: 0.8rem;
-    color: var(--mut);
+  :root[data-theme="dark"] .afinador {
+    --af-ok: #4ade80;
+    --af-low: #a78bfa;
+    --af-high: #fb923c;
+    --af-danger: #f87171;
+    --af-shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+    --af-shadow-2: 0 10px 30px rgb(0 0 0 / 0.5);
   }
   .afinador [hidden] {
     display: none !important;
   }
-  .afinador select,
-  .afinador button {
-    font: inherit;
-    color: var(--fg);
-    background: var(--bg);
-    border: 1px solid var(--bd);
-    border-radius: 12px;
-    padding: 0.5rem 0.8rem;
-    min-height: 44px;
-    cursor: pointer;
+
+  /* ── Cabecera ─────────────────────────────────────────────────── */
+  .afinador .af-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
-  .afinador button:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
+  .afinador .af-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .afinador .af-logo {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    font-size: 22px;
+    background: linear-gradient(
+      135deg,
+      var(--acc),
+      color-mix(in srgb, var(--acc) 55%, #ec4899)
+    );
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25);
+  }
+  .afinador .af-title-text {
+    min-width: 0;
+  }
+  .afinador .af-heading {
+    margin: 0;
+    font: 700 1.25rem/1.2 Georgia, "Times New Roman", serif;
+  }
+  .afinador .af-status {
+    display: inline-flex;
+    align-items: center;
+    margin: 3px 0 0;
+    padding: 2px 10px;
+    border: 1px solid var(--bd);
+    border-radius: 999px;
+    background: var(--af-surface-2);
+    color: var(--mut);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .afinador .af-status::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: var(--mut);
+  }
+  .afinador[data-state="listening"] .af-status {
+    color: var(--acc);
+    border-color: color-mix(in srgb, var(--acc) 40%, var(--bd));
+  }
+  .afinador[data-state="listening"] .af-status::before {
+    background: var(--acc);
+    animation: af-pulse 1.6s ease-in-out infinite;
+  }
+  .afinador[data-state="ok"] .af-status {
+    color: var(--af-ok);
+    border-color: color-mix(in srgb, var(--af-ok) 45%, var(--bd));
+  }
+  .afinador[data-state="ok"] .af-status::before {
+    background: var(--af-ok);
+  }
+  .afinador[data-state="low"] .af-status {
+    color: var(--af-low);
+    border-color: color-mix(in srgb, var(--af-low) 45%, var(--bd));
+  }
+  .afinador[data-state="low"] .af-status::before {
+    background: var(--af-low);
+  }
+  .afinador[data-state="high"] .af-status {
+    color: var(--af-high);
+    border-color: color-mix(in srgb, var(--af-high) 45%, var(--bd));
+  }
+  .afinador[data-state="high"] .af-status::before {
+    background: var(--af-high);
+  }
+  @keyframes af-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  /* ── Botones genéricos ────────────────────────────────────────── */
+  .afinador .af-iconbtn {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--bd);
+    border-radius: 14px;
+    background: var(--bg);
+    color: var(--fg);
+    cursor: pointer;
+    transition:
+      transform 0.12s var(--af-ease),
+      border-color 0.2s,
+      background 0.2s;
+  }
+  .afinador .af-iconbtn:hover {
+    border-color: var(--acc);
+  }
+  .afinador .af-iconbtn:active {
+    transform: scale(0.94);
+  }
+
+  /* ── Modo segmentado ──────────────────────────────────────────── */
+  .afinador .af-mode {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--bd);
+    border-radius: 16px;
+    background: var(--af-surface-2);
+  }
+  .afinador .af-seg {
+    min-height: 44px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--mut);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      background 0.18s var(--af-ease),
+      color 0.18s var(--af-ease),
+      transform 0.12s var(--af-ease);
+  }
+  .afinador .af-seg:hover {
+    color: var(--fg);
+  }
+  .afinador .af-seg:active {
+    transform: scale(0.97);
+  }
+  .afinador .af-seg[aria-pressed="true"] {
+    background: var(--card);
+    color: var(--fg);
+    box-shadow: var(--af-shadow-1);
+  }
+
+  /* ── Acciones principales ─────────────────────────────────────── */
+  .afinador .af-actions {
+    display: flex;
+    gap: 10px;
   }
   .afinador .af-primary {
+    flex: 1 1 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 54px;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 16px;
     background: var(--acc);
-    border-color: var(--acc);
     color: #fff;
-    font-weight: 700;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--acc) 32%, transparent);
+    transition:
+      transform 0.12s var(--af-ease),
+      background 0.2s,
+      box-shadow 0.2s;
   }
-  .afinador .af-chip[aria-pressed="true"] {
-    background: var(--acc2);
-    border-color: var(--acc);
+  .afinador .af-primary:hover {
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--acc) 40%, transparent);
   }
-  .afinador .af-privacy {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--mut);
+  .afinador .af-primary:active {
+    transform: scale(0.97);
   }
-  .afinador .af-target {
-    margin: 0;
-    font-size: 0.82rem;
-    color: var(--mut);
+  .afinador .af-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
   }
-  .afinador .af-display {
-    text-align: center;
-    padding: 1rem;
+  .afinador .af-primary[aria-pressed="true"] {
+    background: var(--af-danger);
+    box-shadow: 0 8px 20px color-mix(
+        in srgb,
+        var(--af-danger) 32%,
+        transparent
+      );
+  }
+  .afinador .af-start-icon {
+    font-size: 1.05rem;
+  }
+  .afinador .af-secondary {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 54px;
+    padding: 10px 16px;
+    border: 1px solid var(--bd);
     border-radius: 16px;
     background: var(--bg);
-    border: 2px solid var(--bd);
-    transition: border-color 0.2s;
+    color: var(--fg);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      transform 0.12s var(--af-ease),
+      border-color 0.2s;
   }
-  .afinador .af-display[data-state="ok"] {
-    border-color: var(--af-ok);
+  .afinador .af-secondary:hover {
+    border-color: var(--acc);
   }
-  .afinador .af-display[data-state="low"] {
-    border-color: var(--af-low);
+  .afinador .af-secondary:active {
+    transform: scale(0.97);
   }
-  .afinador .af-display[data-state="high"] {
-    border-color: var(--af-high);
+  @media (max-width: 420px) {
+    .afinador .af-actions {
+      flex-direction: column;
+    }
+    .afinador .af-secondary {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  /* ── Visualización ────────────────────────────────────────────── */
+  .afinador .af-display {
+    padding: 22px 16px 16px;
+    border: 1px solid var(--bd);
+    border-radius: 22px;
+    background: var(--bg);
+    text-align: center;
+    transition:
+      border-color 0.25s var(--af-ease),
+      box-shadow 0.25s var(--af-ease);
+  }
+  .afinador[data-state="ok"] .af-display {
+    border-color: color-mix(in srgb, var(--af-ok) 55%, var(--bd));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--af-ok) 14%, transparent);
+  }
+  .afinador[data-state="low"] .af-display {
+    border-color: color-mix(in srgb, var(--af-low) 55%, var(--bd));
+  }
+  .afinador[data-state="high"] .af-display {
+    border-color: color-mix(in srgb, var(--af-high) 55%, var(--bd));
+  }
+  .afinador .af-note-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   .afinador .af-note {
-    font:
-      700 3.4rem/1 Georgia,
-      serif;
     min-height: 1em;
+    font: 700 clamp(3.6rem, 17vw, 5.4rem) / 1 Georgia, "Times New Roman", serif;
+    letter-spacing: -0.03em;
+  }
+  .afinador .af-cents {
+    margin-top: 6px;
+    font: 700 1rem/1 system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    color: var(--mut);
+  }
+  .afinador[data-state="ok"] .af-note {
+    color: var(--af-ok);
+  }
+  .afinador[data-state="low"] .af-note {
+    color: var(--af-low);
+  }
+  .afinador[data-state="high"] .af-note {
+    color: var(--af-high);
   }
   .afinador .af-sub {
-    margin: 0.3rem 0 0.4rem;
+    margin: 8px auto 0;
+    max-width: 46ch;
     color: var(--mut);
-    font-size: 0.88rem;
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
   }
   .afinador .af-meter {
     width: 100%;
-    max-width: 480px;
+    max-width: 460px;
     height: auto;
+    margin-top: 6px;
+    overflow: visible;
   }
   .afinador .af-track {
     fill: var(--bd);
   }
-  .afinador .af-zone {
+  .afinador .af-zone-low {
+    fill: var(--af-low);
+    opacity: 0.22;
+  }
+  .afinador .af-zone-high {
+    fill: var(--af-high);
+    opacity: 0.22;
+  }
+  .afinador .af-zone-ok {
     fill: var(--af-ok);
-    opacity: 0.45;
+    opacity: 0.35;
   }
   .afinador .af-ticks line {
     stroke: var(--mut);
@@ -783,116 +1218,294 @@
   .afinador .af-needle circle {
     fill: var(--fg);
   }
-  .afinador .af-display[data-state="ok"] .af-needle line,
-  .afinador .af-display[data-state="ok"] .af-needle circle {
+  .afinador[data-state="ok"] .af-needle line {
     stroke: var(--af-ok);
+  }
+  .afinador[data-state="ok"] .af-needle circle {
     fill: var(--af-ok);
   }
-  .afinador .af-display[data-state="low"] .af-needle circle {
+  .afinador[data-state="low"] .af-needle circle {
     fill: var(--af-low);
   }
-  .afinador .af-display[data-state="high"] .af-needle circle {
+  .afinador[data-state="high"] .af-needle circle {
     fill: var(--af-high);
   }
   .afinador .af-lbl {
     fill: var(--mut);
-    font:
-      600 11px system-ui,
-      sans-serif;
+    font: 600 10px system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  .afinador .af-lbl-unit {
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
   .afinador .af-verdict {
-    margin: 0.4rem 0 0;
-    font-weight: 700;
+    margin: 10px 0 0;
     min-height: 2.6em;
+    font-weight: 700;
   }
-  .afinador .af-display[data-state="ok"] .af-verdict {
+  .afinador[data-state="ok"] .af-verdict {
     color: var(--af-ok);
   }
-  .afinador .af-display[data-state="low"] .af-verdict {
+  .afinador[data-state="low"] .af-verdict {
     color: var(--af-low);
   }
-  .afinador .af-display[data-state="high"] .af-verdict {
+  .afinador[data-state="high"] .af-verdict {
     color: var(--af-high);
+  }
+
+  /* ── Rejilla de cuerdas / notas ───────────────────────────────── */
+  .afinador .af-board-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .afinador .af-board-title {
+    margin: 0;
+    font: 700 0.95rem/1.2 system-ui, sans-serif;
+  }
+  .afinador .af-board-tools {
+    display: flex;
+    gap: 6px;
+  }
+  .afinador .af-chip {
+    min-height: 36px;
+    padding: 4px 12px;
+    border: 1px solid var(--bd);
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--mut);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      transform 0.12s var(--af-ease),
+      border-color 0.2s,
+      background 0.2s,
+      color 0.2s;
+  }
+  .afinador .af-chip:hover {
+    border-color: var(--acc);
+    color: var(--fg);
+  }
+  .afinador .af-chip:active {
+    transform: scale(0.96);
+  }
+  .afinador .af-chip[aria-pressed="true"] {
+    background: var(--acc);
+    border-color: var(--acc);
+    color: #fff;
   }
   .afinador .af-strings {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 0.4rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  @media (min-width: 640px) {
+    .afinador .af-strings {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
   }
   .afinador .af-str {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.1rem;
-    padding: 0.55rem 0.2rem;
+    justify-content: center;
+    gap: 2px;
+    min-height: 66px;
+    padding: 8px 6px;
+    border: 1px solid var(--bd);
+    border-radius: 16px;
+    background: var(--card);
+    color: var(--fg);
+    font: inherit;
+    cursor: pointer;
+    transition:
+      transform 0.12s var(--af-ease),
+      border-color 0.2s,
+      background 0.2s,
+      box-shadow 0.2s;
   }
-  .afinador .af-str small {
+  .afinador .af-str:hover {
+    border-color: var(--acc);
+  }
+  .afinador .af-str:active {
+    transform: scale(0.96);
+  }
+  .afinador .af-str-num {
+    font-size: 0.66rem;
+    font-weight: 700;
     color: var(--mut);
   }
   .afinador .af-str b {
-    font-size: 1.15rem;
+    font: 700 1.2rem/1.1 Georgia, "Times New Roman", serif;
   }
-  .afinador .af-str span {
+  .afinador .af-str-freq {
     font-size: 0.68rem;
+    color: var(--mut);
+    font-variant-numeric: tabular-nums;
+  }
+  .afinador .af-str-status {
+    min-height: 1em;
+    font-size: 0.68rem;
+    font-weight: 700;
     color: var(--mut);
   }
   .afinador .af-str.is-active {
     border-color: var(--acc);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--acc) 30%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 18%, transparent);
   }
   .afinador .af-str.is-done {
-    background: color-mix(in srgb, var(--af-ok) 18%, var(--bg));
-    border-color: var(--af-ok);
+    border-color: color-mix(in srgb, var(--af-ok) 60%, var(--bd));
+    background: color-mix(in srgb, var(--af-ok) 10%, var(--card));
+  }
+  .afinador .af-str.is-done .af-str-status,
+  .afinador .af-str.is-done .af-str-freq {
+    color: var(--af-ok);
   }
   .afinador .af-str[aria-pressed="true"] {
     outline: 2px solid var(--fg);
-    outline-offset: 1px;
+    outline-offset: 2px;
   }
-  .afinador .af-bottom {
+
+  /* ── Señal y ayuda ────────────────────────────────────────────── */
+  .afinador .af-signal {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
     align-items: center;
-    justify-content: space-between;
+    gap: 10px;
   }
-  .afinador .af-level {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    font-size: 0.8rem;
+  .afinador .af-signal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--mut);
+    transition:
+      background 0.2s,
+      box-shadow 0.2s;
+  }
+  .afinador .af-signal-dot[data-signal="ok"] {
+    background: var(--af-ok);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--af-ok) 18%, transparent);
+  }
+  .afinador .af-signal-label {
+    font-size: 0.75rem;
+    font-weight: 700;
     color: var(--mut);
-    flex: 1 1 140px;
   }
   .afinador .af-bar {
     flex: 1;
     height: 8px;
-    border-radius: 99px;
+    border-radius: 999px;
     background: var(--bd);
     overflow: hidden;
   }
   .afinador .af-bar i {
     display: block;
-    height: 100%;
     width: 0;
+    height: 100%;
+    border-radius: inherit;
     background: var(--acc);
-    transition: width 0.08s linear;
+    transition:
+      width 0.08s linear,
+      background 0.2s;
   }
   .afinador .af-bar i[data-signal="ok"] {
     background: var(--af-ok);
   }
-  @media (max-width: 520px) {
-    .afinador .af-strings {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .afinador .af-note {
-      font-size: 2.8rem;
+  .afinador .af-hint {
+    margin: 0;
+    color: var(--mut);
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  .afinador .af-privacy {
+    margin: 0;
+    color: var(--mut);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+
+  /* ── Hoja de ajustes (bottom sheet) ───────────────────────────── */
+  .afinador .af-sheet {
+    width: min(100% - 24px, 480px);
+    max-height: 85dvh;
+    margin: auto auto 0;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 24px 24px 0 0;
+    background: var(--card);
+    color: var(--fg);
+    box-shadow: 0 -16px 50px rgb(0 0 0 / 0.28);
+  }
+  .afinador .af-sheet::backdrop {
+    background: rgb(20 15 10 / 0.5);
+    backdrop-filter: blur(3px);
+  }
+  .afinador .af-sheet-bar {
+    width: 44px;
+    height: 5px;
+    margin: 10px auto 0;
+    border-radius: 999px;
+    background: var(--bd);
+    cursor: grab;
+    touch-action: none;
+  }
+  .afinador .af-sheet-bar:active {
+    cursor: grabbing;
+  }
+  .afinador .af-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 12px 4px 18px;
+  }
+  .afinador .af-sheet-title {
+    margin: 0;
+    font: 700 1.1rem/1.2 Georgia, "Times New Roman", serif;
+  }
+  .afinador .af-sheet-body {
+    padding: 8px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+  }
+  .afinador .af-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--mut);
+  }
+  .afinador .af-field select {
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--bd);
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    font-weight: 500;
+  }
+  @media (min-width: 640px) {
+    .afinador .af-sheet {
+      margin: auto;
+      border-radius: 24px;
     }
   }
+
   @media (prefers-reduced-motion: reduce) {
     .afinador .af-needle,
     .afinador .af-display,
-    .afinador .af-bar i {
+    .afinador .af-bar i,
+    .afinador .af-status::before {
       transition: none;
+      animation: none;
     }
   }
 </style>

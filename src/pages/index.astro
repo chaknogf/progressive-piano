@@ -63,25 +63,359 @@ import QuickListen from "../components/QuickListen.astro";
     ciudad (tonalidad), cambia la dirección postal, pero el recorrido puede
     conservar la misma forma.
   </p>
-  <div class="grid">
-    <div class="cd">
-      <span class="tg">Dirección exacta · C, Am, F</span>
-      <h3>El acorde tiene notas y un sonido propios</h3>
-      <p>
-        En el piano, C es Do–Mi–Sol. En guitarra, es una forma concreta de
-        colocar los dedos. El nombre no cambia aunque el acorde ocupe otro lugar
-        en una canción.
-      </p>
+  <div class="degrees" aria-label="Dos formas de mirar una progresión">
+    <div class="degrees-grid">
+      <article class="degrees-card">
+        <header class="degrees-card-head">
+          <span class="degrees-tag">Dirección exacta</span>
+          <span class="degrees-emoji" aria-hidden="true">🎯</span>
+        </header>
+        <h3 class="degrees-title">El acorde tiene notas y un sonido propios</h3>
+        <p class="degrees-text">
+          En el piano, Do es Do–Mi–Sol. En guitarra, una forma concreta de
+          colocar los dedos: el nombre no cambia aunque el acorde ocupe otro
+          lugar en la canción.
+        </p>
+        <div class="degrees-chips">
+          <span class="degrees-chip">Do <small>Do–Mi–Sol</small></span>
+          <span class="degrees-chip">Am <small>La–Do–Mi</small></span>
+          <span class="degrees-chip">F <small>Fa–La–Do</small></span>
+        </div>
+      </article>
+
+      <article class="degrees-card degrees-card--map">
+        <header class="degrees-card-head">
+          <span class="degrees-tag">Coordenadas</span>
+          <span class="degrees-emoji" aria-hidden="true">🧭</span>
+        </header>
+        <h3 class="degrees-title">El grado es función, no un nombre fijo</h3>
+        <p class="degrees-text">
+          Los 7 grados numeran los puestos de la escala. Mayúsculas = mayores,
+          minúsculas = menores y ° = disminuido.
+        </p>
+        <div
+          class="degree-ladder"
+          role="list"
+          aria-label="Grados de la escala en Do mayor"
+        >
+          <span class="degree degree--tonic is-hit" role="listitem"><b>I</b
+            ><small>Do</small></span
+          >
+          <span class="degree degree--sub" role="listitem"><b>ii</b
+            ><small>Re</small></span
+          >
+          <span class="degree degree--tonic" role="listitem"><b>iii</b
+            ><small>Mi</small></span
+          >
+          <span class="degree degree--sub is-hit" role="listitem"><b>IV</b
+            ><small>Fa</small></span
+          >
+          <span class="degree degree--dom is-hit" role="listitem"><b>V</b
+            ><small>Sol</small></span
+          >
+          <span class="degree degree--tonic is-hit" role="listitem"><b>vi</b
+            ><small>La</small></span
+          >
+          <span class="degree degree--dom" role="listitem"><b>vii°</b
+            ><small>Si</small></span
+          >
+        </div>
+        <div class="degree-legend">
+          <span><i></i>Tónica · casa</span>
+          <span><i class="sub"></i>Subdominante · abre</span>
+          <span><i class="dom"></i>Dominante · empuja</span>
+          <span><i class="hit"></i>I–V–vi–IV</span>
+        </div>
+        <p class="degrees-footnote">
+          Conocer la función de cada grado te deja analizar, transponer y
+          componer en cualquier tonalidad.
+        </p>
+      </article>
     </div>
-    <div class="cd">
-      <span class="tg">Coordenadas · I, vi, IV</span>
-      <h3>El grado describe el papel dentro de la escala</h3>
-      <p>
-        En Do mayor, I–vi–IV es C–Am–F. En Sol mayor, las mismas coordenadas son
-        G–Em–C. Cambian los nombres; el molde y el recorrido se mantienen.
+
+    <div class="degrees-transpose">
+      <p class="degrees-transpose-title">
+        <span aria-hidden="true">↻</span> El mismo mapa, otra tonalidad
       </p>
+      <div class="degrees-transpose-rows">
+        <div class="degrees-transpose-row">
+          <span class="degrees-key">Do</span>
+          <span class="degrees-formula">I–V–vi–IV</span>
+          <span class="degrees-result">C–G–Am–F</span>
+        </div>
+        <div class="degrees-transpose-row">
+          <span class="degrees-key">Re</span>
+          <span class="degrees-formula">I–V–vi–IV</span>
+          <span class="degrees-result">D–A–Bm–G</span>
+        </div>
+      </div>
     </div>
   </div>
+
+  <style>
+    .degrees {
+      --deg-tonic: #15803d;
+      --deg-sub: #d97706;
+      --deg-dom: #dc2626;
+      margin: 18px 0;
+      padding: 18px;
+      border: 1px solid var(--bd);
+      border-radius: 24px;
+      background: var(--card);
+      box-shadow: 0 1px 2px rgb(36 31 26 / 0.08);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .degrees {
+        --deg-tonic: #4ade80;
+        --deg-sub: #fbbf24;
+        --deg-dom: #f87171;
+      }
+    }
+    :root[data-theme="dark"] .degrees {
+      --deg-tonic: #4ade80;
+      --deg-sub: #fbbf24;
+      --deg-dom: #f87171;
+    }
+    .degrees-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 14px;
+    }
+    @media (max-width: 760px) {
+      .degrees-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .degrees-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 16px;
+      border: 1px solid var(--bd);
+      border-radius: 18px;
+      background: var(--bg);
+    }
+    .degrees-card--map {
+      border-color: color-mix(in srgb, var(--acc) 25%, var(--bd));
+      background:
+        radial-gradient(
+          120% 120% at 100% 0%,
+          color-mix(in srgb, var(--acc) 12%, transparent),
+          transparent 55%
+        ),
+        var(--bg);
+    }
+    .degrees-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .degrees-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--acc2);
+      color: var(--acc);
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .degrees-emoji {
+      font-size: 1.2rem;
+    }
+    .degrees-title {
+      margin: 0;
+      font: 700 1.15rem/1.25 Georgia, "Times New Roman", serif;
+    }
+    .degrees-text {
+      margin: 0;
+      color: var(--mut);
+      font-size: 0.9rem;
+    }
+    .degrees-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: auto;
+    }
+    .degrees-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      background: var(--card);
+      font-weight: 700;
+    }
+    .degrees-chip small {
+      color: var(--mut);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .degree-ladder {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .degree {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 10px 2px 8px;
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      background: var(--card);
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+      text-align: center;
+    }
+    .degree b {
+      font: 700 1.05rem/1.1 Georgia, "Times New Roman", serif;
+    }
+    .degree small {
+      color: var(--mut);
+      font-size: 0.62rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .degree--tonic {
+      background: color-mix(in srgb, var(--deg-tonic) 12%, var(--card));
+      border-color: color-mix(in srgb, var(--deg-tonic) 40%, var(--bd));
+    }
+    .degree--sub {
+      background: color-mix(in srgb, var(--deg-sub) 12%, var(--card));
+      border-color: color-mix(in srgb, var(--deg-sub) 40%, var(--bd));
+    }
+    .degree--dom {
+      background: color-mix(in srgb, var(--deg-dom) 12%, var(--card));
+      border-color: color-mix(in srgb, var(--deg-dom) 40%, var(--bd));
+    }
+    .degree.is-hit {
+      box-shadow:
+        0 0 0 2px color-mix(in srgb, var(--acc) 55%, transparent),
+        0 1px 2px rgb(0 0 0 / 0.05);
+    }
+    .degree-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin-top: 4px;
+      color: var(--mut);
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .degree-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .degree-legend i {
+      width: 9px;
+      height: 9px;
+      border-radius: 3px;
+      background: var(--deg-tonic);
+    }
+    .degree-legend i.sub {
+      background: var(--deg-sub);
+    }
+    .degree-legend i.dom {
+      background: var(--deg-dom);
+    }
+    .degree-legend i.hit {
+      background: transparent;
+      box-shadow: 0 0 0 2px var(--acc);
+    }
+    .degrees-footnote {
+      margin: auto 0 0;
+      color: var(--mut);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+    .degrees-transpose {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px dashed color-mix(in srgb, var(--acc) 35%, var(--bd));
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--acc2) 45%, var(--card));
+    }
+    .degrees-transpose-title {
+      margin: 0 0 10px;
+      color: var(--acc);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+    .degrees-transpose-rows {
+      display: grid;
+      gap: 8px;
+    }
+    .degrees-transpose-row {
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      background: var(--card);
+      font-size: 0.88rem;
+    }
+    .degrees-key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 30px;
+      border-radius: 9px;
+      background: var(--acc);
+      color: #fff;
+      font-weight: 800;
+    }
+    .degrees-formula {
+      color: var(--mut);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .degrees-result {
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    @media (max-width: 480px) {
+      .degrees {
+        padding: 14px;
+      }
+      .degree {
+        padding: 8px 1px 6px;
+      }
+      .degree b {
+        font-size: 0.95rem;
+      }
+      .degree small {
+        font-size: 0.56rem;
+      }
+      .degrees-transpose-row {
+        grid-template-columns: 44px 1fr;
+        grid-template-areas:
+          "key formula"
+          "key result";
+        row-gap: 2px;
+      }
+      .degrees-key {
+        grid-area: key;
+        width: 38px;
+        height: 44px;
+      }
+      .degrees-formula {
+        grid-area: formula;
+      }
+      .degrees-result {
+        grid-area: result;
+      }
+    }
+  </style>
   <ChordsByKey />
   <Transposer />
   <details class="box">
