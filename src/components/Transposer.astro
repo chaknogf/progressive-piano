@@ -3,6 +3,7 @@
 <div class="box tool" id="transposer">
   <h3>Transpositor</h3>
   <div class="row">
+    <label>Escala <select id="transpose-mode"><option value="major">Mayor</option><option value="minor">Menor natural</option></select></label>
     <label>Tonalidad <select id="key"></select></label>
     <label>Progresión
       <select id="pre">
@@ -18,47 +19,86 @@
   <div class="v"></div>
 </div>
 <script>
-  import { FLAT_NAMES, displayNote } from '../lib/theory';
+  import { DIATONIC_KEYS, diatonicChords, pitchClass, type ScaleMode } from '../lib/theory';
+  import { displayNote } from '../lib/theory';
   import { $, must } from '../lib/dom';
 
-  const SCALE_STEPS = [0, 2, 4, 5, 7, 9, 11];
-  const DEGREE_INDEX: Record<string, number> = {
-    I: 0, II: 1, III: 2, IV: 3, V: 4, VI: 5, VII: 6,
+  const PATTERNS: Record<ScaleMode, string[]> = {
+    major: ['I – V – vi – IV', 'vi – IV – I – V', 'I – vi – IV – V', 'ii – V – I'],
+    minor: ['i – VI – III – VII', 'i – VII – VI – V', 'i – iv – VII – III', 'ii° – v – i'],
   };
 
-  function chordForDegree(degree: string, key: number): string {
-    const match = /^(♭?)([ivIV]+)$/.exec(degree.trim());
-    if (!match) return 'C';
-    const step = SCALE_STEPS[DEGREE_INDEX[match[2].toUpperCase()] ?? 0];
-    const offset = step - (match[1] ? 1 : 0);
-    const root = FLAT_NAMES[((key + offset) % 12 + 12) % 12];
-    return root + (match[2] === match[2].toLowerCase() ? 'm' : '');
-  }
-
   const keySelect = must($<HTMLSelectElement>('#key'), '#key');
+  const modeSelect = must($<HTMLSelectElement>('#transpose-mode'), '#transpose-mode');
   const progressionSelect = must($<HTMLSelectElement>('#pre'), '#pre');
   const degreesLabel = must($('#degs'), '#degs');
   const chips = must($('#tr'), '#tr');
   const transposer = must(document.getElementById('transposer'), '#transposer');
   const view = must($('.v', transposer), '.v');
 
-  keySelect.innerHTML = FLAT_NAMES.map((name, index) => `<option value="${index}">${displayNote(name)} mayor</option>`).join('');
+  let currentMode: ScaleMode = 'major';
+  let currentKey = 'C';
 
-  function render(): void {
-    const key = Number(keySelect.value);
+  function updateKeys(): void {
+    keySelect.innerHTML = DIATONIC_KEYS[currentMode]
+      .map((key) => `<option value="${key}">${displayNote(key)}</option>`)
+      .join('');
+    keySelect.value = currentKey;
+  }
+
+  function updatePatterns(): void {
+    const previous = progressionSelect.value;
+    progressionSelect.innerHTML = PATTERNS[currentMode]
+      .map((pattern) => `<option>${pattern}</option>`)
+      .join('');
+    if (PATTERNS[currentMode].includes(previous)) progressionSelect.value = previous;
+  }
+
+  function render(announce = false): void {
+    currentKey = keySelect.value;
+    const scale = diatonicChords(currentKey, currentMode);
     const label = progressionSelect.value;
     const degrees = label.split(/\s*–\s*/);
     degreesLabel.textContent = label;
     chips.innerHTML = degrees
       .map((degree) => {
-        const chord = chordForDegree(degree, key);
-        return `<button class="ch" type="button" data-n="${chord}">${displayNote(chord)}</button>`;
+        const chord = scale.find((item) => item.degree === degree);
+        if (!chord) return '';
+        return `<button class="ch" type="button" data-n="${chord.id}">${degree} · ${displayNote(chord.name)}</button>`;
       })
       .join('');
     view.innerHTML = '';
+    if (announce) {
+      window.dispatchEvent(new CustomEvent('progressive:tonality-change', {
+        detail: { tonic: currentKey, mode: currentMode },
+      }));
+    }
   }
 
-  keySelect.addEventListener('change', render);
-  progressionSelect.addEventListener('change', render);
+  modeSelect.addEventListener('change', () => {
+    const oldPitch = pitchClass(currentKey);
+    currentMode = modeSelect.value as ScaleMode;
+    currentKey = DIATONIC_KEYS[currentMode].find((key) => pitchClass(key) === oldPitch)
+      ?? (currentMode === 'major' ? 'C' : 'A');
+    updateKeys();
+    updatePatterns();
+    render(true);
+  });
+  keySelect.addEventListener('change', () => render(true));
+  progressionSelect.addEventListener('change', () => render());
+
+  window.addEventListener('progressive:tonality-change', (event) => {
+    const detail = (event as CustomEvent<{ tonic: string; mode: ScaleMode }>).detail;
+    if (!detail || !DIATONIC_KEYS[detail.mode].includes(detail.tonic)) return;
+    currentMode = detail.mode;
+    currentKey = detail.tonic;
+    modeSelect.value = currentMode;
+    updateKeys();
+    updatePatterns();
+    render();
+  });
+
+  updateKeys();
+  updatePatterns();
   render();
 </script>

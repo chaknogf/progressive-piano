@@ -90,6 +90,7 @@ h1 {
   h1 { font-size: clamp(2rem, 10vw, 2.7rem); }
   .subtitle { font-size: 1.05rem; }
   .lead { font-size: 0.98rem; line-height: 1.55; }
+  .learning-route ol { grid-template-columns: 1fr 1fr; }
   nav {
     position: fixed;
     z-index: 20;
@@ -139,6 +140,42 @@ h4 {
   color: var(--mut);
   font-size: 1.05rem;
 }
+.learning-route {
+  margin: 18px 0 22px;
+  padding: 14px 16px;
+  border: 1px solid var(--bd);
+  border-left: 3px solid var(--acc);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 82%, var(--acc) 5%);
+}
+.learning-route > b { display: block; margin-bottom: 8px; }
+.learning-route ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 18px;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--mut);
+  font-size: 0.9rem;
+}
+.learning-route li b { color: var(--fg); }
+.lesson-goal {
+  margin-top: -0.7em;
+  color: var(--mut);
+  font-size: 0.92rem;
+}
+.lesson-level {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 4px 9px;
+  border: 1px solid var(--bd);
+  border-radius: 999px;
+  color: var(--mut);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.4;
+  vertical-align: middle;
+}
 .subtitle {
   color: var(--mut);
   font-size: 1.2rem;
@@ -183,20 +220,31 @@ nav {
   scroll-snap-type: x proximity;
 }
 .nav-scroller::-webkit-scrollbar { display: none; }
+.nav-level {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 5px;
+  padding: 2px 8px 4px 0;
+  scroll-snap-align: start;
+}
+.nav-level + .nav-level { border-left: 1px solid var(--bd); padding-left: 10px; }
+.nav-level-title {
+  padding-left: 3px;
+  color: var(--mut);
+  font-size: 0.69rem;
+  font-weight: 800;
+}
+.nav-level-links { display: flex; gap: 6px; }
 .nav-scroller button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   flex: 0 0 auto;
-  min-height: 42px;
-  padding: 7px 13px 7px 9px;
+  min-height: 36px;
+  padding: 6px 11px;
   border-radius: 12px;
   white-space: nowrap;
-  scroll-snap-align: start;
-}
-.nav-index {
-  color: var(--mut);
-  font: 0.68rem/1 "SFMono-Regular", Consolas, monospace;
 }
 .nav-scroller button.is-active {
   color: #fff;
@@ -217,6 +265,7 @@ select {
 button:hover {
   border-color: var(--acc);
 }
+[hidden] { display: none !important; }
 .on,
 button.on {
   background: var(--acc);
@@ -234,6 +283,16 @@ button.on {
   border: 1px solid var(--bd);
   border-radius: 14px;
   padding: 16px;
+}
+.level-badge {
+  display: inline-flex;
+  margin-top: 10px;
+  padding: 4px 9px;
+  border: 1px solid var(--bd);
+  border-radius: 999px;
+  color: var(--mut);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 .box {
   margin: 14px 0;

@@ -26,53 +26,62 @@ import Afinador from "../components/Afinador.astro";
   </h1>
   <h2 class="subtitle">{SITE_SUBTITLE}</h2>
   <p class="lead">
-    De los años 80 a hoy: pop, rock, clásica, electrónica, latina, jazz y
-    baladas. Todo en Do mayor (C) o La menor (Am) para practicar en piano y
-    guitarra. Toca cualquier acorde para ver su teclado y su diagrama de
-    guitarra, y escúchalo.
+    No necesitas saber teoría ni haber tocado antes: empieza por escuchar, mira
+    qué notas forman cada sonido y prueba a tocarlas. Avanza a tu ritmo en piano
+    y guitarra, desde los primeros acordes hasta crear tus propias ideas.
   </p>
+  <aside class="learning-route" aria-label="Método de aprendizaje recomendado">
+    <b>Una forma fácil de aprender</b>
+    <ol>
+      <li>
+        <b>Escucha:</b> reconoce si el sonido descansa, avanza o crea tensión.
+      </li>
+      <li>
+        <b>Mira:</b> observa qué notas suenan en el teclado o en los trastes.
+      </li>
+      <li><b>Prueba:</b> cambia una nota o un acorde y vuelve a escuchar.</li>
+      <li><b>Recuerda:</b> explica con tus palabras qué cambió y por qué.</li>
+    </ol>
+  </aside>
   <Nav />
 
-  <h2 id="s1">1. Cómo leer una progresión</h2>
-  <p>
-    Hay dos maneras complementarias de escribir una progresión. Los nombres de
-    acordes —C, Am, F, G— indican notas concretas. Los números romanos describen
-    la posición de cada acorde dentro de la escala, así que una misma secuencia
-    se puede tocar en distintas tonalidades.
+  <h2 id="s1">
+    1. Cómo leer una progresión <span class="lesson-level">Inicial⭐️</span>
+  </h2>
+  <p class="lesson-goal">
+    Al terminar, podrás leer una secuencia aunque cambie de tonalidad y
+    encontrar sus acordes en el transpositor.
   </p>
-  <h3>Dos secuencias que lo explican todo</h3>
   <p>
-    Casi cualquier progresión puede leerse a partir de dos patrones de
-    calidades. Si los recuerdas, puedes encontrar los acordes que corresponden a
-    cada grado en cualquier tonalidad.
+    Piensa en la música como en un mapa. <b
+      >C, Am y F son direcciones postales</b
+    >: nombres concretos que te llevan a notas concretas. <b
+      >I, vi y IV son coordenadas</b
+    >: describen el lugar de cada acorde dentro de una escala. Si cambias de
+    ciudad (tonalidad), cambia la dirección postal, pero el recorrido puede
+    conservar la misma forma.
   </p>
   <div class="grid">
     <div class="cd">
-      <span class="tg">Escala mayor</span>
+      <span class="tg">Dirección exacta · C, Am, F</span>
+      <h3>El acorde tiene notas y un sonido propios</h3>
       <p>
-        <b>I</b> mayor · <b>ii</b> menor · <b>iii</b> menor · <b>IV</b> mayor · <b
-          >V</b
-        > mayor · <b>vi</b> menor · <b>vii°</b> disminuido
+        En el piano, C es Do–Mi–Sol. En guitarra, es una forma concreta de
+        colocar los dedos. El nombre no cambia aunque el acorde ocupe otro lugar
+        en una canción.
       </p>
-      <p class="mut">Calidades: M · m · m · M · M · m · dim</p>
     </div>
     <div class="cd">
-      <span class="tg">Menor natural</span>
+      <span class="tg">Coordenadas · I, vi, IV</span>
+      <h3>El grado describe el papel dentro de la escala</h3>
       <p>
-        <b>i</b> menor · <b>ii°</b> disminuido · <b>III</b> mayor · <b>iv</b> menor
-        · <b>v</b> menor · <b>VI</b> mayor · <b>VII</b> mayor
+        En Do mayor, I–vi–IV es C–Am–F. En Sol mayor, las mismas coordenadas son
+        G–Em–C. Cambian los nombres; el molde y el recorrido se mantienen.
       </p>
-      <p class="mut">Calidades: m · dim · M · m · m · M · M</p>
     </div>
   </div>
-  <p>
-    En Do mayor: <b>C, Dm, Em, F, G, Am, Bdim</b>. En La menor natural:
-    <b>Am, Bdim, C, Dm, Em, F, G</b>. Son los mismos siete acordes en otro
-    orden: La menor empieza en el sexto grado de Do mayor y es su tonalidad
-    relativa.
-  </p>
-  <Transposer />
   <ChordsByKey />
+  <Transposer />
   <details class="box">
     <summary><b>Nota sobre la escala menor</b></summary>
     <p>
@@ -137,7 +146,12 @@ import Afinador from "../components/Afinador.astro";
     });
   </script>
 
-  <h2 id="s2">2. Los siete grados de Do mayor</h2>
+  <h2 id="s2">
+    2. Los siete grados de Do mayor <span class="lesson-level">Inicial⭐️</span>
+  </h2>
+  <p class="lesson-goal">
+    Meta: escuchar y reconocer los siete acordes que nacen de una escala mayor.
+  </p>
   <p>
     Una tríada son tres notas apiladas: fundamental, tercera y quinta. Cada nota
     de la escala de Do mayor construye un acorde: son los siete grados. I, IV y
@@ -147,10 +161,26 @@ import Afinador from "../components/Afinador.astro";
   <BaseChords />
   <CircleOfFifths />
 
-  <h2 id="s3">3. Catálogo de progresiones</h2>
+  <h2 id="s3">
+    4. Catálogo de progresiones <span class="lesson-level"
+      >Inicial⭐️ · todos los niveles</span
+    >
+  </h2>
+  <p class="lesson-goal">
+    Empieza con cuatro acordes. Filtra por nivel, escucha el recorrido y luego
+    prueba a cambiar el orden.
+  </p>
   <ProgressionCatalog />
 
-  <h2 id="s4">4. Inversiones y conducción de voces</h2>
+  <h2 id="s4">
+    5. Inversiones y conducción de voces <span class="lesson-level"
+      >Intermedio ⭐️⭐️</span
+    >
+  </h2>
+  <p class="lesson-goal">
+    Meta: enlazar acordes moviendo pocas notas y manteniendo la mano en una zona
+    cómoda.
+  </p>
   <p>
     Las inversiones evitan que el piano suene como bloques rígidos: la mano se
     queda en una zona cómoda y solo se mueve lo mínimo. Según la nota que pongas
@@ -175,14 +205,29 @@ import Afinador from "../components/Afinador.astro";
     zona media/aguda, en bloque o arpegio. Así no saturas los graves.
   </div>
 
-  <h2 id="s5">5. Ejercicio: arpegios con mínima distancia</h2>
+  <h2 id="s5">
+    6. Ejercicio: arpegios con mínima distancia <span class="lesson-level"
+      >Intermedio ⭐️⭐️</span
+    >
+  </h2>
+  <p class="lesson-goal">
+    Practica pulso constante y cambios pequeños entre las notas de cada acorde.
+  </p>
   <p>
     Progresión I – vi – IV – V (C – Am – F – G). Mano izquierda: solo la raíz,
     una octava abajo. Mano derecha: las inversiones de abajo, sin saltos.
   </p>
   <Exercise />
 
-  <h2 id="s6">6. Emociones: modos y tonalidades</h2>
+  <h2 id="s6">
+    7. Emociones: modos y tonalidades <span class="lesson-level"
+      >Intermedio ⭐️⭐️</span
+    >
+  </h2>
+  <p class="lesson-goal">
+    Compara una misma tónica en distintos modos: escucha qué nota cambia y cómo
+    cambia el color.
+  </p>
   <p>
     La emoción de una armonía depende sobre todo del <b>modo</b> (qué notas tiene
     la escala), no de la tonalidad concreta: Do mayor y Re mayor transmiten lo mismo,
@@ -194,10 +239,24 @@ import Afinador from "../components/Afinador.astro";
   </p>
   <Emotions />
 
-  <h2 id="s7">7. Consejos de interpretación</h2>
+  <h2 id="s7">
+    8. Consejos de interpretación <span class="lesson-level">Inicial⭐️</span>
+  </h2>
+  <p class="lesson-goal">
+    Aplica hábitos sencillos de postura, coordinación y práctica sin forzar las
+    manos.
+  </p>
   <Tips />
 
-  <h2 id="s8">8. Del acorde al sonido: síntesis, efectos y DAW</h2>
+  <h2 id="s8">
+    9. Del acorde al sonido: síntesis, efectos y DAW <span class="lesson-level"
+      >Avanzado ⭐️⭐️⭐️</span
+    >
+  </h2>
+  <p class="lesson-goal">
+    Distingue las notas de un acorde de su timbre y moldea el sonido con
+    síntesis y efectos.
+  </p>
   <p>
     Una progresión armónica es la partitura, el mapa; el <b>sonido</b> es el vehículo.
     Dos productores pueden tocar exactamente los mismos acordes C – Am – F – G, pero

@@ -15,19 +15,19 @@ import { displayNote } from "../lib/theory";
     ))
   }
   <span class="divider">|</span>
-  <button class="f nivel on" type="button" data-nivel="">Todas</button>
+  <button class="f nivel on" type="button" data-nivel="" aria-pressed="true">Todos los niveles</button>
   {
     ["inicial", "intermedio", "avanzado"].map((nivel) => (
-      <button class="f nivel" type="button" data-nivel={nivel}>
+      <button class="f nivel" type="button" data-nivel={nivel} aria-pressed="false">
         {nivel.charAt(0).toUpperCase() + nivel.slice(1)}
       </button>
     ))
   }
+  <span id="catalog-status" role="status" aria-live="polite"></span>
 </div>
 <div class="grid" id="cat">
   {
     PROGRESSIONS.map((item) => {
-      const levelClass = `level-{item.level}`;
       const levelLabel =
         item.level === "inicial"
           ? "Inicial⭐️"
@@ -67,7 +67,7 @@ import { displayNote } from "../lib/theory";
           <button class="pp" type="button" data-ch={item.chords.join(" ")}>
             ▶ Tocar progresión
           </button>
-          <span class="badge level-badge ${levelClass}">{levelLabel}</span>
+          <span class={`badge level-badge level-${item.level}`}>{levelLabel}</span>
         </article>
       );
     })
@@ -78,37 +78,36 @@ import { displayNote } from "../lib/theory";
   import { must } from "../lib/dom";
 
   const filterRow = must(document.getElementById("flt"), "#flt");
+  const cards = Array.from(document.querySelectorAll<HTMLElement>("#cat .cd"));
+  const status = must(document.getElementById("catalog-status"), "#catalog-status");
+  let activeCategory = "";
+  let activeLevel = "";
+
+  function applyFilters(): void {
+    let visibleCount = 0;
+    cards.forEach((card) => {
+      const categoryMatches = !activeCategory || card.dataset.c === activeCategory;
+      const levelMatches = !activeLevel || card.dataset.nivel === activeLevel;
+      card.hidden = !(categoryMatches && levelMatches);
+      if (!card.hidden) visibleCount++;
+    });
+    status.textContent = `${visibleCount} ${visibleCount === 1 ? "progresión visible" : "progresiones visibles"}.`;
+  }
+
   filterRow.addEventListener("click", (event) => {
-    const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
-      ".f",
-    );
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>(".f");
     if (!button) return;
-    filterRow.querySelectorAll<HTMLButtonElement>(".f").forEach((candidate) => {
-      candidate.classList.toggle("on", candidate === button);
-      candidate.setAttribute("aria-pressed", String(candidate === button));
+    const isLevel = button.classList.contains("nivel");
+    const groupSelector = isLevel ? ".nivel" : ".f:not(.nivel)";
+    filterRow.querySelectorAll<HTMLButtonElement>(groupSelector).forEach((candidate) => {
+      const selected = candidate === button;
+      candidate.classList.toggle("on", selected);
+      candidate.setAttribute("aria-pressed", String(selected));
     });
-    document.querySelectorAll<HTMLElement>("#cat .cd").forEach((card) => {
-      card.style.display =
-        !button.dataset.c || card.dataset.c === button.dataset.c ? "" : "none";
-    });
+    if (isLevel) activeLevel = button.dataset.nivel ?? "";
+    else activeCategory = button.dataset.c ?? "";
+    applyFilters();
   });
 
-  const nivelRow = must(document.getElementById("flt"), "#flt");
-  nivelRow.addEventListener("click", (event) => {
-    const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
-      ".nivel",
-    );
-    if (!button) return;
-    nivelRow
-      .querySelectorAll<HTMLButtonElement>(".nivel")
-      .forEach((candidate) => {
-        candidate.classList.toggle("on", candidate === button);
-        candidate.setAttribute("aria-pressed", String(candidate === button));
-      });
-    document.querySelectorAll<HTMLElement>("#cat .cd").forEach((card) => {
-      const cardLevel = card.dataset.nivel;
-      const show = !button.dataset.nivel || cardLevel === button.dataset.nivel;
-      card.style.display = show ? "" : "none";
-    });
-  });
+  applyFilters();
 </script>

@@ -1,23 +1,30 @@
 ---
-const sections: [string, string][] = [
-  ["s1", "Leer"],
-  ["s2", "Acordes"],
-  ["s11", "Quintas"],
-  ["s3", "Catálogo"],
-  ["s4", "Inversiones"],
-  ["s5", "Ejercicio"],
-  ["s6", "Emociones"],
-  ["s7", "Consejos"],
-  ["s8", "Sonido"],
-  ["s9", "Trastes"],
-  ["afinador", "Afinador"],
-  ["s10", "Beats"],
-];
-
-const levelSections: [string, string][] = [
-  ["level-inicial", "Inicial⭐️"],
-  ["level-intermedio", "Intermedio ⭐️⭐️"],
-  ["level-avanzado", "Avanzado ⭐️⭐️⭐️"],
+const levels: { title: string; links: [string, string][] }[] = [
+  {
+    title: "Inicial⭐️",
+    links: [
+      ["s1", "Leer progresiones"],
+      ["s2", "Acordes"],
+      ["s9", "Trastes y dedos"],
+      ["afinador", "Afinador"],
+      ["s10", "Ritmo"],
+      ["s7", "Consejos"],
+      ["s3", "Primeras progresiones"],
+    ],
+  },
+  {
+    title: "Intermedio ⭐️⭐️",
+    links: [
+      ["s6", "Modos y emociones"],
+      ["s11", "Círculo de quintas"],
+      ["s4", "Inversiones"],
+      ["s5", "Arpegios"],
+    ],
+  },
+  {
+    title: "Avanzado ⭐️⭐️⭐️",
+    links: [["s8", "Sonido y producción"]],
+  },
 ];
 ---
 
@@ -28,11 +35,17 @@ const levelSections: [string, string][] = [
   </div>
   <div class="nav-scroller">
     {
-      sections.map(([id, label], index) => (
-        <button type="button" data-go={id} aria-label={`Ir a ${label}`} class={index === 0 ? "is-active" : ""}>
-          <span class="nav-index">{String(index + 1).padStart(2, "0")}</span>
-          <span>{label}</span>
-        </button>
+      levels.map((level) => (
+        <div class="nav-level" role="group" aria-label={level.title}>
+          <span class="nav-level-title">{level.title}</span>
+          <div class="nav-level-links">
+            {level.links.map(([id, label]) => (
+              <button type="button" data-go={id} aria-label={`Ir a ${label}`}>
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       ))
     }
   </div>
@@ -44,6 +57,8 @@ const levelSections: [string, string][] = [
   const sections = buttons
     .map((button) => document.getElementById(button.dataset.go ?? ""))
     .filter((section): section is HTMLElement => Boolean(section));
+
+  buttons[0]?.classList.add("is-active");
 
   nav?.addEventListener("click", (event) => {
     const target = event.target as HTMLElement | null;

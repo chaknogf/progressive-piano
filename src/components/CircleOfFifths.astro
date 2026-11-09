@@ -1,24 +1,53 @@
 ---
-import { diatonicChords, pitchClass, type ScaleMode } from '../lib/theory';
+import { diatonicChords, pitchClass, type ScaleMode } from "../lib/theory";
 
-const MAJOR_KEYS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
-const MINOR_KEYS = ['A', 'E', 'B', 'F#', 'C#', 'G#', 'D#', 'A#', 'F', 'C', 'G', 'D'];
-const SHARP_ORDER = ['F', 'C', 'G', 'D', 'A', 'E', 'B'];
-const FLAT_ORDER = ['B', 'E', 'A', 'D', 'G', 'C', 'F'];
-const INITIAL_CHORDS = diatonicChords('C', 'major');
+const MAJOR_KEYS = [
+  "C",
+  "G",
+  "D",
+  "A",
+  "E",
+  "B",
+  "F#",
+  "Db",
+  "Ab",
+  "Eb",
+  "Bb",
+  "F",
+];
+const MINOR_KEYS = [
+  "A",
+  "E",
+  "B",
+  "F#",
+  "C#",
+  "G#",
+  "D#",
+  "A#",
+  "F",
+  "C",
+  "G",
+  "D",
+];
+const SHARP_ORDER = ["F", "C", "G", "D", "A", "E", "B"];
+const FLAT_ORDER = ["B", "E", "A", "D", "G", "C", "F"];
+const INITIAL_CHORDS = diatonicChords("C", "major");
 const FORMULAS: Record<ScaleMode, string[]> = {
-  major: ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'],
-  minor: ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'],
+  major: ["I", "ii", "iii", "IV", "V", "vi", "vii°"],
+  minor: ["i", "ii°", "III", "iv", "v", "VI", "VII"],
 };
 
 function label(key: string): string {
-  return key.replaceAll('#', '♯').replaceAll('b', '♭');
+  return key.replaceAll("#", "♯").replaceAll("b", "♭");
 }
 function sectorPath(index: number, outer: number, inner: number): string {
   const center = -90 + index * 30;
-  const start = (center - 14) * Math.PI / 180;
-  const end = (center + 14) * Math.PI / 180;
-  const point = (radius: number, angle: number) => [300 + radius * Math.cos(angle), 300 + radius * Math.sin(angle)];
+  const start = ((center - 14) * Math.PI) / 180;
+  const end = ((center + 14) * Math.PI) / 180;
+  const point = (radius: number, angle: number) => [
+    300 + radius * Math.cos(angle),
+    300 + radius * Math.sin(angle),
+  ];
   const [x1, y1] = point(outer, start);
   const [x2, y2] = point(outer, end);
   const [x3, y3] = point(inner, end);
@@ -26,35 +55,96 @@ function sectorPath(index: number, outer: number, inner: number): string {
   return `M${x1.toFixed(2)} ${y1.toFixed(2)} A${outer} ${outer} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} L${x3.toFixed(2)} ${y3.toFixed(2)} A${inner} ${inner} 0 0 0 ${x4.toFixed(2)} ${y4.toFixed(2)} Z`;
 }
 function point(index: number, radius: number): { x: number; y: number } {
-  const angle = (-90 + index * 30) * Math.PI / 180;
-  return { x: 300 + radius * Math.cos(angle), y: 300 + radius * Math.sin(angle) };
+  const angle = ((-90 + index * 30) * Math.PI) / 180;
+  return {
+    x: 300 + radius * Math.cos(angle),
+    y: 300 + radius * Math.sin(angle),
+  };
 }
 const MAJOR_SECTORS = MAJOR_KEYS.map((key, index) => {
   const p = point(index, 187);
   const count = index <= 6 ? index : 12 - index;
-  const type = index <= 6 ? 'sharp' : 'flat';
-  const alias = index === 6 ? ', también Sol bemol mayor' : index === 7 ? ', también Do sostenido mayor' : '';
-  return { key, index, p, count, signature: count === 0 ? '♮' : `${count}${type === 'sharp' ? '♯' : '♭'}`, aria: `${label(key)} mayor${alias}`, path: sectorPath(index, 225, 150) };
+  const type = index <= 6 ? "sharp" : "flat";
+  const alias =
+    index === 6
+      ? ", también Sol bemol mayor"
+      : index === 7
+        ? ", también Do sostenido mayor"
+        : "";
+  return {
+    key,
+    index,
+    p,
+    count,
+    signature: count === 0 ? "♮" : `${count}${type === "sharp" ? "♯" : "♭"}`,
+    aria: `${label(key)} mayor${alias}`,
+    path: sectorPath(index, 225, 150),
+  };
 });
 const MINOR_SECTORS = MINOR_KEYS.map((key, index) => {
   const p = point(index, 116);
-  const alias = index === 5 ? ', también La bemol menor' : index === 6 ? ', también Mi bemol menor' : index === 7 ? ', también Si bemol menor' : '';
-  return { key, index, p, aria: `${label(key)} menor${alias}`, path: sectorPath(index, 145, 82) };
+  const alias =
+    index === 5
+      ? ", también La bemol menor"
+      : index === 6
+        ? ", también Mi bemol menor"
+        : index === 7
+          ? ", también Si bemol menor"
+          : "";
+  return {
+    key,
+    index,
+    p,
+    aria: `${label(key)} menor${alias}`,
+    path: sectorPath(index, 145, 82),
+  };
 });
 ---
+
 <section id="s11" class="circle-section" aria-labelledby="circle-title">
-  <h2 id="circle-title">11. El Círculo de Quintas: La Piedra de Rosetta de la Armonía</h2>
+  <h2 id="circle-title">
+    3. El Círculo de Quintas: La Piedra de Rosetta de la Armonía <span
+      class="lesson-level">Intermedio ⭐️⭐️</span>
+  </h2>
   <h3>Introducción · La Piedra de Rosetta de la música</h3>
-  <p>Piensa en el círculo como un mapa de metro: cada estación es una tonalidad y cada trayecto de una estación a la siguiente avanza una quinta justa, siete semitonos. Tras doce pasos vuelves a la nota de partida; en el temperamento igual, el recorrido cierra el círculo aunque las grafías enarmónicas puedan cambiar.</p>
-  <p>También funciona como una radiografía de la armonía: enseña de un vistazo qué tonalidades están cerca, qué alteraciones comparten y qué acordes suelen convivir. En sentido horario, cada paso suma una quinta justa ascendente.</p>
+  <p>
+    Piensa en el círculo como un mapa de metro: cada estación es una tonalidad y
+    cada trayecto de una estación a la siguiente avanza una quinta justa, siete
+    semitonos. Tras doce pasos vuelves a la nota de partida; en el temperamento
+    igual, el recorrido cierra el círculo aunque las grafías enarmónicas puedan
+    cambiar.
+  </p>
+  <p>
+    También funciona como una radiografía de la armonía: enseña de un vistazo
+    qué tonalidades están cerca, qué alteraciones comparten y qué acordes suelen
+    convivir. En sentido horario, cada paso suma una quinta justa ascendente.
+  </p>
 
   <div class="circle-module">
     <h3>Módulo 1 · Armaduras y relativos</h3>
-  <p>En sentido horario se añaden sostenidos siguiendo <b>Fa – Do – Sol – Re – La – Mi – Si</b>. En sentido antihorario se añaden bemoles: <b>Si – Mi – La – Re – Sol – Do – Fa</b>. El anillo exterior muestra tonalidades mayores; justo dentro está su relativo menor, que comparte la misma armadura.</p>
-    <p class="circle-enharmonics"><b>Equivalencias enarmónicas:</b> B / C♭, F♯ / G♭ y C♯ / D♭; en el anillo menor, G♯m / A♭m, D♯m / E♭m y A♯m / B♭m. Comparten altura en temperamento igual, aunque algunas grafías representan armaduras distintas.</p>
+    <p>
+      En sentido horario se añaden sostenidos siguiendo <b
+        >Fa – Do – Sol – Re – La – Mi – Si</b
+      >. En sentido antihorario se añaden bemoles: <b
+        >Si – Mi – La – Re – Sol – Do – Fa</b
+      >. El anillo exterior muestra tonalidades mayores; justo dentro está su
+      relativo menor, que comparte la misma armadura.
+    </p>
+    <p class="circle-enharmonics">
+      <b>Equivalencias enarmónicas:</b> B / C♭, F♯ / G♭ y C♯ / D♭; en el anillo menor,
+      G♯m / A♭m, D♯m / E♭m y A♯m / B♭m. Comparten altura en temperamento igual, aunque
+      algunas grafías representan armaduras distintas.
+    </p>
     <div class="circle-tips">
-      <aside class="box"><b>Regla del penúltimo bemol:</b> en las tonalidades con bemoles, el penúltimo bemol suele nombrar la tonalidad mayor. Excepción: Fa mayor tiene un bemol, Si♭.</aside>
-      <aside class="box"><b>Regla de la sensible:</b> con sostenidos, la tonalidad mayor suele estar un semitono arriba del último sostenido de la armadura.</aside>
+      <aside class="box">
+        <b>Regla del penúltimo bemol:</b> en las tonalidades con bemoles, el penúltimo
+        bemol suele nombrar la tonalidad mayor. Excepción: Fa mayor tiene un bemol,
+        Si♭.
+      </aside>
+      <aside class="box">
+        <b>Regla de la sensible:</b> con sostenidos, la tonalidad mayor suele estar
+        un semitono arriba del último sostenido de la armadura.
+      </aside>
     </div>
   </div>
 
@@ -62,162 +152,413 @@ const MINOR_SECTORS = MINOR_KEYS.map((key, index) => {
     <h3>Módulo 2 · Superpoder práctico: analizar una partitura</h3>
     <ol class="circle-steps">
       <li><b>Cuenta</b> los sostenidos o bemoles escritos en la armadura.</li>
-      <li><b>Consulta el mapa</b> para encontrar las tonalidades mayor y menor que comparten esa armadura.</li>
-      <li><b>Busca la tónica</b>: observa la nota o acorde final y escucha dónde la frase parece descansar.</li>
+      <li>
+        <b>Consulta el mapa</b> para encontrar las tonalidades mayor y menor que comparten
+        esa armadura.
+      </li>
+      <li>
+        <b>Busca la tónica</b>: observa la nota o acorde final y escucha dónde
+        la frase parece descansar.
+      </li>
     </ol>
   </div>
 
   <div class="circle-module">
     <h3>Módulo 3 · Plantilla geométrica: funciones y acordes</h3>
-    <p>Selecciona una tonalidad mayor y activa <b>Familia armónica</b>. La vecindad muestra sus seis acordes diatónicos principales: la izquierda es IV (subdominante), la derecha es V (dominante); el centro es I (tónica). En el anillo interior, el relativo es vi, su vecino izquierdo ii y el derecho iii.</p>
+    <p>
+      Selecciona una tonalidad mayor y activa <b>Familia armónica</b>. La
+      vecindad muestra sus seis acordes diatónicos principales: la izquierda es
+      IV (subdominante), la derecha es V (dominante); el centro es I (tónica).
+      En el anillo interior, el relativo es vi, su vecino izquierdo ii y el
+      derecho iii.
+    </p>
   </div>
 
   <div class="circle-tool" data-circle-tool>
     <div class="circle-toolbar">
       <div class="circle-modes" role="group" aria-label="Modo del círculo">
-        <button type="button" data-circle-view="explore" aria-pressed="true">Explorador de armaduras</button>
-        <button type="button" data-circle-view="family" aria-pressed="false">Familia armónica</button>
+        <button type="button" data-circle-view="explore" aria-pressed="true"
+          >Explorador de armaduras</button
+        >
+        <button type="button" data-circle-view="family" aria-pressed="false"
+          >Familia armónica</button
+        >
       </div>
-      <button type="button" class="circle-signature-toggle" data-signature-toggle aria-pressed="true">Ocultar armaduras</button>
+      <button
+        type="button"
+        class="circle-signature-toggle"
+        data-signature-toggle
+        aria-pressed="true">Ocultar armaduras</button
+      >
     </div>
     <div class="circle-layout">
-      <div class="circle-svg-wrap" aria-label="Círculo interactivo; usa Tab y Enter para elegir tonalidades">
-        <svg class="fifths-svg" viewBox="0 0 600 600" role="group" aria-label="Círculo de quintas. Anillo exterior: tonalidades mayores. Anillo interior: relativos menores.">
-          <circle cx="300" cy="300" r="74" class="circle-hub" />
+      <div
+        class="circle-svg-wrap"
+        aria-label="Círculo interactivo; usa Tab y Enter para elegir tonalidades"
+      >
+        <svg
+          class="fifths-svg"
+          viewBox="0 0 600 600"
+          role="group"
+          aria-label="Círculo de quintas. Anillo exterior: tonalidades mayores. Anillo interior: relativos menores."
+        >
+          <circle cx="300" cy="300" r="74" class="circle-hub"></circle>
           <text x="300" y="284" class="hub-kicker">CÍRCULO DE</text>
           <text x="300" y="310" class="hub-title">QUINTAS</text>
-          <text x="300" y="334" class="hub-sub" data-hub-sub>Selecciona una tonalidad</text>
-          {MAJOR_SECTORS.map((item) => <g class="circle-sector major-sector" data-circle-key={item.key} data-circle-mode="major" data-circle-index={item.index} role="button" tabindex={item.index === 0 ? 0 : -1} aria-label={item.aria} aria-pressed={item.index === 0 ? 'true' : 'false'}>
-            <path d={item.path} />
-            <text x={item.p.x} y={item.p.y - 3} class="sector-key">{label(item.key)}</text>
-            <text x={item.p.x} y={item.p.y + 17} class="sector-signature" data-signature>{item.signature}</text>
-          </g>)}
-          {MINOR_SECTORS.map((item) => <g class="circle-sector minor-sector" data-circle-key={item.key} data-circle-mode="minor" data-circle-index={item.index} role="button" tabindex="-1" aria-label={item.aria} aria-pressed="false">
-            <path d={item.path} />
-            <text x={item.p.x} y={item.p.y + 4} class="sector-key">{label(item.key)}m</text>
-          </g>)}
+          <text x="300" y="334" class="hub-sub" data-hub-sub
+            >Selecciona una tonalidad</text
+          >
+          {
+            MAJOR_SECTORS.map((item) => (
+              <g
+                class="circle-sector major-sector"
+                data-circle-key={item.key}
+                data-circle-mode="major"
+                data-circle-index={item.index}
+                role="button"
+                tabindex={item.index === 0 ? 0 : -1}
+                aria-label={item.aria}
+                aria-pressed={item.index === 0 ? "true" : "false"}
+              >
+                <path d={item.path} />
+                <text x={item.p.x} y={item.p.y - 3} class="sector-key">
+                  {label(item.key)}
+                </text>
+                <text
+                  x={item.p.x}
+                  y={item.p.y + 17}
+                  class="sector-signature"
+                  data-signature
+                >
+                  {item.signature}
+                </text>
+              </g>
+            ))
+          }
+          {
+            MINOR_SECTORS.map((item) => (
+              <g
+                class="circle-sector minor-sector"
+                data-circle-key={item.key}
+                data-circle-mode="minor"
+                data-circle-index={item.index}
+                role="button"
+                tabindex="-1"
+                aria-label={item.aria}
+                aria-pressed="false"
+              >
+                <path d={item.path} />
+                <text x={item.p.x} y={item.p.y + 4} class="sector-key">
+                  {label(item.key)}m
+                </text>
+              </g>
+            ))
+          }
         </svg>
       </div>
       <aside class="circle-info" aria-live="polite">
         <span class="circle-info-label">Tonalidad seleccionada</span>
         <h3 data-circle-title>C mayor</h3>
         <p data-circle-signature>Armadura sin alteraciones</p>
-        <p class="circle-spelling" data-circle-spelling>Sin sostenidos ni bemoles.</p>
-        <p class="circle-relative" data-circle-relative>Relativo menor: La menor (Am)</p>
-        <button class="circle-play-scale" type="button" data-play-scale>▶ Escuchar escala</button>
+        <p class="circle-spelling" data-circle-spelling>
+          Sin sostenidos ni bemoles.
+        </p>
+        <p class="circle-relative" data-circle-relative>
+          Relativo menor: La menor (Am)
+        </p>
+        <button class="circle-play-scale" type="button" data-play-scale
+          >▶ Escuchar escala</button
+        >
       </aside>
     </div>
-    <div class="circle-chords" aria-label="Acordes de la tonalidad" data-circle-chords>
-      {INITIAL_CHORDS.map((chord, index) => <button type="button" class="circle-chord" data-chord-index={index} data-chord-id={chord.id} aria-pressed={index === 0 ? 'true' : 'false'}>
-        <span class="circle-degree">{chord.degree}</span><b>{chord.name}</b><span>{chord.quality === 'major' ? 'Mayor' : chord.quality === 'minor' ? 'Menor' : 'Disminuido'}</span>
-      </button>)}
+    <div
+      class="circle-chords"
+      aria-label="Acordes de la tonalidad"
+      data-circle-chords
+    >
+      {
+        INITIAL_CHORDS.map((chord, index) => (
+          <button
+            type="button"
+            class="circle-chord"
+            data-chord-index={index}
+            data-chord-id={chord.id}
+            aria-pressed={index === 0 ? "true" : "false"}
+          >
+            <>
+              <span class="circle-degree">{chord.degree}</span>
+              <b>{chord.name}</b>
+              <span>
+                {chord.quality === "major"
+                  ? "Mayor"
+                  : chord.quality === "minor"
+                    ? "Menor"
+                    : "Disminuido"}
+              </span>
+            </>
+          </button>
+        ))
+      }
     </div>
     <div class="circle-viewer" data-circle-viewer aria-live="polite"></div>
   </div>
 
   <div class="circle-module">
     <h3>Lo que puedes leer de un vistazo</h3>
-    <p>Las tonalidades vecinas en el mapa difieren por una sola alteración. La forma geométrica también ayuda a transportar una idea: conserva las relaciones entre grados y cambia la estación de partida. Un mismo dibujo de funciones se puede llevar a cualquier tonalidad.</p>
-    <p class="source-note">Para explorar otra representación interactiva: <a href="https://www.musicca.com/es/circulo-de-quintas" target="_blank" rel="noreferrer">círculo de quintas de Musicca</a>.</p>
+    <p>
+      Las tonalidades vecinas en el mapa difieren por una sola alteración. La
+      forma geométrica también ayuda a transportar una idea: conserva las
+      relaciones entre grados y cambia la estación de partida. Un mismo dibujo
+      de funciones se puede llevar a cualquier tonalidad.
+    </p>
+    <p class="source-note">
+      Para explorar otra representación interactiva: <a
+        href="https://www.musicca.com/es/circulo-de-quintas"
+        target="_blank"
+        rel="noreferrer">círculo de quintas de Musicca</a
+      >.
+    </p>
   </div>
 </section>
 
 <script>
-  import { chordNotes, diatonicChords, pitchClass, type ScaleMode } from '../lib/theory';
-  import { playSequence } from '../lib/audio';
-  import { renderChordView } from '../lib/views';
-  import { must } from '../lib/dom';
+  import {
+    chordNotes,
+    diatonicChords,
+    pitchClass,
+    type ScaleMode,
+  } from "../lib/theory";
+  import { playSequence } from "../lib/audio";
+  import { renderChordView } from "../lib/views";
+  import { must } from "../lib/dom";
 
-  const root = must(document.querySelector<HTMLElement>('[data-circle-tool]'), '[data-circle-tool]');
-  const sectors = Array.from(root.querySelectorAll<SVGGElement>('[data-circle-key]'));
-  const chordList = must(root.querySelector<HTMLElement>('[data-circle-chords]'), '[data-circle-chords]');
-  const title = must(root.querySelector<HTMLElement>('[data-circle-title]'), '[data-circle-title]');
-  const signature = must(root.querySelector<HTMLElement>('[data-circle-signature]'), '[data-circle-signature]');
-  const spelling = must(root.querySelector<HTMLElement>('[data-circle-spelling]'), '[data-circle-spelling]');
-  const relative = must(root.querySelector<HTMLElement>('[data-circle-relative]'), '[data-circle-relative]');
-  const hubSub = must(root.querySelector<HTMLElement>('[data-hub-sub]'), '[data-hub-sub]');
-  const viewer = must(root.querySelector<HTMLElement>('[data-circle-viewer]'), '[data-circle-viewer]');
-  const modeButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-circle-view]'));
-  const toggle = must(root.querySelector<HTMLButtonElement>('[data-signature-toggle]'), '[data-signature-toggle]');
+  const root = must(
+    document.querySelector<HTMLElement>("[data-circle-tool]"),
+    "[data-circle-tool]",
+  );
+  const sectors = Array.from(
+    root.querySelectorAll<SVGGElement>("[data-circle-key]"),
+  );
+  const chordList = must(
+    root.querySelector<HTMLElement>("[data-circle-chords]"),
+    "[data-circle-chords]",
+  );
+  const title = must(
+    root.querySelector<HTMLElement>("[data-circle-title]"),
+    "[data-circle-title]",
+  );
+  const signature = must(
+    root.querySelector<HTMLElement>("[data-circle-signature]"),
+    "[data-circle-signature]",
+  );
+  const spelling = must(
+    root.querySelector<HTMLElement>("[data-circle-spelling]"),
+    "[data-circle-spelling]",
+  );
+  const relative = must(
+    root.querySelector<HTMLElement>("[data-circle-relative]"),
+    "[data-circle-relative]",
+  );
+  const hubSub = must(
+    root.querySelector<HTMLElement>("[data-hub-sub]"),
+    "[data-hub-sub]",
+  );
+  const viewer = must(
+    root.querySelector<HTMLElement>("[data-circle-viewer]"),
+    "[data-circle-viewer]",
+  );
+  const modeButtons = Array.from(
+    root.querySelectorAll<HTMLButtonElement>("[data-circle-view]"),
+  );
+  const toggle = must(
+    root.querySelector<HTMLButtonElement>("[data-signature-toggle]"),
+    "[data-signature-toggle]",
+  );
   let selectedMajorIndex = 0;
-  let selectedMode: ScaleMode = 'major';
-  let selectedKey = 'C';
-  let activeView = 'explore';
+  let selectedMode: ScaleMode = "major";
+  let selectedKey = "C";
+  let activeView = "explore";
   let signaturesVisible = true;
   let selectedChord = 0;
 
-  const majorKeys = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
-  const minorKeys = ['A', 'E', 'B', 'F#', 'C#', 'G#', 'D#', 'A#', 'F', 'C', 'G', 'D'];
-  const sharpOrder = ['F', 'C', 'G', 'D', 'A', 'E', 'B'];
-  const flatOrder = ['B', 'E', 'A', 'D', 'G', 'C', 'F'];
-  const keyName = (key: string) => key.replaceAll('#', '♯').replaceAll('b', '♭');
-  const noteLabels = ['Do', 'Do♯', 'Re', 'Re♯', 'Mi', 'Fa', 'Fa♯', 'Sol', 'Sol♯', 'La', 'La♯', 'Si'];
+  const majorKeys = [
+    "C",
+    "G",
+    "D",
+    "A",
+    "E",
+    "B",
+    "F#",
+    "Db",
+    "Ab",
+    "Eb",
+    "Bb",
+    "F",
+  ];
+  const minorKeys = [
+    "A",
+    "E",
+    "B",
+    "F#",
+    "C#",
+    "G#",
+    "D#",
+    "A#",
+    "F",
+    "C",
+    "G",
+    "D",
+  ];
+  const sharpOrder = ["F", "C", "G", "D", "A", "E", "B"];
+  const flatOrder = ["B", "E", "A", "D", "G", "C", "F"];
+  const keyName = (key: string) =>
+    key.replaceAll("#", "♯").replaceAll("b", "♭");
+  const noteLabels = [
+    "Do",
+    "Do♯",
+    "Re",
+    "Re♯",
+    "Mi",
+    "Fa",
+    "Fa♯",
+    "Sol",
+    "Sol♯",
+    "La",
+    "La♯",
+    "Si",
+  ];
   const majorScale = [0, 2, 4, 5, 7, 9, 11];
   const minorScale = [0, 2, 3, 5, 7, 8, 10];
 
-  function signatureDetails(index: number): { count: number; kind: string; notes: string[] } {
-    if (index === 0) return { count: 0, kind: 'alteraciones', notes: [] };
-    if (index <= 6) return { count: index, kind: 'sostenidos', notes: sharpOrder.slice(0, index) };
+  function signatureDetails(index: number): {
+    count: number;
+    kind: string;
+    notes: string[];
+  } {
+    if (index === 0) return { count: 0, kind: "alteraciones", notes: [] };
+    if (index <= 6)
+      return {
+        count: index,
+        kind: "sostenidos",
+        notes: sharpOrder.slice(0, index),
+      };
     const count = 12 - index;
-    return { count, kind: 'bemoles', notes: flatOrder.slice(0, count) };
+    return { count, kind: "bemoles", notes: flatOrder.slice(0, count) };
   }
 
   function renderChords(shouldPlayTonic = false): void {
     const chords = diatonicChords(selectedKey, selectedMode);
-    chordList.replaceChildren(...chords.map((chord, index) => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = `circle-chord quality-${chord.quality}${index === selectedChord ? ' is-selected' : ''}`;
-      button.dataset.chordIndex = String(index);
-      button.dataset.chordId = chord.id;
-      button.setAttribute('aria-pressed', String(index === selectedChord));
-      const degree = document.createElement('span'); degree.className = 'circle-degree'; degree.textContent = chord.degree;
-      const name = document.createElement('b'); name.textContent = chord.name;
-      const quality = document.createElement('span'); quality.textContent = chord.quality === 'major' ? 'Mayor' : chord.quality === 'minor' ? 'Menor' : 'Disminuido';
-      button.append(degree, name, quality);
-      return button;
-    }));
+    chordList.replaceChildren(
+      ...chords.map((chord, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `circle-chord quality-${chord.quality}${index === selectedChord ? " is-selected" : ""}`;
+        button.dataset.chordIndex = String(index);
+        button.dataset.chordId = chord.id;
+        button.setAttribute("aria-pressed", String(index === selectedChord));
+        const degree = document.createElement("span");
+        degree.className = "circle-degree";
+        degree.textContent = chord.degree;
+        const name = document.createElement("b");
+        name.textContent = chord.name;
+        const quality = document.createElement("span");
+        quality.textContent =
+          chord.quality === "major"
+            ? "Mayor"
+            : chord.quality === "minor"
+              ? "Menor"
+              : "Disminuido";
+        button.append(degree, name, quality);
+        return button;
+      }),
+    );
     const chosen = chords[selectedChord] ?? chords[0];
     if (chosen) {
       renderChordView(viewer, chosen.id, 0, false, chosen.name);
       if (shouldPlayTonic) playSequence([chordNotes(chosen.id)], 0, 1.2);
-      window.dispatchEvent(new CustomEvent('progressive:circle-selection', { detail: { tonic: selectedKey, mode: selectedMode, chord: chosen.id } }));
+      window.dispatchEvent(
+        new CustomEvent("progressive:circle-selection", {
+          detail: { tonic: selectedKey, mode: selectedMode, chord: chosen.id },
+        }),
+      );
     }
   }
 
   function update(): void {
     const majorKey = majorKeys[selectedMajorIndex];
     const relativeKey = minorKeys[selectedMajorIndex];
-    const tonic = selectedMode === 'major' ? majorKey : relativeKey;
+    const tonic = selectedMode === "major" ? majorKey : relativeKey;
     selectedKey = tonic;
-    title.textContent = `${keyName(tonic)} ${selectedMode === 'major' ? 'mayor' : 'menor'}`;
+    title.textContent = `${keyName(tonic)} ${selectedMode === "major" ? "mayor" : "menor"}`;
     hubSub.textContent = `${keyName(majorKey)} / ${keyName(relativeKey)}m`;
-    relative.textContent = `Relativo ${selectedMode === 'major' ? 'menor' : 'mayor'}: ${keyName(selectedMode === 'major' ? relativeKey : majorKey)}`;
+    relative.textContent = `Relativo ${selectedMode === "major" ? "menor" : "mayor"}: ${keyName(selectedMode === "major" ? relativeKey : majorKey)}`;
     const sig = signatureDetails(selectedMajorIndex);
-    signature.textContent = sig.count ? `${sig.count} ${sig.kind}` : 'Armadura sin alteraciones';
-    spelling.textContent = sig.notes.length ? `En orden: ${sig.notes.map(keyName).join(' · ')}.` : 'Sin sostenidos ni bemoles.';
+    signature.textContent = sig.count
+      ? `${sig.count} ${sig.kind}`
+      : "Armadura sin alteraciones";
+    spelling.textContent = sig.notes.length
+      ? `En orden: ${sig.notes.map(keyName).join(" · ")}.`
+      : "Sin sostenidos ni bemoles.";
     sectors.forEach((sector) => {
-      const isMajor = sector.dataset.circleMode === 'major';
+      const isMajor = sector.dataset.circleMode === "major";
       const index = Number(sector.dataset.circleIndex);
       const pairSelected = index === selectedMajorIndex;
-      sector.classList.toggle('is-paired', pairSelected);
-      sector.classList.toggle('is-selected', pairSelected && (selectedMode === (isMajor ? 'major' : 'minor')));
-      sector.classList.remove('is-function-tonic', 'is-function-subdominant', 'is-function-dominant', 'is-function-minor');
-      if (activeView === 'family') {
-        if (selectedMode === 'major') {
-          if (isMajor && index === selectedMajorIndex) sector.classList.add('is-function-tonic');
-          if (isMajor && index === (selectedMajorIndex + 11) % 12) sector.classList.add('is-function-subdominant');
-          if (isMajor && index === (selectedMajorIndex + 1) % 12) sector.classList.add('is-function-dominant');
-          if (!isMajor && [selectedMajorIndex, (selectedMajorIndex + 11) % 12, (selectedMajorIndex + 1) % 12].includes(index)) sector.classList.add('is-function-minor');
+      sector.classList.toggle("is-paired", pairSelected);
+      sector.classList.toggle(
+        "is-selected",
+        pairSelected && selectedMode === (isMajor ? "major" : "minor"),
+      );
+      sector.classList.remove(
+        "is-function-tonic",
+        "is-function-subdominant",
+        "is-function-dominant",
+        "is-function-minor",
+      );
+      if (activeView === "family") {
+        if (selectedMode === "major") {
+          if (isMajor && index === selectedMajorIndex)
+            sector.classList.add("is-function-tonic");
+          if (isMajor && index === (selectedMajorIndex + 11) % 12)
+            sector.classList.add("is-function-subdominant");
+          if (isMajor && index === (selectedMajorIndex + 1) % 12)
+            sector.classList.add("is-function-dominant");
+          if (
+            !isMajor &&
+            [
+              selectedMajorIndex,
+              (selectedMajorIndex + 11) % 12,
+              (selectedMajorIndex + 1) % 12,
+            ].includes(index)
+          )
+            sector.classList.add("is-function-minor");
         } else {
-          if (!isMajor && index === selectedMajorIndex) sector.classList.add('is-function-tonic');
-          if (!isMajor && index === (selectedMajorIndex + 11) % 12) sector.classList.add('is-function-subdominant');
-          if (!isMajor && index === (selectedMajorIndex + 1) % 12) sector.classList.add('is-function-dominant');
-          if (isMajor && [selectedMajorIndex, (selectedMajorIndex + 11) % 12, (selectedMajorIndex + 1) % 12].includes(index)) sector.classList.add('is-function-minor');
+          if (!isMajor && index === selectedMajorIndex)
+            sector.classList.add("is-function-tonic");
+          if (!isMajor && index === (selectedMajorIndex + 11) % 12)
+            sector.classList.add("is-function-subdominant");
+          if (!isMajor && index === (selectedMajorIndex + 1) % 12)
+            sector.classList.add("is-function-dominant");
+          if (
+            isMajor &&
+            [
+              selectedMajorIndex,
+              (selectedMajorIndex + 11) % 12,
+              (selectedMajorIndex + 1) % 12,
+            ].includes(index)
+          )
+            sector.classList.add("is-function-minor");
         }
       }
-      sector.setAttribute('aria-pressed', String(pairSelected && selectedMode === (isMajor ? 'major' : 'minor')));
-      sector.setAttribute('tabindex', pairSelected && selectedMode === (isMajor ? 'major' : 'minor') ? '0' : '-1');
+      sector.setAttribute(
+        "aria-pressed",
+        String(pairSelected && selectedMode === (isMajor ? "major" : "minor")),
+      );
+      sector.setAttribute(
+        "tabindex",
+        pairSelected && selectedMode === (isMajor ? "major" : "minor")
+          ? "0"
+          : "-1",
+      );
     });
     renderChords();
   }
@@ -234,44 +575,77 @@ const MINOR_SECTORS = MINOR_KEYS.map((key, index) => {
   }
 
   sectors.forEach((sector) => {
-    sector.addEventListener('click', () => chooseSector(sector));
-    sector.addEventListener('pointerenter', (event) => {
-      if ((event as PointerEvent).pointerType === 'mouse' && activeView === 'explore') chooseSector(sector, false);
+    sector.addEventListener("click", () => chooseSector(sector));
+    sector.addEventListener("pointerenter", (event) => {
+      if (
+        (event as PointerEvent).pointerType === "mouse" &&
+        activeView === "explore"
+      )
+        chooseSector(sector, false);
     });
-    sector.addEventListener('keydown', (event) => {
+    sector.addEventListener("keydown", (event) => {
       const key = (event as KeyboardEvent).key;
-      if (key === 'Enter' || key === ' ') { event.preventDefault(); chooseSector(sector); return; }
-      if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(key)) {
+      if (key === "Enter" || key === " ") {
         event.preventDefault();
-        const nextIndex = (Number(sector.dataset.circleIndex) + (key === 'ArrowRight' || key === 'ArrowDown' ? 1 : 11)) % 12;
-        const counterpart = sectors.find((item) => item.dataset.circleIndex === String(nextIndex) && item.dataset.circleMode === sector.dataset.circleMode);
+        chooseSector(sector);
+        return;
+      }
+      if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(key)) {
+        event.preventDefault();
+        const nextIndex =
+          (Number(sector.dataset.circleIndex) +
+            (key === "ArrowRight" || key === "ArrowDown" ? 1 : 11)) %
+          12;
+        const counterpart = sectors.find(
+          (item) =>
+            item.dataset.circleIndex === String(nextIndex) &&
+            item.dataset.circleMode === sector.dataset.circleMode,
+        );
         counterpart?.focus();
       }
     });
   });
 
-  modeButtons.forEach((button) => button.addEventListener('click', () => {
-    activeView = button.dataset.circleView ?? 'explore';
-    modeButtons.forEach((item) => { const pressed = item === button; item.setAttribute('aria-pressed', String(pressed)); item.classList.toggle('is-on', pressed); });
-    update();
-  }));
-  toggle.addEventListener('click', () => {
+  modeButtons.forEach((button) =>
+    button.addEventListener("click", () => {
+      activeView = button.dataset.circleView ?? "explore";
+      modeButtons.forEach((item) => {
+        const pressed = item === button;
+        item.setAttribute("aria-pressed", String(pressed));
+        item.classList.toggle("is-on", pressed);
+      });
+      update();
+    }),
+  );
+  toggle.addEventListener("click", () => {
     signaturesVisible = !signaturesVisible;
-    toggle.setAttribute('aria-pressed', String(signaturesVisible));
-    toggle.textContent = signaturesVisible ? 'Ocultar armaduras' : 'Mostrar armaduras';
-    root.querySelectorAll<SVGTextElement>('[data-signature]').forEach((node) => {
-      if (signaturesVisible) node.removeAttribute('hidden');
-      else node.setAttribute('hidden', '');
-    });
+    toggle.setAttribute("aria-pressed", String(signaturesVisible));
+    toggle.textContent = signaturesVisible
+      ? "Ocultar armaduras"
+      : "Mostrar armaduras";
+    root
+      .querySelectorAll<SVGTextElement>("[data-signature]")
+      .forEach((node) => {
+        if (signaturesVisible) node.removeAttribute("hidden");
+        else node.setAttribute("hidden", "");
+      });
   });
-  root.querySelector('[data-play-scale]')?.addEventListener('click', () => {
-    const scale = selectedMode === 'major' ? majorScale : minorScale;
+  root.querySelector("[data-play-scale]")?.addEventListener("click", () => {
+    const scale = selectedMode === "major" ? majorScale : minorScale;
     const rootPitch = pitchClass(selectedKey);
-    const notes = scale.map((interval) => rootPitch + interval).concat(rootPitch + 12);
-    playSequence(notes.map((note) => [note]), 0.22, 0.25);
+    const notes = scale
+      .map((interval) => rootPitch + interval)
+      .concat(rootPitch + 12);
+    playSequence(
+      notes.map((note) => [note]),
+      0.22,
+      0.25,
+    );
   });
-  chordList.addEventListener('click', (event) => {
-    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-chord-index]');
+  chordList.addEventListener("click", (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      "[data-chord-index]",
+    );
     if (!button) return;
     selectedChord = Number(button.dataset.chordIndex);
     renderChords();
@@ -282,49 +656,235 @@ const MINOR_SECTORS = MINOR_KEYS.map((key, index) => {
 </script>
 
 <style>
-  .circle-section { scroll-margin-top: 1rem; }
-  .circle-module { margin: 1.4rem 0; }
-  .circle-enharmonics { padding:.7rem .85rem; border-left:3px solid #8b5cf6; border-radius:0 12px 12px 0; background:var(--card); }
-  .circle-tips { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:.75rem; }
-  .circle-tips .box { margin:0; }
-  .circle-steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); gap:.7rem; padding-left:1.3rem; }
-  .circle-steps li { padding:.75rem; border:1px solid var(--bd); border-radius:14px; background:var(--card); }
-  .circle-toolbar { display:flex; justify-content:space-between; align-items:center; gap:.75rem; flex-wrap:wrap; margin:1rem 0; }
-  .circle-modes { display:flex; gap:.5rem; flex-wrap:wrap; }
-  .circle-tool button { font:inherit; color:var(--fg); }
-  .circle-modes button,.circle-signature-toggle,.circle-play-scale { border:1px solid var(--bd); border-radius:999px; background:var(--card); padding:.58rem .85rem; cursor:pointer; }
-  .circle-modes button.is-on,.circle-signature-toggle[aria-pressed="true"] { border-color:#f97316; box-shadow:0 0 0 2px #f9731624; }
-  .circle-layout { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(230px,.7fr); align-items:center; gap:1rem; }
-  .circle-svg-wrap { max-width:610px; width:100%; margin:auto; }
-  .fifths-svg { width:100%; height:auto; overflow:visible; touch-action:manipulation; }
-  .circle-sector { cursor:pointer; outline:none; }
-  .circle-sector path { fill:var(--card); stroke:var(--bd); stroke-width:2; transition:fill .18s,stroke .18s,filter .18s; }
-  .major-sector path { fill:color-mix(in srgb,var(--card) 82%,#8b5cf6 18%); }
-  .minor-sector path { fill:color-mix(in srgb,var(--card) 84%,#ec4899 16%); }
-  .circle-sector:hover path,.circle-sector:focus path { stroke:#f97316; stroke-width:4; filter:drop-shadow(0 0 7px #f9731680); }
-  .circle-sector.is-paired path { stroke:#ec4899; stroke-width:3; }
-  .circle-sector.is-selected path { fill:color-mix(in srgb,var(--card) 55%,#f97316 45%); stroke:#f97316; stroke-width:4; }
-  .circle-sector.is-function-tonic path { fill:#f97316; }
-  .circle-sector.is-function-subdominant path { fill:#8b5cf6; }
-  .circle-sector.is-function-dominant path { fill:#ec4899; }
-  .circle-sector.is-function-minor path { fill:color-mix(in srgb,var(--card) 38%,#ec4899 62%); }
-  .sector-key,.sector-signature,.hub-title,.hub-sub,.hub-kicker { text-anchor:middle; pointer-events:none; font-family:system-ui,sans-serif; fill:var(--fg); }
-  .sector-key { font-size:16px; font-weight:750; }
-  .sector-signature { font-size:10px; fill:var(--mut); font-weight:700; }
-  .hub-kicker { font-size:10px; fill:var(--mut); letter-spacing:.12em; }
-  .hub-title { font-size:20px; font-weight:850; }
-  .hub-sub { font-size:12px; fill:var(--acc); }
-  .circle-hub { fill:var(--bg); stroke:var(--bd); stroke-width:2; }
-  .circle-info { align-self:stretch; padding:1rem; border:1px solid var(--bd); border-radius:18px; background:var(--card); }
-  .circle-info-label { font-size:.75rem; color:var(--mut); text-transform:uppercase; letter-spacing:.08em; }
-  .circle-info h3 { margin:.35rem 0; font-size:1.5rem; }
-  .circle-spelling { color:var(--mut); }
-  .circle-play-scale { margin-top:.25rem; }
-  .circle-chords { display:grid; grid-template-columns:repeat(7,minmax(90px,1fr)); gap:.55rem; overflow-x:auto; padding:.25rem 0 .75rem; }
-  .circle-chord { display:grid; justify-items:start; gap:.2rem; min-width:88px; padding:.65rem; border:1px solid var(--bd); border-radius:14px; background:var(--card); text-align:left; cursor:pointer; }
-  .circle-chord[aria-pressed="true"] { border-color:#f97316; box-shadow:0 0 0 2px #f9731624; }
-  .circle-chord span:last-child { color:var(--mut); font-size:.72rem; }
-  .circle-degree { color:#8b5cf6; font-weight:800; }
-  .circle-viewer { min-height:2rem; }
-  @media(max-width:760px) { .circle-layout { grid-template-columns:1fr; } .circle-info { max-width:none; } .circle-chords { grid-template-columns:repeat(7,minmax(100px,1fr)); } }
+  .circle-section {
+    scroll-margin-top: 1rem;
+  }
+  .circle-module {
+    margin: 1.4rem 0;
+  }
+  .circle-enharmonics {
+    padding: 0.7rem 0.85rem;
+    border-left: 3px solid #8b5cf6;
+    border-radius: 0 12px 12px 0;
+    background: var(--card);
+  }
+  .circle-tips {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 0.75rem;
+  }
+  .circle-tips .box {
+    margin: 0;
+  }
+  .circle-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 0.7rem;
+    padding-left: 1.3rem;
+  }
+  .circle-steps li {
+    padding: 0.75rem;
+    border: 1px solid var(--bd);
+    border-radius: 14px;
+    background: var(--card);
+  }
+  .circle-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+  }
+  .circle-modes {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .circle-tool button {
+    font: inherit;
+    color: var(--fg);
+  }
+  .circle-modes button,
+  .circle-signature-toggle,
+  .circle-play-scale {
+    border: 1px solid var(--bd);
+    border-radius: 999px;
+    background: var(--card);
+    padding: 0.58rem 0.85rem;
+    cursor: pointer;
+  }
+  .circle-modes button.is-on,
+  .circle-signature-toggle[aria-pressed="true"] {
+    border-color: #f97316;
+    box-shadow: 0 0 0 2px #f9731624;
+  }
+  .circle-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(230px, 0.7fr);
+    align-items: center;
+    gap: 1rem;
+  }
+  .circle-svg-wrap {
+    max-width: 610px;
+    width: 100%;
+    margin: auto;
+  }
+  .fifths-svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    touch-action: manipulation;
+  }
+  .circle-sector {
+    cursor: pointer;
+    outline: none;
+  }
+  .circle-sector path {
+    fill: var(--card);
+    stroke: var(--bd);
+    stroke-width: 2;
+    transition:
+      fill 0.18s,
+      stroke 0.18s,
+      filter 0.18s;
+  }
+  .major-sector path {
+    fill: color-mix(in srgb, var(--card) 82%, #8b5cf6 18%);
+  }
+  .minor-sector path {
+    fill: color-mix(in srgb, var(--card) 84%, #ec4899 16%);
+  }
+  .circle-sector:hover path,
+  .circle-sector:focus path {
+    stroke: #f97316;
+    stroke-width: 4;
+    filter: drop-shadow(0 0 7px #f9731680);
+  }
+  .circle-sector.is-paired path {
+    stroke: #ec4899;
+    stroke-width: 3;
+  }
+  .circle-sector.is-selected path {
+    fill: color-mix(in srgb, var(--card) 55%, #f97316 45%);
+    stroke: #f97316;
+    stroke-width: 4;
+  }
+  .circle-sector.is-function-tonic path {
+    fill: #f97316;
+  }
+  .circle-sector.is-function-subdominant path {
+    fill: #8b5cf6;
+  }
+  .circle-sector.is-function-dominant path {
+    fill: #ec4899;
+  }
+  .circle-sector.is-function-minor path {
+    fill: color-mix(in srgb, var(--card) 38%, #ec4899 62%);
+  }
+  .sector-key,
+  .sector-signature,
+  .hub-title,
+  .hub-sub,
+  .hub-kicker {
+    text-anchor: middle;
+    pointer-events: none;
+    font-family: system-ui, sans-serif;
+    fill: var(--fg);
+  }
+  .sector-key {
+    font-size: 16px;
+    font-weight: 750;
+  }
+  .sector-signature {
+    font-size: 10px;
+    fill: var(--mut);
+    font-weight: 700;
+  }
+  .hub-kicker {
+    font-size: 10px;
+    fill: var(--mut);
+    letter-spacing: 0.12em;
+  }
+  .hub-title {
+    font-size: 20px;
+    font-weight: 850;
+  }
+  .hub-sub {
+    font-size: 12px;
+    fill: var(--acc);
+  }
+  .circle-hub {
+    fill: var(--bg);
+    stroke: var(--bd);
+    stroke-width: 2;
+  }
+  .circle-info {
+    align-self: stretch;
+    padding: 1rem;
+    border: 1px solid var(--bd);
+    border-radius: 18px;
+    background: var(--card);
+  }
+  .circle-info-label {
+    font-size: 0.75rem;
+    color: var(--mut);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .circle-info h3 {
+    margin: 0.35rem 0;
+    font-size: 1.5rem;
+  }
+  .circle-spelling {
+    color: var(--mut);
+  }
+  .circle-play-scale {
+    margin-top: 0.25rem;
+  }
+  .circle-chords {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(90px, 1fr));
+    gap: 0.55rem;
+    overflow-x: auto;
+    padding: 0.25rem 0 0.75rem;
+  }
+  .circle-chord {
+    display: grid;
+    justify-items: start;
+    gap: 0.2rem;
+    min-width: 88px;
+    padding: 0.65rem;
+    border: 1px solid var(--bd);
+    border-radius: 14px;
+    background: var(--card);
+    text-align: left;
+    cursor: pointer;
+  }
+  .circle-chord[aria-pressed="true"] {
+    border-color: #f97316;
+    box-shadow: 0 0 0 2px #f9731624;
+  }
+  .circle-chord span:last-child {
+    color: var(--mut);
+    font-size: 0.72rem;
+  }
+  .circle-degree {
+    color: #8b5cf6;
+    font-weight: 800;
+  }
+  .circle-viewer {
+    min-height: 2rem;
+  }
+  @media (max-width: 760px) {
+    .circle-layout {
+      grid-template-columns: 1fr;
+    }
+    .circle-info {
+      max-width: none;
+    }
+    .circle-chords {
+      grid-template-columns: repeat(7, minmax(100px, 1fr));
+    }
+  }
 </style>

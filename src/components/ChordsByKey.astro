@@ -18,7 +18,8 @@ function tonicLabel(key: string): string {
 ---
 
 <section class="key-tool" data-key-tool aria-labelledby="key-tool-title">
-  <h3 id="key-tool-title">Acordes diatónicos por tonalidad</h3>
+  <h3 id="key-tool-title">El molde de la escala</h3>
+  <p class="key-intro">El nombre del acorde es su <b>dirección exacta</b> (C, Am, F). El grado romano es su <b>coordenada</b>: indica el lugar que ocupa en la escala y conserva la misma forma cuando cambias de tonalidad.</p>
   <div class="key-controls">
     <label for="chord-key">Tonalidad</label>
     <select id="chord-key" aria-label="Elige una tonalidad">
@@ -32,6 +33,7 @@ function tonicLabel(key: string): string {
     <span class="relative-hint" data-relative-hint aria-live="polite">La menor</span>
   </div>
   <p class="key-formula"><b>Calidades:</b> <span data-formula>{INITIAL_FORMULA}</span></p>
+  <p class="mut key-secret"><b>El secreto del músico:</b> Do mayor y La menor comparten C, Dm, Em, F, G, Am y Bdim. Cambia el asiento de inicio y los mismos acordes cuentan otra historia.</p>
   <div class="key-chord-grid" data-chord-grid aria-label="Acordes de la escala">
     {INITIAL_CHORDS.map((chord, index) => (
       <button
@@ -53,6 +55,15 @@ function tonicLabel(key: string): string {
     <p class="key-viewer-label" data-selected-label aria-live="polite">Selecciona un acorde para ver sus notas.</p>
     <div class="v" data-chord-view></div>
   </div>
+  <div class="train-card">
+    <div class="train-heading">
+      <div><h4>El tren de los acordes</h4><p class="mut">Pulsa un vagón: escucha el acorde y mira su forma en piano y guitarra.</p></div>
+      <button type="button" data-play-train>▶ Escuchar el recorrido</button>
+    </div>
+    <div class="progression-train" data-progression-train aria-label="Progresión I – V – vi – IV"></div>
+    <p class="train-status" data-train-status aria-live="polite">I es el hogar: aquí descansa el oído.</p>
+    <p class="train-legend"><span class="role-tonic">Hogar · reposo</span><span class="role-subdominant">Movimiento</span><span class="role-dominant">Tensión</span></p>
+  </div>
 </section>
 
 <script>
@@ -70,6 +81,9 @@ function tonicLabel(key: string): string {
   const relativeHint = must(root.querySelector<HTMLElement>('[data-relative-hint]'), '[data-relative-hint]');
   const relativeButton = must(root.querySelector<HTMLButtonElement>('[data-relative]'), '[data-relative]');
   const modeButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-mode]'));
+  const train = must(root.querySelector<HTMLElement>('[data-progression-train]'), '[data-progression-train]');
+  const trainStatus = must(root.querySelector<HTMLElement>('[data-train-status]'), '[data-train-status]');
+  const playTrainButton = must(root.querySelector<HTMLButtonElement>('[data-play-train]'), '[data-play-train]');
   const majorKeys = DIATONIC_KEYS.major;
   const minorKeys = DIATONIC_KEYS.minor;
   const formulas: Record<ScaleMode, string> = {
@@ -80,6 +94,7 @@ function tonicLabel(key: string): string {
   let currentMode: ScaleMode = 'major';
   let currentKey = 'C';
   let chords = diatonicChords(currentKey, currentMode);
+  let trainDegrees = [0, 4, 5, 3];
 
   function keyLabel(key: string): string {
     return key.replaceAll('#', '♯').replaceAll('b', '♭');
@@ -117,6 +132,36 @@ function tonicLabel(key: string): string {
     if (shouldPlay) playSequence([chordNotes(chord.id)], 0, 1.3);
   }
 
+  function roleAt(index: number): 'tonic' | 'subdominant' | 'dominant' | 'other' {
+    if (index === 0) return 'tonic';
+    if (index === 3) return 'subdominant';
+    if (index === 4) return 'dominant';
+    return 'other';
+  }
+
+  function updateTrain(): void {
+    train.innerHTML = trainDegrees.map((index, position) => {
+      const chord = chords[index];
+      const role = roleAt(index);
+      const roleName = role === 'tonic' ? 'Hogar · reposo' : role === 'subdominant' ? 'Movimiento' : role === 'dominant' ? 'Tensión' : 'Color';
+      return `<button type="button" class="train-wagon role-${role}${position === 0 ? ' is-current' : ''}" data-train-index="${index}" aria-pressed="${position === 0}" aria-label="Vagón ${position + 1}: ${chord.degree}, ${chord.name}, ${roleName}">
+        <span class="wagon-degree">${chord.degree}</span><b>${chord.name}</b><small>${roleName}</small>
+      </button>${position < trainDegrees.length - 1 ? '<span class="train-link" aria-hidden="true">→</span>' : ''}`;
+    }).join('');
+    train.setAttribute('aria-label', `Progresión ${trainDegrees.map((index) => chords[index].degree).join(' – ')}`);
+  }
+
+  function publishTonalidad(): void {
+    window.dispatchEvent(new CustomEvent('progressive:tonality-change', {
+      detail: { tonic: currentKey, mode: currentMode },
+    }));
+  }
+
+  function playTrain(): void {
+    const sequence = trainDegrees.map((index) => chordNotes(chords[index].id));
+    playSequence(sequence, 0, 0.9);
+  }
+
   function render(mode: ScaleMode, key: string, selectedIndex = 0): void {
     currentMode = mode;
     currentKey = key;
@@ -138,6 +183,8 @@ function tonicLabel(key: string): string {
       </button>`;
     }).join('');
     renderSelected(selectedIndex, false);
+    trainDegrees = mode === 'major' ? [0, 4, 5, 3] : [0, 3, 4, 0];
+    updateTrain();
 
     const relative = relativeTonic(key, mode);
     relativeHint.textContent = `${keyLabel(relative.tonic)} ${relative.mode === 'minor' ? 'menor' : 'mayor'}`;
@@ -154,6 +201,8 @@ function tonicLabel(key: string): string {
       render(mode, nextKey);
     });
   });
+  keySelect.addEventListener('change', publishTonalidad);
+  modeButtons.forEach((button) => button.addEventListener('click', publishTonalidad));
   grid.addEventListener('click', (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-chord-index]');
     if (button) renderSelected(Number(button.dataset.chordIndex));
@@ -161,6 +210,33 @@ function tonicLabel(key: string): string {
   relativeButton.addEventListener('click', () => {
     const relative = relativeTonic(currentKey, currentMode);
     render(relative.mode, relative.tonic);
+    publishTonalidad();
+  });
+
+  train.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-train-index]');
+    if (!button) return;
+    const index = Number(button.dataset.trainIndex);
+    renderSelected(index);
+    train.querySelectorAll<HTMLButtonElement>('[data-train-index]').forEach((wagon) => {
+      wagon.classList.toggle('is-current', wagon === button);
+      wagon.setAttribute('aria-pressed', String(wagon === button));
+    });
+    const role = roleAt(index);
+    trainStatus.textContent = role === 'tonic'
+      ? `${chords[index].degree} · ${chords[index].name}: hogar y reposo.`
+      : role === 'subdominant'
+        ? `${chords[index].degree} · ${chords[index].name}: movimiento; nos aleja del hogar.`
+        : role === 'dominant'
+          ? `${chords[index].degree} · ${chords[index].name}: tensión; pide volver al hogar.`
+          : `${chords[index].degree} · ${chords[index].name}: un color intermedio del recorrido.`;
+  });
+  playTrainButton.addEventListener('click', playTrain);
+
+  window.addEventListener('progressive:tonality-change', (event) => {
+    const detail = (event as CustomEvent<{ tonic: string; mode: ScaleMode }>).detail;
+    if (!detail || !DIATONIC_KEYS[detail.mode].includes(detail.tonic)) return;
+    render(detail.mode, detail.tonic);
   });
 
   render(currentMode, currentKey, 0);
@@ -169,6 +245,8 @@ function tonicLabel(key: string): string {
 <style>
   .key-tool { margin: 1.2em 0; padding: 16px; border: 1px solid var(--bd); border-radius: 14px; background: var(--card); }
   .key-tool h3 { margin-top: 0; }
+  .key-intro { max-width: 74ch; color: var(--mut); }
+  .key-secret { padding: 10px 12px; border-left: 3px solid #8b5cf6; border-radius: 8px; background: color-mix(in srgb, #8b5cf6 8%, var(--card)); }
   .key-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .key-controls label { font-weight: 650; }
   .mode-switch { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--bd); border-radius: 999px; }
@@ -193,6 +271,27 @@ function tonicLabel(key: string): string {
   .key-viewer-label { margin: 0; font-weight: 650; }
   .key-viewer-card .v:empty { display: none; }
   .key-viewer-card .v:not(:empty) { margin-top: 8px; }
+  .train-card { margin-top: 14px; padding: 14px; border: 1px solid var(--bd); border-radius: 12px; background: color-mix(in srgb, var(--card) 84%, #8b5cf6 4%); }
+  .train-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+  .train-heading h4 { margin: 0; color: var(--fg); }
+  .train-heading p { margin: 4px 0 0; }
+  .progression-train { display: flex; align-items: stretch; gap: 7px; overflow-x: auto; padding: 14px 2px 8px; }
+  .train-wagon { display: grid; flex: 1 0 105px; min-height: 82px; align-content: center; justify-items: start; gap: 2px; padding: 9px 11px; border-radius: 13px; border-width: 2px; text-align: left; }
+  .train-wagon b { font-size: 1.13rem; }
+  .train-wagon small { color: var(--mut); font-size: 0.68rem; }
+  .wagon-degree { font-weight: 750; }
+  .train-link { align-self: center; color: var(--mut); }
+  .train-wagon.role-tonic { border-color: #f97316; }
+  .train-wagon.role-subdominant { border-color: #8b5cf6; }
+  .train-wagon.role-dominant { border-color: #ec4899; }
+  .train-wagon.is-current { box-shadow: 0 0 0 2px color-mix(in srgb, var(--acc) 28%, transparent); transform: translateY(-2px); }
+  .train-status { min-height: 1.5em; margin: 4px 0 8px; font-weight: 650; }
+  .train-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+  .train-legend span { padding: 4px 8px; border: 1px solid var(--bd); border-radius: 999px; font-size: 0.75rem; }
+  .role-tonic { color: #f97316; }
+  .role-subdominant { color: #8b5cf6; }
+  .role-dominant { color: #ec4899; }
+  @media (prefers-reduced-motion: reduce) { .train-wagon.is-current { transform: none; } }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) .quality-major .chord-quality { color: #93c5fd; }
     :root:not([data-theme="light"]) .quality-minor .chord-quality { color: #d8b4fe; }
