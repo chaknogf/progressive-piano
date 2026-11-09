@@ -1,0 +1,39 @@
+<section class="quick-listen" aria-labelledby="quick-listen-title">
+  <div>
+    <span class="tg">Primero, escucha</span>
+    <h3 id="quick-listen-title">Un bucle pop de cuatro acordes</h3>
+    <p class="mut">No necesitas saber los nombres todavía. Pulsa y escucha cómo una idea se mueve y vuelve a casa.</p>
+  </div>
+  <button type="button" data-quick-play aria-pressed="false">▶ Escuchar el bucle</button>
+  <p class="quick-listen-status" data-quick-status role="status" aria-live="polite">Cuando termine, verás cómo se escribe ese sonido.</p>
+</section>
+
+<script>
+  import { chordNotes } from '../lib/theory';
+  import { playSequence } from '../lib/audio';
+  import { must } from '../lib/dom';
+
+  const root = must(document.querySelector<HTMLElement>('.quick-listen'), '.quick-listen');
+  const button = must(root.querySelector<HTMLButtonElement>('[data-quick-play]'), '[data-quick-play]');
+  const status = must(root.querySelector<HTMLElement>('[data-quick-status]'), '[data-quick-status]');
+
+  button.addEventListener('click', () => {
+    playSequence(['C', 'G', 'Am', 'F'].map((chord) => chordNotes(chord)), 0, 0.85);
+    button.setAttribute('aria-pressed', 'true');
+    button.disabled = true;
+    status.textContent = 'Escucha el recorrido: empieza, se mueve y regresa.';
+    window.setTimeout(() => {
+      button.disabled = false;
+      button.setAttribute('aria-pressed', 'false');
+      status.textContent = 'Ese bucle se escribe I – V – vi – IV. En Do mayor: C – G – Am – F.';
+    }, 3600);
+  });
+</script>
+
+<style>
+  .quick-listen { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin:16px 0; padding:16px; border:1px solid var(--bd); border-left:4px solid #f97316; border-radius:16px; background:linear-gradient(120deg,color-mix(in srgb,#f97316 10%,var(--card)),var(--card) 72%); }
+  .quick-listen h3 { margin:4px 0; }
+  .quick-listen p { margin:4px 0 0; }
+  .quick-listen-status { flex-basis:100%; min-height:1.4em; color:var(--mut); font-size:.88rem; }
+  .quick-listen button[aria-pressed="true"] { color:#fff; background:var(--acc); }
+</style>

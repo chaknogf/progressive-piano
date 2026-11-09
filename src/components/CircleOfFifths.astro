@@ -103,22 +103,19 @@ const MINOR_SECTORS = MINOR_KEYS.map((key, index) => {
 
 <section id="s11" class="circle-section" aria-labelledby="circle-title">
   <h2 id="circle-title">
-    3. El Círculo de Quintas: La Piedra de Rosetta de la Armonía <span
-      class="lesson-level">Intermedio ⭐️⭐️</span>
+    El mapa de tonalidades vecinas <span
+      class="lesson-level">Avanzado ⭐️⭐️⭐️</span>
   </h2>
-  <h3>Introducción · La Piedra de Rosetta de la música</h3>
+  <h3>Un mapa de metro para la música</h3>
   <p>
-    Piensa en el círculo como un mapa de metro: cada estación es una tonalidad y
-    cada trayecto de una estación a la siguiente avanza una quinta justa, siete
-    semitonos. Tras doce pasos vuelves a la nota de partida; en el temperamento
-    igual, el recorrido cierra el círculo aunque las grafías enarmónicas puedan
-    cambiar.
+    Cada estación es una tonalidad. Las que están cerca suelen compartir muchas
+    notas y acordes: al moverte a una estación vecina, la música cambia de color
+    sin sentirse completamente ajena.
   </p>
-  <p>
-    También funciona como una radiografía de la armonía: enseña de un vistazo
-    qué tonalidades están cerca, qué alteraciones comparten y qué acordes suelen
-    convivir. En sentido horario, cada paso suma una quinta justa ascendente.
-  </p>
+  <details class="circle-deep-dive">
+    <summary>¿Por qué el mapa forma un círculo?</summary>
+    <p>Al avanzar una quinta justa se suben siete semitonos. Do → Sol → Re continúa así hasta regresar a Do tras doce estaciones. En el temperamento igual, algunas estaciones pueden tener dos nombres escritos distintos aunque suenen a la misma altura.</p>
+  </details>
 
   <div class="circle-module">
     <h3>Módulo 1 · Armaduras y relativos</h3>
@@ -130,22 +127,25 @@ const MINOR_SECTORS = MINOR_KEYS.map((key, index) => {
       >. El anillo exterior muestra tonalidades mayores; justo dentro está su
       relativo menor, que comparte la misma armadura.
     </p>
-    <p class="circle-enharmonics">
-      <b>Equivalencias enarmónicas:</b> B / C♭, F♯ / G♭ y C♯ / D♭; en el anillo menor,
-      G♯m / A♭m, D♯m / E♭m y A♯m / B♭m. Comparten altura en temperamento igual, aunque
-      algunas grafías representan armaduras distintas.
-    </p>
-    <div class="circle-tips">
-      <aside class="box">
-        <b>Regla del penúltimo bemol:</b> en las tonalidades con bemoles, el penúltimo
-        bemol suele nombrar la tonalidad mayor. Excepción: Fa mayor tiene un bemol,
-        Si♭.
-      </aside>
-      <aside class="box">
-        <b>Regla de la sensible:</b> con sostenidos, la tonalidad mayor suele estar
-        un semitono arriba del último sostenido de la armadura.
-      </aside>
-    </div>
+    <details class="circle-deep-dive">
+      <summary>Reglas y nombres técnicos</summary>
+      <p class="circle-enharmonics">
+        <b>Equivalencias enarmónicas:</b> B / C♭, F♯ / G♭ y C♯ / D♭; en el anillo menor,
+        G♯m / A♭m, D♯m / E♭m y A♯m / B♭m. Comparten altura en temperamento igual, aunque
+        algunas grafías representan armaduras distintas.
+      </p>
+      <div class="circle-tips">
+        <aside class="box">
+          <b>Regla del penúltimo bemol:</b> en las tonalidades con bemoles, el penúltimo
+          bemol suele nombrar la tonalidad mayor. Excepción: Fa mayor tiene un bemol,
+          Si♭.
+        </aside>
+        <aside class="box">
+          <b>Regla de la sensible:</b> con sostenidos, la tonalidad mayor suele estar
+          un semitono arriba del último sostenido de la armadura.
+        </aside>
+      </div>
+    </details>
   </div>
 
   <div class="circle-module">
@@ -659,6 +659,9 @@ const MINOR_SECTORS = MINOR_KEYS.map((key, index) => {
   .circle-section {
     scroll-margin-top: 1rem;
   }
+  .circle-deep-dive { margin: 0.8rem 0; color: var(--mut); }
+  .circle-deep-dive summary { width: fit-content; cursor: pointer; color: var(--acc); font-weight: 700; }
+  .circle-section h2 { margin-top: 1rem; }
   .circle-module {
     margin: 1.4rem 0;
   }

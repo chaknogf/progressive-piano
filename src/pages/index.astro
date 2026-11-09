@@ -17,6 +17,7 @@ import CircleOfFifths from "../components/CircleOfFifths.astro";
 import { SITE_NAME, SITE_SUBTITLE } from "../data/site";
 import Logo from "../components/Logo.astro";
 import Afinador from "../components/Afinador.astro";
+import QuickListen from "../components/QuickListen.astro";
 ---
 
 <Layout>
@@ -48,6 +49,7 @@ import Afinador from "../components/Afinador.astro";
   <h2 id="s1">
     1. Cómo leer una progresión <span class="lesson-level">Inicial⭐️</span>
   </h2>
+  <QuickListen />
   <p class="lesson-goal">
     Al terminar, podrás leer una secuencia aunque cambie de tonalidad y
     encontrar sus acordes en el transpositor.
@@ -100,18 +102,6 @@ import Afinador from "../components/Afinador.astro";
       <p data-vi-answer aria-live="polite" hidden></p>
     </fieldset>
   </div>
-  <h4>Cómo leer los diagramas</h4>
-  <ul>
-    <li>
-      <b>Piano:</b> las teclas naranjas son las que se pulsan; el nombre aparece en
-      las blancas.
-    </li>
-    <li>
-      <b>Guitarra:</b> cuerdas de izquierda a derecha: E (grave), A, D, G, B, e (aguda).
-      ✕ = no se toca; ○ = al aire; ● = dedo en ese traste. Si el acorde está lejos
-      de la cejuela, se indica el número de traste.
-    </li>
-  </ul>
   <p class="source-note">
     Para ampliar: <a
       href="https://blog.landr.com/how-to-write-chord-progressions/"
@@ -159,7 +149,11 @@ import Afinador from "../components/Afinador.astro";
     usados en la música popular son I, IV, V y vi.
   </p>
   <BaseChords />
-  <CircleOfFifths />
+  <details class="box circle-advanced">
+    <summary><b>El mapa secreto · tonalidades vecinas</b></summary>
+    <p class="mut">Un mapa opcional para explorar qué tonalidades se parecen y cómo comparten acordes. Puedes volver aquí cuando ya hayas probado algunos acordes.</p>
+    <CircleOfFifths />
+  </details>
 
   <h2 id="s3">
     4. Catálogo de progresiones <span class="lesson-level"

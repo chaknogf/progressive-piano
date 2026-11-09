@@ -154,7 +154,13 @@ export function noteNames(notes: number[]): string[] {
   return notes.map((n) => NOTE_LETTERS[((n % 12) + 12) % 12]);
 }
 
-export function keyboardSvg(notes: number[], lo?: number, hi?: number, characteristic?: number): string {
+export function keyboardSvg(
+  notes: number[],
+  lo?: number,
+  hi?: number,
+  characteristic?: number,
+  degreeLabels: Record<number, string> = {},
+): string {
   const low = lo ?? Math.floor(Math.min(...notes) / 12) * 12;
   const high = hi ?? Math.ceil((Math.max(...notes) + 1) / 12) * 12;
   const WHITE = 22;
@@ -167,12 +173,17 @@ export function keyboardSvg(notes: number[], lo?: number, hi?: number, character
     const pc = ((semitone % 12) + 12) % 12;
     const on = pressed.has(semitone);
     const isCharacteristic = semitone === characteristic;
+    const degree = degreeLabels[pc];
     if (whiteKeys.includes(pc)) {
-      whites += `<rect x="${i * WHITE}" y="0" width="${WHITE}" height="84" class="wk${on ? ' on' : ''}${isCharacteristic ? ' characteristic' : ''}" role="img" aria-label="${NOTE_NAMES[pc]}${isCharacteristic ? ', nota característica' : ''}"/>`;
-      if (on) whites += `<text x="${i * WHITE + WHITE / 2}" y="76" class="t">${NOTE_NAMES[pc]}</text>`;
+      whites += `<rect x="${i * WHITE}" y="0" width="${WHITE}" height="84" class="wk${on ? ' on' : ''}${isCharacteristic ? ' characteristic' : ''}" role="img" aria-label="${NOTE_NAMES[pc]}${degree ? `, grado ${degree}` : ''}${isCharacteristic ? ', nota característica' : ''}"/>`;
+      if (on) {
+        if (degree) whites += `<text x="${i * WHITE + WHITE / 2}" y="59" class="degree-label">${degree}</text>`;
+        whites += `<text x="${i * WHITE + WHITE / 2}" y="76" class="t">${NOTE_NAMES[pc]}</text>`;
+      }
       i++;
     } else {
-      blacks += `<rect x="${i * WHITE - 7}" y="0" width="14" height="50" class="bk${on ? ' on' : ''}${isCharacteristic ? ' characteristic' : ''}" role="img" aria-label="${NOTE_NAMES[pc]}${isCharacteristic ? ', nota característica' : ''}"/>`;
+      blacks += `<rect x="${i * WHITE - 7}" y="0" width="14" height="50" class="bk${on ? ' on' : ''}${isCharacteristic ? ' characteristic' : ''}" role="img" aria-label="${NOTE_NAMES[pc]}${degree ? `, grado ${degree}` : ''}${isCharacteristic ? ', nota característica' : ''}"/>`;
+      if (on && degree) blacks += `<text x="${i * WHITE}" y="43" class="black-degree-label">${degree}</text>`;
     }
   }
   return `<svg viewBox="0 0 ${i * WHITE} 86" class="kb" role="img" aria-label="Teclado de piano">${whites}${blacks}</svg>`;

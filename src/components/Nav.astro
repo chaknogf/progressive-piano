@@ -16,14 +16,13 @@ const levels: { title: string; links: [string, string][] }[] = [
     title: "Intermedio ⭐️⭐️",
     links: [
       ["s6", "Modos y emociones"],
-      ["s11", "Círculo de quintas"],
       ["s4", "Inversiones"],
       ["s5", "Arpegios"],
     ],
   },
   {
     title: "Avanzado ⭐️⭐️⭐️",
-    links: [["s8", "Sonido y producción"]],
+    links: [["s8", "Sonido y producción"], ["s11", "Mapa secreto"]],
   },
 ];
 ---
@@ -65,7 +64,10 @@ const levels: { title: string; links: [string, string][] }[] = [
     const button = target?.closest<HTMLButtonElement>("button");
     const id = button?.dataset.go;
     if (!id) return;
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const destination = document.getElementById(id);
+    const disclosure = destination?.closest("details");
+    if (disclosure) disclosure.open = true;
+    destination?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   const observer = new IntersectionObserver(

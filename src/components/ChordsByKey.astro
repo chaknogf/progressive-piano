@@ -1,5 +1,5 @@
 ---
-import { DIATONIC_KEYS, diatonicChords } from '../lib/theory';
+import { DIATONIC_KEYS, chordNotes, diatonicChords, keyboardSvg, pitchClass, type ScaleMode } from '../lib/theory';
 
 const INITIAL_CHORDS = diatonicChords('C', 'major');
 const INITIAL_FORMULA = 'M · m · m · M · M · m · dim';
@@ -9,17 +9,32 @@ function qualityLabel(quality: string): string {
 }
 
 function functionLabel(index: number): string {
-  return index === 0 ? 'Casa' : index === 3 ? 'Te alejas' : index === 4 ? 'Tensión' : '';
+  const labels = ['Casa', 'Te alejas', 'Tensión', 'Color'];
+  return labels[index] || '';
 }
 
 function tonicLabel(key: string): string {
   return key.replaceAll('#', '♯').replaceAll('b', '♭');
 }
+
+/** Pitch classes of a chord, normalised to one octave so the mini keyboard stays compact. */
+function chordPitchClasses(id: string): number[] {
+  return chordNotes(id).map((note) => ((note % 12) + 12) % 12);
+}
+
+/** Map every scale note to its Roman-numeral coordinate. */
+const INITIAL_LABELS: Record<number, string> = Object.fromEntries(
+  INITIAL_CHORDS.map((chord) => [pitchClass(chord.rootId), chord.degree]),
+);
 ---
 
 <section class="key-tool" data-key-tool aria-labelledby="key-tool-title">
   <h3 id="key-tool-title">El molde de la escala</h3>
-  <p class="key-intro">El nombre del acorde es su <b>dirección exacta</b> (C, Am, F). El grado romano es su <b>coordenada</b>: indica el lugar que ocupa en la escala y conserva la misma forma cuando cambias de tonalidad.</p>
+  <p class="key-intro">
+    El nombre del acorde es su <b>dirección exacta</b> (C, Am, F). El grado romano es su
+    <b>coordenada</b>: indica el lugar que ocupa en la escala y conserva la misma forma cuando
+    cambias de tonalidad.
+  </p>
   <div class="key-controls">
     <label for="chord-key">Tonalidad</label>
     <select id="chord-key" aria-label="Elige una tonalidad">
@@ -33,41 +48,70 @@ function tonicLabel(key: string): string {
     <span class="relative-hint" data-relative-hint aria-live="polite">La menor</span>
   </div>
   <p class="key-formula"><b>Calidades:</b> <span data-formula>{INITIAL_FORMULA}</span></p>
-  <p class="mut key-secret"><b>El secreto del músico:</b> Do mayor y La menor comparten C, Dm, Em, F, G, Am y Bdim. Cambia el asiento de inicio y los mismos acordes cuentan otra historia.</p>
-  <div class="key-chord-grid" data-chord-grid aria-label="Acordes de la escala">
+  <p class="mut key-secret">
+    <b>El secreto del músico:</b> Do mayor y La menor comparten C, Dm, Em, F, G, Am y Bdim.
+    Cambia el asiento de inicio y los mismos acordes cuentan otra historia.
+  </p>
+
+  <div class="key-chord-grid" data-chord-grid aria-label="Siete paradas de la escala">
     {INITIAL_CHORDS.map((chord, index) => (
       <button
         type="button"
         class:list={['key-chord', `quality-${chord.quality}`, { selected: index === 0 }]}
         data-chord-index={index}
         data-chord-id={chord.id}
-        aria-label={`${chord.degree}, ${chord.name}, ${qualityLabel(chord.quality)}${functionLabel(index) ? `, ${functionLabel(index)}` : ''}`}
+        aria-label={`${chord.degree} · ${chord.name} · ${qualityLabel(chord.quality)}`}
         aria-pressed={index === 0 ? 'true' : 'false'}
       >
-        <span class="chord-degree">{chord.degree}</span>
-        <span class="chord-name">{chord.name}</span>
+        <span class="stop-number">Parada {String(index + 1).padStart(2, '0')}</span>
+        <span class="chord-head">
+          <span class="chord-degree">{chord.degree}</span>
+          <span class="chord-name">{chord.name}</span>
+        </span>
         <span class="chord-quality">{qualityLabel(chord.quality)}</span>
+        <span
+          class="card-keyboard"
+          aria-hidden="true"
+          set:html={keyboardSvg(chordPitchClasses(chord.id), 0, 12, undefined, INITIAL_LABELS)}
+        />
         {functionLabel(index) && <span class="chord-function">{functionLabel(index)}</span>}
       </button>
     ))}
   </div>
+
   <div class="key-viewer-card">
     <p class="key-viewer-label" data-selected-label aria-live="polite">Selecciona un acorde para ver sus notas.</p>
     <div class="v" data-chord-view></div>
   </div>
+
   <div class="train-card">
     <div class="train-heading">
-      <div><h4>El tren de los acordes</h4><p class="mut">Pulsa un vagón: escucha el acorde y mira su forma en piano y guitarra.</p></div>
+      <div>
+        <h4>El tren de los acordes</h4>
+        <p class="mut">Pulsa un vagón: escucha el acorde y mira su forma en piano y guitarra.</p>
+      </div>
       <button type="button" data-play-train>▶ Escuchar el recorrido</button>
     </div>
     <div class="progression-train" data-progression-train aria-label="Progresión I – V – vi – IV"></div>
     <p class="train-status" data-train-status aria-live="polite">I es el hogar: aquí descansa el oído.</p>
-    <p class="train-legend"><span class="role-tonic">Hogar · reposo</span><span class="role-subdominant">Movimiento</span><span class="role-dominant">Tensión</span></p>
+    <p class="train-legend">
+      <span class="role-tonic">Hogar · reposo</span>
+      <span class="role-subdominant">Movimiento</span>
+      <span class="role-dominant">Tensión</span>
+    </p>
   </div>
 </section>
 
 <script>
-  import { chordNotes, diatonicChords, DIATONIC_KEYS, pitchClass, relativeTonic, type ScaleMode } from '../lib/theory';
+  import {
+    chordNotes,
+    diatonicChords,
+    DIATONIC_KEYS,
+    keyboardSvg,
+    pitchClass,
+    relativeTonic,
+    type ScaleMode,
+  } from '../lib/theory';
   import { playSequence } from '../lib/audio';
   import { renderChordView } from '../lib/views';
   import { must } from '../lib/dom';
@@ -105,7 +149,20 @@ function tonicLabel(key: string): string {
   }
 
   function functionLabel(index: number): string {
-    return index === 0 ? 'Casa' : index === 3 ? 'Te alejas' : index === 4 ? 'Tensión' : '';
+    const labels = ['Casa', 'Te alejas', 'Tensión', 'Color'];
+    return labels[index] || '';
+  }
+
+  function chordPitchClasses(id: string): number[] {
+    return chordNotes(id).map((note) => ((note % 12) + 12) % 12);
+  }
+
+  function degreeLabels(list = chords): Record<number, string> {
+    return Object.fromEntries(list.map((chord) => [pitchClass(chord.rootId), chord.degree]));
+  }
+
+  function cardKeyboard(chordId: string, labels: Record<number, string>): string {
+    return keyboardSvg(chordPitchClasses(chordId), 0, 12, undefined, labels);
   }
 
   function setKeys(mode: ScaleMode, selected: string): void {
@@ -127,8 +184,9 @@ function tonicLabel(key: string): string {
       button.classList.toggle('selected', selected);
       button.setAttribute('aria-pressed', String(selected));
     });
-    selectedLabel.textContent = `${chord.degree} · ${chord.name} (${qualityLabel(chord.quality)})`;
-    renderChordView(view, chord.id, 0, false, chord.name);
+    const functionText = functionLabel(index);
+    selectedLabel.textContent = `${chord.degree} · ${chord.name} (${qualityLabel(chord.quality)})${functionText ? ` — ${functionText}` : ''}`;
+    renderChordView(view, chord.id, 0, false, chord.name, degreeLabels());
     if (shouldPlay) playSequence([chordNotes(chord.id)], 0, 1.3);
   }
 
@@ -166,6 +224,7 @@ function tonicLabel(key: string): string {
     currentMode = mode;
     currentKey = key;
     chords = diatonicChords(key, mode);
+    const labels = degreeLabels(chords);
     setKeys(mode, key);
     formula.textContent = formulas[mode];
     modeButtons.forEach((button) => {
@@ -174,12 +233,16 @@ function tonicLabel(key: string): string {
       button.setAttribute('aria-pressed', String(selected));
     });
     grid.innerHTML = chords.map((chord, index) => {
-      const label = functionLabel(index);
-      return `<button type="button" class="key-chord quality-${chord.quality}${index === selectedIndex ? ' selected' : ''}" data-chord-index="${index}" data-chord-id="${chord.id}" aria-label="${chord.degree}, ${chord.name}, ${qualityLabel(chord.quality)}${label ? `, ${label}` : ''}" aria-pressed="${index === selectedIndex}">
-        <span class="chord-degree">${chord.degree}</span>
-        <span class="chord-name">${chord.name}</span>
+      const functionText = functionLabel(index);
+      return `<button type="button" class="key-chord quality-${chord.quality}${index === selectedIndex ? ' selected' : ''}" data-chord-index="${index}" data-chord-id="${chord.id}" aria-label="${chord.degree} · ${chord.name} · ${qualityLabel(chord.quality)}" aria-pressed="${index === selectedIndex}">
+        <span class="stop-number">Parada ${String(index + 1).padStart(2, '0')}</span>
+        <span class="chord-head">
+          <span class="chord-degree">${chord.degree}</span>
+          <span class="chord-name">${chord.name}</span>
+        </span>
         <span class="chord-quality">${qualityLabel(chord.quality)}</span>
-        ${label ? `<span class="chord-function">${label}</span>` : ''}
+        <span class="card-keyboard" aria-hidden="true">${cardKeyboard(chord.id, labels)}</span>
+        ${functionText ? `<span class="chord-function">${functionText}</span>` : ''}
       </button>`;
     }).join('');
     renderSelected(selectedIndex, false);
@@ -211,6 +274,7 @@ function tonicLabel(key: string): string {
     const relative = relativeTonic(currentKey, currentMode);
     render(relative.mode, relative.tonic);
     publishTonalidad();
+    playTrain();
   });
 
   train.addEventListener('click', (event) => {
@@ -242,62 +306,109 @@ function tonicLabel(key: string): string {
   render(currentMode, currentKey, 0);
 </script>
 
-<style>
-  .key-tool { margin: 1.2em 0; padding: 16px; border: 1px solid var(--bd); border-radius: 14px; background: var(--card); }
+<style is:global>
+  .key-tool { margin: 1.2em 0; padding: 18px; border: 1px solid var(--bd); border-radius: 18px; background: var(--card); }
   .key-tool h3 { margin-top: 0; }
   .key-intro { max-width: 74ch; color: var(--mut); }
-  .key-secret { padding: 10px 12px; border-left: 3px solid #8b5cf6; border-radius: 8px; background: color-mix(in srgb, #8b5cf6 8%, var(--card)); }
-  .key-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .key-secret { padding: 10px 12px; border-left: 3px solid #8b5cf6; border-radius: 10px; background: color-mix(in srgb, #8b5cf6 8%, var(--card)); }
+  .key-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0; }
   .key-controls label { font-weight: 650; }
   .mode-switch { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--bd); border-radius: 999px; }
-  .mode-switch button { border: 0; padding-inline: 12px; }
+  .mode-switch button { border: 0; padding-inline: 14px; border-radius: 999px; }
   .relative-hint, .key-formula { color: var(--mut); }
   .relative-hint { font-size: 0.9rem; }
   .key-formula { margin: 0.8em 0; }
-  .key-chord-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
-  .key-chord { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; min-height: 84px; padding: 10px; border-radius: 12px; text-align: left; }
-  .key-chord.selected { outline: 2px solid var(--acc); outline-offset: 1px; }
-  .chord-degree { font-weight: 750; }
-  .chord-name { grid-column: 1 / -1; font-size: 1.2rem; font-weight: 750; }
-  .chord-quality { font-size: 0.75rem; font-weight: 650; }
-  .chord-function { justify-self: end; font-size: 0.72rem; color: var(--mut); }
-  .quality-major { border-color: var(--quality-major, #3b82f6); }
-  .quality-minor { border-color: var(--quality-minor, #a855f7); }
-  .quality-diminished { border-color: var(--quality-dim, #d97706); border-style: dashed; }
-  .quality-major .chord-quality { color: var(--quality-major, #2563eb); }
-  .quality-minor .chord-quality { color: var(--quality-minor, #9333ea); }
-  .quality-diminished .chord-quality { color: var(--quality-dim, #b45309); }
-  .key-viewer-card { margin-top: 14px; padding: 12px; border-radius: 12px; background: var(--bg); }
-  .key-viewer-label { margin: 0; font-weight: 650; }
+
+  .key-chord-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 16px; }
+  .key-chord {
+    --accent: var(--acc);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 15px 14px 13px;
+    border: 1px solid var(--bd);
+    border-radius: 16px;
+    background: linear-gradient(180deg, var(--card) 0%, color-mix(in srgb, var(--card) 86%, var(--bg)) 100%);
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .key-chord::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--accent); }
+  .key-chord.quality-major { --accent: #2563eb; }
+  .key-chord.quality-minor { --accent: #7c3aed; }
+  .key-chord.quality-diminished { --accent: #d97706; }
+  .key-chord:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgb(0 0 0 / .12); border-color: color-mix(in srgb, var(--accent) 45%, var(--bd)); }
+  .key-chord.selected {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent), 0 12px 28px rgb(0 0 0 / .14);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 8%, var(--card)) 0%, var(--card) 100%);
+  }
+  .stop-number { font-size: .58rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mut); }
+  .chord-head { display: flex; align-items: baseline; gap: 9px; }
+  .chord-degree { font-size: 1.9rem; font-weight: 900; line-height: 1; color: var(--accent); letter-spacing: -.01em; }
+  .chord-name { font-size: 1.5rem; font-weight: 800; line-height: 1; color: var(--fg); }
+  .chord-quality {
+    align-self: flex-start;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: .68rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 13%, var(--card));
+  }
+  .key-chord.quality-diminished .chord-quality { border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent); }
+  .card-keyboard { display: block; margin-top: 2px; }
+  .card-keyboard .kb { width: 100%; max-width: 100%; }
+  .card-keyboard .degree-label { font-size: 7px; }
+  .card-keyboard .black-degree-label { font-size: 6px; }
+  .chord-function { margin-top: auto; font-size: .68rem; font-weight: 600; color: var(--mut); }
+
+  .key-viewer-card { margin-top: 20px; padding: 16px; border-radius: 16px; background: var(--bg); }
+  .key-viewer-label { margin: 0 0 12px; font-weight: 650; font-size: .9rem; color: var(--mut); }
   .key-viewer-card .v:empty { display: none; }
-  .key-viewer-card .v:not(:empty) { margin-top: 8px; }
-  .train-card { margin-top: 14px; padding: 14px; border: 1px solid var(--bd); border-radius: 12px; background: color-mix(in srgb, var(--card) 84%, #8b5cf6 4%); }
-  .train-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+
+  .train-card { margin-top: 24px; padding: 18px; border: 1px solid var(--bd); border-radius: 16px; background: color-mix(in srgb, var(--card) 84%, #8b5cf6 4%); }
+  .train-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
   .train-heading h4 { margin: 0; color: var(--fg); }
-  .train-heading p { margin: 4px 0 0; }
-  .progression-train { display: flex; align-items: stretch; gap: 7px; overflow-x: auto; padding: 14px 2px 8px; }
-  .train-wagon { display: grid; flex: 1 0 105px; min-height: 82px; align-content: center; justify-items: start; gap: 2px; padding: 9px 11px; border-radius: 13px; border-width: 2px; text-align: left; }
-  .train-wagon b { font-size: 1.13rem; }
-  .train-wagon small { color: var(--mut); font-size: 0.68rem; }
+  .train-heading p { margin: 4px 0 0; font-size: .85rem; color: var(--mut); }
+  .progression-train { display: flex; align-items: stretch; gap: 8px; overflow-x: auto; padding: 12px 2px 8px; }
+  .train-wagon { display: grid; flex: 1 0 110px; min-height: 88px; align-content: center; justify-items: start; gap: 3px; padding: 11px 14px; border-radius: 14px; border-width: 2px; text-align: left; }
+  .train-wagon b { font-size: 1.2rem; }
+  .train-wagon small { color: var(--mut); font-size: .68rem; }
   .wagon-degree { font-weight: 750; }
   .train-link { align-self: center; color: var(--mut); }
   .train-wagon.role-tonic { border-color: #f97316; }
   .train-wagon.role-subdominant { border-color: #8b5cf6; }
   .train-wagon.role-dominant { border-color: #ec4899; }
-  .train-wagon.is-current { box-shadow: 0 0 0 2px color-mix(in srgb, var(--acc) 28%, transparent); transform: translateY(-2px); }
-  .train-status { min-height: 1.5em; margin: 4px 0 8px; font-weight: 650; }
+  .train-wagon.is-current { box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 26%, transparent); transform: translateY(-2px); }
+  .train-status { min-height: 1.5em; margin: 6px 0 8px; font-weight: 650; }
   .train-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
-  .train-legend span { padding: 4px 8px; border: 1px solid var(--bd); border-radius: 999px; font-size: 0.75rem; }
+  .train-legend span { padding: 4px 9px; border: 1px solid var(--bd); border-radius: 999px; font-size: .74rem; }
   .role-tonic { color: #f97316; }
   .role-subdominant { color: #8b5cf6; }
   .role-dominant { color: #ec4899; }
-  @media (prefers-reduced-motion: reduce) { .train-wagon.is-current { transform: none; } }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .quality-major .chord-quality { color: #93c5fd; }
-    :root:not([data-theme="light"]) .quality-minor .chord-quality { color: #d8b4fe; }
-    :root:not([data-theme="light"]) .quality-diminished .chord-quality { color: #fcd34d; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .key-chord { transition: none; }
+    .key-chord:hover, .key-chord.selected { transform: none; }
+    .train-wagon.is-current { transform: none; }
   }
-  :global(:root[data-theme="dark"]) .quality-major .chord-quality { color: #93c5fd; }
-  :global(:root[data-theme="dark"]) .quality-minor .chord-quality { color: #d8b4fe; }
-  :global(:root[data-theme="dark"]) .quality-diminished .chord-quality { color: #fcd34d; }
+
+  @media (max-width: 560px) {
+    .key-chord-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .key-chord.quality-major { --accent: #60a5fa; }
+    :root:not([data-theme="light"]) .key-chord.quality-minor { --accent: #a78bfa; }
+    :root:not([data-theme="light"]) .key-chord.quality-diminished { --accent: #fbbf24; }
+    :root:not([data-theme="light"]) .key-chord { background: linear-gradient(180deg, var(--card) 0%, color-mix(in srgb, var(--card) 80%, #000 20%) 100%); }
+  }
+  :root[data-theme="dark"] .key-chord.quality-major { --accent: #60a5fa; }
+  :root[data-theme="dark"] .key-chord.quality-minor { --accent: #a78bfa; }
+  :root[data-theme="dark"] .key-chord.quality-diminished { --accent: #fbbf24; }
+  :root[data-theme="dark"] .key-chord { background: linear-gradient(180deg, var(--card) 0%, color-mix(in srgb, var(--card) 80%, #000 20%) 100%); }
 </style>
