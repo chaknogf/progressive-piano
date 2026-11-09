@@ -3,22 +3,43 @@
 // Afinador de guitarra en tiempo real: micrófono + detección de tono (YIN).
 ---
 
-<section class="afinador" id="afinador-app" aria-label="Afinador de guitarra">
+<section
+  class="afinador"
+  id="afinador-app"
+  aria-label="Afinador de guitarra y cromático"
+>
   <div class="af-top">
-    <label class="af-field" for="af-tuning"
+    <label class="af-field" for="af-mode"
+      >Modo
+      <select id="af-mode">
+        <option value="guitar">Guitarra (cuerdas al aire)</option>
+        <option value="chromatic">Cromático (cualquier nota)</option>
+      </select>
+    </label>
+    <label class="af-field" for="af-tuning" id="af-tuning-field"
       >Afinación
       <select id="af-tuning"></select>
     </label>
+    <label class="af-field" for="af-refpitch"
+      >Referencia A4
+      <select id="af-refpitch">
+        <option value="432">432 Hz</option>
+        <option value="440" selected>440 Hz (estándar)</option>
+        <option value="442">442 Hz</option>
+        <option value="444">444 Hz</option>
+      </select>
+    </label>
     <button type="button" id="af-auto" class="af-chip" aria-pressed="true"
-      >Detectar cuerda automáticamente</button
+      >Automático</button
     >
     <button type="button" id="af-start" class="af-primary"
       >🎤 Activar micrófono</button
     >
   </div>
   <p class="af-privacy">
-    El audio se analiza en tu dispositivo: no se envía ni se graba. Toca una
-    cuerda al aire, déjala sonar y evita el ruido de fondo.
+    El audio se analiza en tiempo real en tu dispositivo: no se graba ni se
+    envía. Acerca el móvil a la guitarra, toca una sola cuerda y deja que suene;
+    evita el ruido de fondo.
   </p>
 
   <div class="af-display" id="af-display" data-state="idle">
@@ -72,6 +93,7 @@
     </p>
   </div>
 
+  <p class="af-target" id="af-target"></p>
   <div
     class="af-strings"
     id="af-strings"
@@ -93,22 +115,21 @@
 
 <script>
   import { $, must } from "../lib/dom";
+  import {
+    NOTE_NAMES,
+    centsBetween,
+    createPitchDetector,
+    foldToReference,
+    freqToMidi,
+    hz,
+    matchString,
+    nearestMidiForPitchClass,
+    noteName,
+    pitchClassOf,
+  } from "../lib/tuner";
 
   // ── Datos ──────────────────────────────────────────────────────────
-  const NOTES = [
-    "Do",
-    "Do♯",
-    "Re",
-    "Re♯",
-    "Mi",
-    "Fa",
-    "Fa♯",
-    "Sol",
-    "Sol♯",
-    "La",
-    "La♯",
-    "Si",
-  ];
+  const NOTES = NOTE_NAMES;
   // midi de cada cuerda, de la 6.ª (grave) a la 1.ª (aguda)
   const TUNINGS: { name: string; midi: number[] }[] = [
     { name: "Estándar (E A D G B e)", midi: [40, 45, 50, 55, 59, 64] },
@@ -118,69 +139,36 @@
     { name: "Open G", midi: [38, 43, 50, 55, 59, 62] },
     { name: "Open D", midi: [38, 45, 50, 54, 57, 62] },
   ];
-  const MIN_HZ = 60;
-  const MAX_HZ = 500;
-  const FFT = 4096;
-  const YIN_THRESHOLD = 0.12;
+  const MIN_HZ = 55;
+  const MAX_HZ = 1200;
+  const FFT = 8192;
   const TOLERANCE = 5; // cents
   const HOLD_MS = 800; // tiempo afinada para marcar ✓
-
-  const hz = (midi: number): number => 440 * 2 ** ((midi - 69) / 12);
-  const noteName = (midi: number): string =>
-    `${NOTES[((midi % 12) + 12) % 12]}${Math.floor(midi / 12) - 1}`;
-  const centsBetween = (f: number, target: number): number =>
-    1200 * Math.log2(f / target);
-
-  // ── Detección de tono (YIN) ────────────────────────────────────────
-  let cmnd = new Float32Array(1024);
-  function detectPitch(
-    buf: Float32Array,
-    sr: number,
-  ): { freq: number; clarity: number } | null {
-    const W = buf.length >> 1;
-    const minTau = Math.max(2, Math.floor(sr / MAX_HZ));
-    const maxTau = Math.min(W - 2, Math.floor(sr / MIN_HZ));
-    if (cmnd.length < maxTau + 2) cmnd = new Float32Array(maxTau + 2);
-    let running = 0;
-    cmnd[0] = 1;
-    for (let tau = 1; tau <= maxTau + 1; tau += 1) {
-      let sum = 0;
-      for (let i = 0; i < W; i += 1) {
-        const d = buf[i] - buf[i + tau];
-        sum += d * d;
-      }
-      running += sum;
-      cmnd[tau] = running === 0 ? 1 : (sum * tau) / running;
-    }
-    let tau = -1;
-    for (let t = minTau; t <= maxTau; t += 1) {
-      if (cmnd[t] < YIN_THRESHOLD) {
-        while (t + 1 <= maxTau && cmnd[t + 1] < cmnd[t]) t += 1;
-        tau = t;
-        break;
-      }
-    }
-    if (tau === -1) {
-      let best = minTau;
-      for (let t = minTau; t <= maxTau; t += 1)
-        if (cmnd[t] < cmnd[best]) best = t;
-      if (cmnd[best] > 0.35) return null;
-      tau = best;
-    }
-    const s0 = cmnd[tau - 1];
-    const s1 = cmnd[tau];
-    const s2 = cmnd[tau + 1];
-    const denom = s0 - 2 * s1 + s2;
-    const shift = denom !== 0 ? (s0 - s2) / (2 * denom) : 0;
-    const better = tau + Math.max(-1, Math.min(1, shift));
-    return { freq: sr / better, clarity: 1 - s1 };
-  }
+  const MIN_RMS = 0.0025; // señal mínima para intentar detectar
+  const MIN_CLARITY = 0.65; // periodicidad mínima fiable
+  const detectPitch = createPitchDetector({
+    minHz: MIN_HZ,
+    maxHz: MAX_HZ,
+    threshold: 0.15,
+  });
 
   // ── Referencias DOM ────────────────────────────────────────────────
   const root = must(document.getElementById("afinador-app"), "#afinador-app");
+  const modeSelect = must(
+    $<HTMLSelectElement>("#af-mode", root),
+    "#af-mode",
+  );
+  const tuningField = must(
+    $("#af-tuning-field", root),
+    "#af-tuning-field",
+  );
   const tuningSelect = must(
     $<HTMLSelectElement>("#af-tuning", root),
     "#af-tuning",
+  );
+  const refPitchSelect = must(
+    $<HTMLSelectElement>("#af-refpitch", root),
+    "#af-refpitch",
   );
   const autoButton = must($<HTMLButtonElement>("#af-auto", root), "#af-auto");
   const startButton = must(
@@ -193,6 +181,7 @@
   const meter = must($("#af-meter", root), "#af-meter");
   const needle = must($("#af-needle", root), "#af-needle");
   const verdict = must($("#af-verdict", root), "#af-verdict");
+  const targetHintEl = must($("#af-target", root), "#af-target");
   const stringsEl = must($("#af-strings", root), "#af-strings");
   const refButton = must($<HTMLButtonElement>("#af-ref", root), "#af-ref");
   const resetButton = must(
@@ -205,9 +194,14 @@
   interface WebkitWindow extends Window {
     webkitAudioContext?: typeof AudioContext;
   }
+  type Mode = "guitar" | "chromatic";
+  let mode: Mode = "guitar";
+  let a4 = 440;
   let tuningIndex = 0;
-  let manual: number | null = null;
-  let lastTarget: number | null = null;
+  let manual: number | null = null; // cuerda fija en modo guitarra
+  let targetPc: number | null = null; // nota fija en modo cromático
+  let lastStringTarget: number | null = null;
+  let lastTargetMidi: number | null = null;
   let done = new Set<string>();
   let ctx: AudioContext | null = null;
   let stream: MediaStream | null = null;
@@ -217,6 +211,8 @@
   let history: number[] = [];
   let shown: number | null = null;
   let lastVoiced = 0;
+  let lowSignalSince = 0;
+  let lastHighlight: number | null = null;
   let inTuneSince = 0;
   let ignoreUntil = 0;
   let lastAnnounce = 0;
@@ -225,24 +221,50 @@
   const strings = () =>
     TUNINGS[tuningIndex].midi.map((midi, i) => ({
       midi,
-      freq: hz(midi),
+      freq: hz(midi, a4),
       number: 6 - i,
       name: noteName(midi),
     }));
-  const doneKey = (i: number): string => `${tuningIndex}-${i}`;
+  const doneKey = (index: number): string =>
+    mode === "guitar" ? `g-${tuningIndex}-${index}` : `c-${index}`;
+  const playMessage = (): string =>
+    mode === "guitar"
+      ? "Toca una cuerda al aire."
+      : "Toca una nota o elige la tonalidad que quieres afinar.";
+  const waitingMessage = (): string =>
+    mode === "guitar"
+      ? "Activa el micrófono y toca una cuerda."
+      : "Activa el micrófono y toca una nota.";
 
   tuningSelect.innerHTML = TUNINGS.map(
     (t, i) => `<option value="${i}">${t.name}</option>`,
   ).join("");
 
   function renderStrings(active: number | null = null): void {
-    stringsEl.innerHTML = strings()
-      .map((s, i) => {
-        const isDone = done.has(doneKey(i));
-        return `<button type="button" class="af-str${active === i ? " is-active" : ""}${isDone ? " is-done" : ""}" data-i="${i}" aria-pressed="${manual === i}" aria-label="Cuerda ${s.number}, ${s.name}${isDone ? ", afinada" : ""}">
+    targetHintEl.textContent =
+      mode === "guitar"
+        ? "Cuerda objetivo: toca una al aire o elige una para fijarla."
+        : "Tonalidad / nota objetivo: elige una nota o déjalo en automático.";
+    lastHighlight = active;
+    if (mode === "guitar") {
+      stringsEl.setAttribute("aria-label", "Cuerdas de la guitarra");
+      stringsEl.innerHTML = strings()
+        .map((s, i) => {
+          const isDone = done.has(doneKey(i));
+          return `<button type="button" class="af-str${active === i ? " is-active" : ""}${isDone ? " is-done" : ""}" data-i="${i}" aria-pressed="${manual === i}" aria-label="Cuerda ${s.number}, ${s.name}${isDone ? ", afinada" : ""}">
         <small>${s.number}ª</small><b>${s.name}</b><span>${s.freq.toFixed(1)} Hz${isDone ? " ✓" : ""}</span></button>`;
-      })
-      .join("");
+        })
+        .join("");
+      return;
+    }
+
+    stringsEl.setAttribute("aria-label", "Notas para afinar");
+    stringsEl.innerHTML = NOTES.map((name, pc) => {
+      const isDone = done.has(doneKey(pc));
+      const isSelected = targetPc === pc;
+      return `<button type="button" class="af-str${active === pc ? " is-active" : ""}${isDone ? " is-done" : ""}" data-pc="${pc}" aria-pressed="${isSelected}" aria-label="${name}${isDone ? ", afinada" : ""}">
+        <b>${name}</b><span>${isDone ? "✓" : isSelected ? "objetivo" : "&nbsp;"}</span></button>`;
+    }).join("");
   }
 
   function setState(state: "idle" | "ok" | "low" | "high" | "listening"): void {
@@ -255,17 +277,18 @@
     meter.setAttribute("aria-valuenow", String(Math.round(clamped)));
   }
 
-  function resetReading(message = "Toca una cuerda al aire."): void {
+  function resetReading(message = playMessage()): void {
     shown = null;
     history = [];
     inTuneSince = 0;
+    lowSignalSince = 0;
     noteEl.textContent = "—";
     subEl.textContent = message;
     verdict.textContent = ctx ? "Escuchando…" : "Esperando micrófono…";
     meter.setAttribute("aria-valuetext", "Sin señal");
     setNeedle(null);
     setState(ctx ? "listening" : "idle");
-    renderStrings(manual);
+    renderStrings(mode === "guitar" ? manual : null);
   }
 
   // ── Bucle de análisis ──────────────────────────────────────────────
@@ -276,13 +299,34 @@
     for (let i = 0; i < buf.length; i += 1) energy += buf[i] * buf[i];
     const rms = Math.sqrt(energy / buf.length);
     levelBar.style.width = `${Math.min(100, rms * 800)}%`;
+    const strong = rms >= MIN_RMS;
+    levelBar.dataset.signal = strong ? "ok" : "low";
     const now = performance.now();
     if (now < ignoreUntil) return; // no analizar mientras suena la referencia
 
-    const pitch = rms > 0.008 ? detectPitch(buf, ctx.sampleRate) : null;
-    if (!pitch || pitch.clarity < 0.85) {
-      if (shown !== null && now - lastVoiced > 700)
-        resetReading("Toca una cuerda al aire.");
+    if (!strong) {
+      if (!lowSignalSince) lowSignalSince = now;
+      if (shown !== null && now - lastVoiced > 900) {
+        resetReading();
+      } else if (
+        shown === null &&
+        ctx &&
+        now - lowSignalSince > 1800 &&
+        now - lastAnnounce > 1200
+      ) {
+        lastAnnounce = now;
+        verdict.textContent =
+          mode === "guitar"
+            ? "Señal baja: acerca el móvil a la guitarra y toca una sola cuerda."
+            : "Señal baja: acerca el micrófono y toca una nota clara.";
+      }
+      return;
+    }
+    lowSignalSince = 0;
+
+    const pitch = detectPitch(buf, ctx.sampleRate);
+    if (!pitch || pitch.clarity < MIN_CLARITY) {
+      if (shown !== null && now - lastVoiced > 900) resetReading();
       return;
     }
     lastVoiced = now;
@@ -298,90 +342,91 @@
     const sorted = [...history].sort((a, b) => a - b);
     const f = sorted[Math.floor(sorted.length / 2)];
 
-    // cuerda objetivo
-    const list = strings();
-    let target: number;
-    if (manual !== null) {
-      target = manual;
-    } else {
-      let best = 0;
-      list.forEach((s, i) => {
-        if (
-          Math.abs(centsBetween(f, s.freq)) <
-          Math.abs(centsBetween(f, list[best].freq))
-        )
-          best = i;
-      });
-      target = best;
-      if (
-        lastTarget !== null &&
-        lastTarget !== best &&
-        Math.abs(centsBetween(f, list[lastTarget].freq)) < 35
-      )
-        target = lastTarget;
-    }
-    if (target !== lastTarget) {
-      shown = null;
-      inTuneSince = 0;
-    }
-    lastTarget = target;
+    let cents: number;
+    let noteMidi: number;
+    let targetMidi: number;
+    let targetLabel: string;
+    let doneIndex: number;
+    let hint = "";
 
-    const cents = centsBetween(f, list[target].freq);
+    if (mode === "guitar") {
+      const list = strings();
+      const match = matchString(
+        f,
+        list.map((s) => s.freq),
+        manual ?? lastStringTarget,
+      );
+      if (!match) return;
+      const targetIndex = manual ?? match.index;
+      if (targetIndex !== lastStringTarget) {
+        shown = null;
+        inTuneSince = 0;
+      }
+      lastStringTarget = targetIndex;
+      const s = list[targetIndex];
+      const folded = foldToReference(f, s.freq);
+      cents = folded.cents;
+      targetMidi = s.midi;
+      noteMidi = Math.round(freqToMidi(folded.freq, a4));
+      targetLabel = `Cuerda ${s.number} (${s.name}) · ${folded.freq.toFixed(1)} Hz · objetivo ${s.freq.toFixed(1)} Hz`;
+      doneIndex = targetIndex;
+      if (manual !== null && match.index !== manual)
+        hint = ` Parece que suena la cuerda ${list[match.index].number}.`;
+    } else {
+      const detectedMidi = Math.round(freqToMidi(f, a4));
+      targetMidi =
+        targetPc === null
+          ? detectedMidi
+          : nearestMidiForPitchClass(targetPc, detectedMidi);
+      const targetFreq = hz(targetMidi, a4);
+      const folded = foldToReference(f, targetFreq);
+      cents = folded.cents;
+      noteMidi = detectedMidi;
+      doneIndex = pitchClassOf(targetMidi);
+      targetLabel = `Objetivo: ${noteName(targetMidi)} (${targetFreq.toFixed(1)} Hz) · detectado ${f.toFixed(1)} Hz`;
+      if (targetPc !== null && pitchClassOf(detectedMidi) !== targetPc)
+        hint = ` Estás tocando ${noteName(detectedMidi)}; el objetivo es ${NOTES[targetPc]}.`;
+    }
+
+    lastTargetMidi = targetMidi;
     shown = shown === null ? cents : shown + (cents - shown) * 0.4;
     const rounded = Math.round(shown);
 
-    const midiNear = Math.round(69 + 12 * Math.log2(f / 440));
-    noteEl.textContent = noteName(midiNear);
-    const s = list[target];
-    subEl.textContent = `Cuerda ${s.number} (${s.name}) · ${f.toFixed(1)} Hz detectado · objetivo ${s.freq.toFixed(1)} Hz`;
+    noteEl.textContent = noteName(noteMidi);
+    subEl.textContent = targetLabel;
     setNeedle(shown);
-
-    // ¿suena como otra cuerda en modo manual?
-    let hint = "";
-    if (manual !== null) {
-      let closest = 0;
-      list.forEach((c, i) => {
-        if (
-          Math.abs(centsBetween(f, c.freq)) <
-          Math.abs(centsBetween(f, list[closest].freq))
-        )
-          closest = i;
-      });
-      if (
-        closest !== manual &&
-        Math.abs(centsBetween(f, list[closest].freq)) < 40
-      )
-        hint = ` Parece que suena la cuerda ${list[closest].number}.`;
-    }
 
     let text: string;
     if (Math.abs(shown) <= TOLERANCE) {
       setState("ok");
       text = "✓ Afinada. ¡Perfecto!";
       if (!inTuneSince) inTuneSince = now;
-      if (now - inTuneSince > HOLD_MS && !done.has(doneKey(target))) {
-        done.add(doneKey(target));
-        text = `✓ Cuerda ${s.number} afinada.`;
-        renderStrings(target);
+      if (now - inTuneSince > HOLD_MS && !done.has(doneKey(doneIndex))) {
+        done.add(doneKey(doneIndex));
+        text =
+          mode === "guitar"
+            ? `✓ Cuerda ${strings()[doneIndex].number} afinada.`
+            : `✓ ${NOTES[doneIndex]} afinada.`;
+        renderStrings(doneIndex);
       }
     } else if (shown < 0) {
       setState("low");
       inTuneSince = 0;
-      text = `▲ Falta tensión (${Math.abs(rounded)} cents baja): aprieta la clavija.${Math.abs(shown) > 50 ? " Estás lejos: gira poco a poco." : ""}`;
+      text = `▲ Está baja (${Math.abs(rounded)} cents): ${mode === "guitar" ? "aprieta la clavija" : "sube la afinación"}.${Math.abs(shown) > 50 ? " Estás lejos: gira poco a poco." : ""}`;
     } else {
       setState("high");
       inTuneSince = 0;
-      text = `▼ Demasiada tensión (${rounded} cents alta): afloja la clavija.${shown > 50 ? " Estás lejos: gira poco a poco." : ""}`;
+      text = `▼ Está alta (${rounded} cents): ${mode === "guitar" ? "afloja la clavija" : "bájala"}.${shown > 50 ? " Estás lejos: gira poco a poco." : ""}`;
     }
     verdict.textContent = text + hint;
     meter.setAttribute(
       "aria-valuetext",
       `${rounded > 0 ? "+" : ""}${rounded} cents`,
     );
-    if (now - lastAnnounce > 400) {
-      lastAnnounce = now;
-      renderStrings(target);
-    }
+
+    const highlight =
+      mode === "guitar" ? doneIndex : pitchClassOf(noteMidi);
+    if (highlight !== lastHighlight) renderStrings(highlight);
   }
 
   // ── Micrófono ──────────────────────────────────────────────────────
@@ -402,14 +447,24 @@
     startButton.disabled = true;
     verdict.textContent = "Solicitando permiso del micrófono…";
     try {
-      stream = await navigator.mediaDevices.getUserMedia({
+      const constraints: MediaStreamConstraints = {
         audio: {
           echoCancellation: false,
           noiseSuppression: false,
-          autoGainControl: false,
+          // En móviles la señal directa del micrófono suele ser muy baja:
+          // el AGC mejora mucho la detección sin alterar la altura.
+          autoGainControl: true,
           channelCount: 1,
         },
-      });
+      };
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (error) {
+        // Algunos navegadores móviles no admiten todas las restricciones.
+        if ((error as DOMException).name !== "OverconstrainedError") throw error;
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+      if (!stream) throw new Error("No se pudo abrir el micrófono");
       const Ctor =
         window.AudioContext ?? (window as WebkitWindow).webkitAudioContext;
       if (!Ctor) throw new Error("Web Audio no disponible");
@@ -418,7 +473,7 @@
       const source = ctx.createMediaStreamSource(stream);
       const highpass = ctx.createBiquadFilter();
       highpass.type = "highpass";
-      highpass.frequency.value = 50; // quita el rumor grave
+      highpass.frequency.value = 40; // quita el rumor grave sin perder notas bajas
       analyser = ctx.createAnalyser();
       analyser.fftSize = FFT;
       analyser.smoothingTimeConstant = 0;
@@ -461,20 +516,33 @@
     startButton.textContent = "🎤 Activar micrófono";
     startButton.setAttribute("aria-pressed", "false");
     levelBar.style.width = "0%";
-    lastTarget = null;
-    resetReading("Activa el micrófono y toca una cuerda.");
+    lastStringTarget = null;
+    lastTargetMidi = null;
+    resetReading(waitingMessage());
     verdict.textContent = "Micrófono apagado.";
   }
 
   // ── Tono de referencia ─────────────────────────────────────────────
   function playReference(): void {
-    const index = manual ?? lastTarget;
-    if (index === null) {
+    let midi: number | null = null;
+    let guitarIndex: number | null = null;
+    if (mode === "guitar") {
+      guitarIndex = manual ?? lastStringTarget;
+      if (guitarIndex !== null) midi = strings()[guitarIndex].midi;
+    } else if (targetPc !== null) {
+      midi = nearestMidiForPitchClass(targetPc, lastTargetMidi ?? 69);
+    } else {
+      midi = lastTargetMidi;
+    }
+    if (midi === null) {
       verdict.textContent =
-        "Elige primero una cuerda para escuchar su referencia.";
+        mode === "guitar"
+          ? "Elige primero una cuerda para escuchar su referencia."
+          : "Toca una nota o elige una tonalidad para escuchar su referencia.";
       return;
     }
-    const freq = strings()[index].freq;
+
+    const freq = hz(midi, a4);
     const Ctor =
       window.AudioContext ?? (window as WebkitWindow).webkitAudioContext;
     if (!Ctor) return;
@@ -499,49 +567,90 @@
     gain.connect(playCtx.destination);
     source.start(t);
     ignoreUntil = performance.now() + 2500; // el micrófono no analiza el propio tono
-    verdict.textContent = `Referencia: cuerda ${strings()[index].number} (${strings()[index].name}).`;
+    verdict.textContent =
+      mode === "guitar" && guitarIndex !== null
+        ? `Referencia: cuerda ${strings()[guitarIndex].number} (${noteName(midi)}).`
+        : `Referencia: ${noteName(midi)} (${freq.toFixed(1)} Hz).`;
   }
 
   // ── Eventos ────────────────────────────────────────────────────────
+  function setMode(next: Mode): void {
+    mode = next;
+    manual = null;
+    targetPc = null;
+    lastStringTarget = null;
+    lastTargetMidi = null;
+    done = new Set();
+    tuningField.hidden = mode !== "guitar";
+    autoButton.setAttribute("aria-pressed", "true");
+    resetReading(ctx ? playMessage() : waitingMessage());
+  }
+
   startButton.addEventListener("click", () => {
     if (ctx) stop();
     else void start();
   });
+  modeSelect.addEventListener("change", () => {
+    setMode(modeSelect.value === "chromatic" ? "chromatic" : "guitar");
+  });
   tuningSelect.addEventListener("change", () => {
     tuningIndex = Number(tuningSelect.value);
     manual = null;
-    lastTarget = null;
+    lastStringTarget = null;
+    lastTargetMidi = null;
     done = new Set();
     autoButton.setAttribute("aria-pressed", "true");
-    resetReading(
-      ctx
-        ? "Toca una cuerda al aire."
-        : "Activa el micrófono y toca una cuerda.",
-    );
+    resetReading(ctx ? playMessage() : waitingMessage());
+  });
+  refPitchSelect.addEventListener("change", () => {
+    a4 = Number(refPitchSelect.value) || 440;
+    lastStringTarget = null;
+    lastTargetMidi = null;
+    done = new Set();
+    resetReading(ctx ? playMessage() : waitingMessage());
   });
   autoButton.addEventListener("click", () => {
-    manual = null;
+    if (mode === "guitar") {
+      manual = null;
+      lastStringTarget = null;
+    } else {
+      targetPc = null;
+    }
+    lastTargetMidi = null;
+    shown = null;
+    history = [];
+    inTuneSince = 0;
     autoButton.setAttribute("aria-pressed", "true");
-    renderStrings(lastTarget);
+    renderStrings();
   });
   stringsEl.addEventListener("click", (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
       ".af-str",
     );
     if (!button) return;
-    const index = Number(button.dataset.i);
-    manual = manual === index ? null : index;
-    lastTarget = manual;
     shown = null;
     history = [];
     inTuneSince = 0;
-    autoButton.setAttribute("aria-pressed", String(manual === null));
-    renderStrings(manual ?? lastTarget);
+    lastTargetMidi = null;
+    if (mode === "guitar") {
+      const index = Number(button.dataset.i);
+      manual = manual === index ? null : index;
+      lastStringTarget = manual;
+      autoButton.setAttribute("aria-pressed", String(manual === null));
+      renderStrings(manual);
+    } else {
+      const pc = Number(button.dataset.pc);
+      targetPc = targetPc === pc ? null : pc;
+      autoButton.setAttribute("aria-pressed", String(targetPc === null));
+      renderStrings();
+    }
   });
   refButton.addEventListener("click", playReference);
   resetButton.addEventListener("click", () => {
     done = new Set();
-    renderStrings(lastTarget);
+    renderStrings(
+      mode === "guitar" ? (manual ?? lastStringTarget) : targetPc,
+    );
   });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden && ctx) stop();
@@ -550,8 +659,10 @@
     if (ctx) stopCapture();
   });
 
+  modeSelect.value = mode;
+  tuningField.hidden = mode !== "guitar";
   renderStrings();
-  resetReading("Activa el micrófono y toca una cuerda.");
+  resetReading(waitingMessage());
 </script>
 
 <style is:global>
@@ -578,6 +689,9 @@
     gap: 0.2rem;
     font-size: 0.8rem;
     color: var(--mut);
+  }
+  .afinador [hidden] {
+    display: none !important;
   }
   .afinador select,
   .afinador button {
@@ -607,6 +721,11 @@
   .afinador .af-privacy {
     margin: 0;
     font-size: 0.85rem;
+    color: var(--mut);
+  }
+  .afinador .af-target {
+    margin: 0;
+    font-size: 0.82rem;
     color: var(--mut);
   }
   .afinador .af-display {
@@ -757,6 +876,9 @@
     width: 0;
     background: var(--acc);
     transition: width 0.08s linear;
+  }
+  .afinador .af-bar i[data-signal="ok"] {
+    background: var(--af-ok);
   }
   @media (max-width: 520px) {
     .afinador .af-strings {
