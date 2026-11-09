@@ -16,6 +16,7 @@ import ChordsByKey from "../components/ChordsByKey.astro";
 import CircleOfFifths from "../components/CircleOfFifths.astro";
 import { SITE_NAME, SITE_SUBTITLE } from "../data/site";
 import Logo from "../components/Logo.astro";
+import Afinador from "../components/Afinador.astro";
 ---
 
 <Layout>
@@ -264,6 +265,13 @@ import Logo from "../components/Logo.astro";
       </p>
     </div>
   </div>
+
+  <h2 id="afinador">Afinador de guitarra</h2>
+  <p>
+    Activa el micrófono, toca una cuerda al aire y la página te dice si falta o
+    sobra tensión.
+  </p>
+  <Afinador />
 
   <Fretboard />
 

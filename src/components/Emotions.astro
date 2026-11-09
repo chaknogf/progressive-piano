@@ -22,10 +22,10 @@
     </div>
 
     <div class="mode-melody-section">
-      <h4>Motivos de ejemplo</h4>
-      <p class="mut">Cada botón toca el sintetizador actual del manual. Los motivos modales son originales; el tema jónico es el «Himno a la alegría» de Beethoven, de dominio público. Las referencias culturales sirven para escuchar el color y no incluyen transcripciones.</p>
+      <h4 hidden>Motivos de ejemplo</h4>
+      <p class="mut" hidden>Cada botón toca el sintetizador actual del manual. Los motivos modales son originales; el tema jónico es el «Himno a la alegría» de Beethoven, de dominio público. Las referencias culturales sirven para escuchar el color y no incluyen transcripciones.</p>
       <div class="mode-examples" id="mode-examples"></div>
-      <div class="mode-live-player">
+      <div class="mode-live-player" hidden>
         <div>
           <b>Teclado en vivo</b>
           <p class="mut" id="melody-status" role="status" aria-live="polite">Elige un motivo para escuchar y ver sus notas.</p>
@@ -112,8 +112,8 @@
   function renderExampleCards(): void {
     examples.innerHTML = MODES.map((mode, index) => {
       const references = mode.listen.length
-        ? `<div class="listen-list"><b>Escucha sugerida</b>${mode.listen.map((item) => `<p><a href="${item.source}" target="_blank" rel="noreferrer">${item.title} · ${item.artist}</a> <span class="listen-status">${item.status}</span><br /><small>${item.note} <span class="listen-source">Fuente: ${item.sourceLabel}</span></small></p>`).join('')}</div>`
-        : '<div class="listen-list"><b>Escucha sugerida</b><p class="mut">Sin atribuciones de obras concretas verificadas para este modo.</p></div>';
+        ? `<div class="listen-list" hidden><b>Escucha sugerida</b>${mode.listen.map((item) => `<p><a href="${item.source}" target="_blank" rel="noreferrer">${item.title} · ${item.artist}</a> <span class="listen-status">${item.status}</span><br /><small>${item.note} <span class="listen-source">Fuente: ${item.sourceLabel}</span></small></p>`).join('')}</div>`
+        : '<div class="listen-list" hidden><b>Escucha sugerida</b><p class="mut">Sin atribuciones de obras concretas verificadas para este modo.</p></div>';
       return `<article class="mode-example-card" data-mode-card="${mode.id}">
         <span class="mode-icon" aria-hidden="true">${['✨', '☀️', '🛣️', '🌙', '🌧️', '🔥', '🌀'][index]}</span>
         <h4>${mode.name}</h4><p class="mode-emotion">${mode.emotion}</p>
@@ -122,7 +122,7 @@
         <p><b>Progresión:</b> ${mode.degrees}</p>
         <p class="mode-cue">${['Cine fantástico y asombro espacial', 'Himnos luminosos y sensación de llegada', 'Rock abierto y espíritu de carretera', 'Jazz modal y groove nostálgico', 'Drama íntimo y balada', 'Tensión flamenca y final dramático', 'Inquietud y suspenso'][index]}</p>
         ${references}
-        <button type="button" class="mode-melody-play" data-play-melody="${index}" aria-pressed="false">▶ Escuchar melodía de ejemplo <small>${EXAMPLES[index].title}</small></button>
+        <button type="button" class="mode-melody-play" data-play-melody="${index}" aria-pressed="false" hidden>▶ Escuchar melodía de ejemplo <small>${EXAMPLES[index].title}</small></button>
       </article>`;
     }).join('');
   }
