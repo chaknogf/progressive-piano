@@ -1,0 +1,605 @@
+---
+// src/components/MelodyKeyboard.astro
+// Teclado de dos octavas que reproduce la melodía y ilumina cada tecla.
+const WHITE_KEYS = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83];
+// Posición horizontal de cada tecla negra, en porcentaje del ancho total.
+const BLACK_KEYS = [
+  { midi: 61, left: 4.893 },
+  { midi: 63, left: 12.036 },
+  { midi: 66, left: 26.321 },
+  { midi: 68, left: 33.464 },
+  { midi: 70, left: 40.607 },
+  { midi: 73, left: 54.893 },
+  { midi: 75, left: 62.036 },
+  { midi: 78, left: 76.321 },
+  { midi: 80, left: 83.464 },
+  { midi: 82, left: 90.607 },
+];
+const NOTE_NAMES = [
+  "Do",
+  "Do♯",
+  "Re",
+  "Re♯",
+  "Mi",
+  "Fa",
+  "Fa♯",
+  "Sol",
+  "Sol♯",
+  "La",
+  "La♯",
+  "Si",
+];
+function keyLabel(midi: number): string {
+  return NOTE_NAMES[midi % 12];
+}
+function fullLabel(midi: number): string {
+  return `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`;
+}
+---
+
+<section class="mk" aria-labelledby="mk-title">
+  <header class="mk-head">
+    <div class="mk-head-text">
+      <span class="mk-kicker">Escucha primero</span>
+      <h2 id="mk-title">La melodía en el teclado</h2>
+      <p class="mk-sub">
+        Pulsa reproducir y observa cómo se iluminan las teclas al avanzar la
+        melodía. Toca cualquier tecla para probarla.
+      </p>
+    </div>
+    <div class="mk-transport">
+      <button type="button" class="mk-play" id="mk-play" aria-pressed="false">
+        ▶ Reproducir
+      </button>
+      <button
+        type="button"
+        class="mk-iconbtn"
+        id="mk-restart"
+        aria-label="Reiniciar melodía"
+        >↺</button
+      >
+      <label class="mk-tempo">
+        Tempo
+        <input
+          type="range"
+          id="mk-bpm"
+          min="60"
+          max="180"
+          step="1"
+          value="120"
+        />
+        <span id="mk-bpm-value">120</span>
+      </label>
+    </div>
+  </header>
+
+  <div class="mk-progress" aria-hidden="true">
+    <div id="mk-progress-bar"></div>
+  </div>
+
+  <div class="mk-status">
+    <span class="mk-status-item">Nota: <b id="mk-note">—</b></span>
+    <span class="mk-status-item">Acorde: <b id="mk-chord">—</b></span>
+    <span class="mk-status-item" id="mk-beat">Compás 1</span>
+  </div>
+
+  <div
+    class="mk-keys"
+    id="mk-keys"
+    role="group"
+    aria-label="Teclado de dos octavas"
+  >
+    {
+      WHITE_KEYS.map((midi) => (
+        <button
+          type="button"
+          class="mk-key mk-key--white"
+          data-midi={midi}
+          aria-label={fullLabel(midi)}
+        >
+          <span class="mk-key-label">{keyLabel(midi)}</span>
+        </button>
+      ))
+    }
+    {
+      BLACK_KEYS.map((key) => (
+        <button
+          type="button"
+          class="mk-key mk-key--black"
+          data-midi={key.midi}
+          style={`left: ${key.left}%`}
+          aria-label={fullLabel(key.midi)}
+        >
+          <span class="mk-key-label">{keyLabel(key.midi)}</span>
+        </button>
+      ))
+    }
+  </div>
+
+  <p class="mk-hint">
+    La melodía está en Do mayor y dura 25 pulsos. El acompañamiento suena en
+    bajo para no tapar la melodía.
+  </p>
+</section>
+
+<script>
+  import { $, $$, must } from "../lib/dom";
+  import { playPiano, playChord, type PianoEvent } from "../lib/audio";
+
+  // ── Melodía: grados de la escala en Do mayor (sd 1–7) ──────────────
+  const MELODY = [
+    { beat: 1, duration: 2, sd: 2, octave: 1 },
+    { beat: 3, duration: 0.5, sd: 1, octave: 1 },
+    { beat: 3.5, duration: 0.5, sd: 7, octave: 0 },
+    { beat: 4, duration: 0.5, sd: 1, octave: 1 },
+    { beat: 4.5, duration: 0.5, sd: 7, octave: 0 },
+    { beat: 5, duration: 2, sd: 5, octave: 0 },
+    { beat: 7, duration: 2, sd: 1, octave: 1 },
+    { beat: 9, duration: 0.5, sd: 7, octave: 0 },
+    { beat: 9.5, duration: 0.5, sd: 6, octave: 0 },
+    { beat: 10, duration: 0.5, sd: 7, octave: 0 },
+    { beat: 10.5, duration: 0.5, sd: 6, octave: 0 },
+    { beat: 11, duration: 2, sd: 3, octave: 0 },
+    { beat: 13, duration: 2, sd: 2, octave: 1 },
+    { beat: 15, duration: 0.5, sd: 1, octave: 1 },
+    { beat: 15.5, duration: 0.5, sd: 7, octave: 0 },
+    { beat: 16, duration: 0.5, sd: 1, octave: 1 },
+    { beat: 16.5, duration: 0.5, sd: 7, octave: 0 },
+    { beat: 17, duration: 1, sd: 5, octave: 0 },
+    { beat: 18, duration: 1, sd: 1, octave: 1 },
+    { beat: 19, duration: 6, sd: 5, octave: 1 },
+  ];
+  // Acuerdes diatónicos de acompañamiento (raíz = grado de la escala).
+  const CHORDS = [
+    { beat: 1, duration: 3, root: 4 },
+    { beat: 4, duration: 3, root: 3 },
+    { beat: 7, duration: 3, root: 2 },
+    { beat: 10, duration: 3, root: 1 },
+    { beat: 13, duration: 3, root: 4 },
+    { beat: 16, duration: 3, root: 3 },
+    { beat: 19, duration: 3, root: 2 },
+    { beat: 22, duration: 1.5, root: 2 },
+    { beat: 23.5, duration: 1.5, root: 5 },
+  ];
+  const SCALE_OFFSETS = [0, 2, 4, 5, 7, 9, 11];
+  const CHORD_QUALITIES: Record<number, number[]> = {
+    1: [0, 4, 7],
+    2: [0, 3, 7],
+    3: [0, 3, 7],
+    4: [0, 4, 7],
+    5: [0, 4, 7],
+    6: [0, 3, 7],
+    7: [0, 3, 6],
+  };
+  const CHORD_NAMES = ["Do", "Rem", "Mim", "Fa", "Sol", "Lam", "Si°"];
+  const NOTE_NAMES = [
+    "Do",
+    "Do♯",
+    "Re",
+    "Re♯",
+    "Mi",
+    "Fa",
+    "Fa♯",
+    "Sol",
+    "Sol♯",
+    "La",
+    "La♯",
+    "Si",
+  ];
+  const TOTAL_BEATS = 25;
+
+  const root = must(document.querySelector<HTMLElement>(".mk"), ".mk");
+  const keysEl = must(
+    document.querySelector<HTMLElement>("#mk-keys"),
+    "#mk-keys",
+  );
+  const playButton = must(
+    document.querySelector<HTMLButtonElement>("#mk-play"),
+    "#mk-play",
+  );
+  const restartButton = must(
+    document.querySelector<HTMLButtonElement>("#mk-restart"),
+    "#mk-restart",
+  );
+  const bpmInput = must(
+    document.querySelector<HTMLInputElement>("#mk-bpm"),
+    "#mk-bpm",
+  );
+  const bpmValue = must(
+    document.querySelector<HTMLElement>("#mk-bpm-value"),
+    "#mk-bpm-value",
+  );
+  const progressBar = must(
+    document.querySelector<HTMLElement>("#mk-progress-bar"),
+    "#mk-progress-bar",
+  );
+  const noteEl = must(document.querySelector<HTMLElement>("#mk-note"), "#mk-note");
+  const chordEl = must(
+    document.querySelector<HTMLElement>("#mk-chord"),
+    "#mk-chord",
+  );
+  const beatEl = must(document.querySelector<HTMLElement>("#mk-beat"), "#mk-beat");
+
+  const midiOf = (sd: number, octave: number): number =>
+    60 + octave * 12 + SCALE_OFFSETS[sd - 1];
+  const fullLabel = (midi: number): string =>
+    `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`;
+
+  const melodyEvents: PianoEvent[] = MELODY.map((note) => ({
+    midi: midiOf(note.sd, note.octave),
+    start: note.beat - 1,
+    dur: note.duration,
+    vel: 0.85,
+    focus: true,
+  }));
+
+  const chordEvents: PianoEvent[] = CHORDS.flatMap((chord) => {
+    const bass = midiOf(chord.root, 0) - 24;
+    return (CHORD_QUALITIES[chord.root] ?? [0, 4, 7]).map((interval) => ({
+      midi: bass + interval,
+      start: chord.beat - 1,
+      dur: chord.duration,
+      vel: 0.2,
+    }));
+  });
+
+  const events = [...melodyEvents, ...chordEvents];
+
+  let cancelPlayback: (() => void) | null = null;
+  let playing = false;
+  let bpm = 120;
+  let highlightTimer = 0;
+  let rafId = 0;
+  let startTime = 0;
+
+  function setNote(midi: number | null): void {
+    $$(".mk-key", keysEl).forEach((key) => {
+      key.classList.toggle("is-active", Number(key.dataset.midi) === midi);
+    });
+    noteEl.textContent = midi === null ? "—" : fullLabel(midi);
+  }
+
+  function setChord(beat: number): void {
+    const chord = CHORDS.find(
+      (item) => beat >= item.beat - 1 && beat < item.beat - 1 + item.duration,
+    );
+    chordEl.textContent = chord ? CHORD_NAMES[chord.root - 1] : "—";
+  }
+
+  function onNote(index: number): void {
+    const event = melodyEvents[index];
+    if (!event) return;
+    setNote(event.midi);
+    window.clearTimeout(highlightTimer);
+    const holdMs = event.dur * (60 / bpm) * 1000;
+    highlightTimer = window.setTimeout(() => setNote(null), holdMs);
+    setChord(event.start);
+    beatEl.textContent = `Compás ${Math.floor(event.start / 4) + 1} · beat ${Math.floor(event.start % 4) + 1}`;
+  }
+
+  function tick(): void {
+    if (!playing) return;
+    const elapsed = (performance.now() - startTime) / 1000;
+    const beat = elapsed * (bpm / 60);
+    progressBar.style.width = `${Math.min(100, (beat / TOTAL_BEATS) * 100)}%`;
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function onEnd(): void {
+    playing = false;
+    cancelPlayback = null;
+    cancelAnimationFrame(rafId);
+    playButton.setAttribute("aria-pressed", "false");
+    playButton.textContent = "▶ Reproducir";
+    setNote(null);
+    setChord(0);
+    beatEl.textContent = "Compás 1";
+    progressBar.style.width = "0%";
+  }
+
+  function play(): void {
+    if (playing) return;
+    playing = true;
+    playButton.setAttribute("aria-pressed", "true");
+    playButton.textContent = "■ Detener";
+    startTime = performance.now();
+    cancelPlayback = playPiano(events, bpm, { onNote, onEnd });
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function stop(): void {
+    if (!playing) return;
+    cancelPlayback?.();
+  }
+
+  playButton.addEventListener("click", () => (playing ? stop() : play()));
+  restartButton.addEventListener("click", () => {
+    if (playing) cancelPlayback?.();
+    window.setTimeout(play, 30);
+  });
+  bpmInput.addEventListener("input", () => {
+    bpm = Number(bpmInput.value);
+    bpmValue.textContent = String(bpm);
+    if (playing) {
+      cancelPlayback?.();
+      window.setTimeout(play, 30);
+    }
+  });
+  function triggerKey(event: Event): void {
+    const key = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      ".mk-key",
+    );
+    if (!key) return;
+    const midi = Number(key.dataset.midi);
+    playChord([midi - 60], 0.6);
+    setNote(midi);
+    window.clearTimeout(highlightTimer);
+    highlightTimer = window.setTimeout(() => setNote(null), 500);
+  }
+
+  let lastPointerDown = 0;
+  keysEl.addEventListener("pointerdown", (event) => {
+    lastPointerDown = Date.now();
+    triggerKey(event);
+  });
+  // Los botones también se activan con Enter/Espacio: el clic de teclado no
+  // debe duplicar la pulsación por puntero.
+  keysEl.addEventListener("click", (event) => {
+    if (Date.now() - lastPointerDown < 500) return;
+    triggerKey(event);
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && playing) stop();
+  });
+</script>
+
+<style>
+  .mk {
+    margin: 24px 0;
+    padding: 20px;
+    border: 1px solid var(--bd);
+    border-radius: 24px;
+    background: var(--card);
+    box-shadow: 0 1px 2px rgb(36 31 26 / 0.08);
+  }
+  .mk-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .mk-head-text {
+    min-width: 0;
+  }
+  .mk-kicker {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--acc);
+  }
+  .mk h2 {
+    margin: 4px 0;
+    font: 700 1.4rem/1.2 Georgia, "Times New Roman", serif;
+  }
+  .mk-sub {
+    margin: 0;
+    max-width: 60ch;
+    color: var(--mut);
+    font-size: 0.9rem;
+  }
+  .mk-transport {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .mk-play {
+    min-height: 48px;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--acc);
+    color: #fff;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--acc) 30%, transparent);
+    transition:
+      transform 0.12s ease,
+      background 0.2s,
+      box-shadow 0.2s;
+  }
+  .mk-play:hover {
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--acc) 40%, transparent);
+  }
+  .mk-play:active {
+    transform: scale(0.97);
+  }
+  .mk-play[aria-pressed="true"] {
+    background: #c2410c;
+  }
+  .mk-iconbtn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--bd);
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+    transition:
+      transform 0.12s ease,
+      border-color 0.2s;
+  }
+  .mk-iconbtn:hover {
+    border-color: var(--acc);
+  }
+  .mk-iconbtn:active {
+    transform: scale(0.94);
+  }
+  .mk-tempo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--mut);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .mk-tempo input {
+    accent-color: var(--acc);
+  }
+  .mk-progress {
+    height: 8px;
+    margin: 12px 0 10px;
+    border-radius: 999px;
+    background: var(--bd);
+    overflow: hidden;
+  }
+  .mk-progress > div {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--acc);
+  }
+  .mk-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-bottom: 12px;
+    color: var(--mut);
+    font-size: 0.85rem;
+  }
+  .mk-status-item b {
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .mk-keys {
+    position: relative;
+    display: flex;
+    height: clamp(160px, 28vw, 240px);
+    border: 1px solid var(--bd);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--bk);
+    box-shadow: inset 0 2px 8px rgb(0 0 0 / 0.45);
+  }
+  .mk-key {
+    position: relative;
+    padding: 0;
+    border: 1px solid #d8cfbe;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background 0.12s ease,
+      transform 0.08s ease,
+      box-shadow 0.12s ease;
+  }
+  .mk-key--white {
+    flex: 1 1 0;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 8px;
+    border-radius: 0 0 8px 8px;
+    background: linear-gradient(180deg, #fffdf8, #efe8da);
+    box-shadow: inset 0 -3px 0 #e0d7c4;
+  }
+  .mk-key--white + .mk-key--white {
+    margin-left: -1px;
+  }
+  .mk-key--black {
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    width: 4.5%;
+    height: 60%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 6px;
+    border: 1px solid #0e0b08;
+    border-radius: 0 0 6px 6px;
+    background: linear-gradient(180deg, #3a332b, #17130f);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.14),
+      0 2px 3px rgb(0 0 0 / 0.45);
+  }
+  .mk-key-label {
+    color: var(--mut);
+    font-size: 0.65rem;
+    font-weight: 700;
+    pointer-events: none;
+  }
+  .mk-key--black .mk-key-label {
+    display: none;
+    color: rgb(255 255 255 / 0.65);
+    font-size: 0.55rem;
+  }
+  @media (min-width: 640px) {
+    .mk-key--black .mk-key-label {
+      display: block;
+    }
+  }
+  .mk-key--white.is-active {
+    background: linear-gradient(
+      180deg,
+      var(--acc),
+      color-mix(in srgb, var(--acc) 72%, #fff)
+    );
+    box-shadow: inset 0 -5px 0 color-mix(in srgb, var(--acc) 55%, #000);
+    transform: translateY(2px);
+  }
+  .mk-key--white.is-active .mk-key-label {
+    color: #fff;
+  }
+  .mk-key--black.is-active {
+    background: linear-gradient(
+      180deg,
+      var(--acc),
+      color-mix(in srgb, var(--acc) 60%, #000)
+    );
+    box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.6);
+  }
+  .mk-key--black.is-active .mk-key-label {
+    color: #fff;
+  }
+  .mk-key:focus-visible {
+    outline: 2px solid var(--acc);
+    outline-offset: -2px;
+    z-index: 3;
+  }
+  .mk-hint {
+    margin: 12px 0 0;
+    color: var(--mut);
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  @media (max-width: 520px) {
+    .mk {
+      padding: 16px;
+    }
+    .mk-head {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .mk-transport {
+      width: 100%;
+    }
+    .mk-play {
+      flex: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mk-key,
+    .mk-play,
+    .mk-iconbtn {
+      transition: none;
+    }
+  }
+</style>
