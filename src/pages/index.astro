@@ -100,26 +100,26 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
           role="list"
           aria-label="Grados de la escala en Do mayor"
         >
-          <span class="degree degree--tonic is-hit" role="listitem"><b>I</b
-            ><small>Do</small></span
+          <span class="degree degree--tonic is-hit" role="listitem"
+            ><b>I</b><small>Do</small></span
           >
-          <span class="degree degree--sub" role="listitem"><b>ii</b
-            ><small>Re</small></span
+          <span class="degree degree--sub" role="listitem"
+            ><b>ii</b><small>Re</small></span
           >
-          <span class="degree degree--tonic" role="listitem"><b>iii</b
-            ><small>Mi</small></span
+          <span class="degree degree--tonic" role="listitem"
+            ><b>iii</b><small>Mi</small></span
           >
-          <span class="degree degree--sub is-hit" role="listitem"><b>IV</b
-            ><small>Fa</small></span
+          <span class="degree degree--sub is-hit" role="listitem"
+            ><b>IV</b><small>Fa</small></span
           >
-          <span class="degree degree--dom is-hit" role="listitem"><b>V</b
-            ><small>Sol</small></span
+          <span class="degree degree--dom is-hit" role="listitem"
+            ><b>V</b><small>Sol</small></span
           >
-          <span class="degree degree--tonic is-hit" role="listitem"><b>vi</b
-            ><small>La</small></span
+          <span class="degree degree--tonic is-hit" role="listitem"
+            ><b>vi</b><small>La</small></span
           >
-          <span class="degree degree--dom" role="listitem"><b>vii°</b
-            ><small>Si</small></span
+          <span class="degree degree--dom" role="listitem"
+            ><b>vii°</b><small>Si</small></span
           >
         </div>
         <div class="degree-legend">
@@ -230,7 +230,10 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
     }
     .degrees-title {
       margin: 0;
-      font: 700 1.15rem/1.25 Georgia, "Times New Roman", serif;
+      font:
+        700 1.15rem/1.25 Georgia,
+        "Times New Roman",
+        serif;
     }
     .degrees-text {
       margin: 0;
@@ -277,7 +280,10 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
       text-align: center;
     }
     .degree b {
-      font: 700 1.05rem/1.1 Georgia, "Times New Roman", serif;
+      font:
+        700 1.05rem/1.1 Georgia,
+        "Times New Roman",
+        serif;
     }
     .degree small {
       color: var(--mut);
@@ -487,7 +493,10 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   <BaseChords />
   <details class="box circle-advanced">
     <summary><b>El mapa secreto · tonalidades vecinas</b></summary>
-    <p class="mut">Un mapa opcional para explorar qué tonalidades se parecen y cómo comparten acordes. Puedes volver aquí cuando ya hayas probado algunos acordes.</p>
+    <p class="mut">
+      Un mapa opcional para explorar qué tonalidades se parecen y cómo comparten
+      acordes. Puedes volver aquí cuando ya hayas probado algunos acordes.
+    </p>
     <CircleOfFifths />
   </details>
 
