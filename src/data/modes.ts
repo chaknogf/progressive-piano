@@ -46,18 +46,18 @@ export const MODES: Mode[] = [
     bpm: 140,
     melody: [
       [0, 1],    // B / E (Tónica)
-      [5, 1.5],  // E / A (4.ª justa)
-      [8, 0.5],  // G / C (3.ª menor / salto expresivo)
+      [6, 1.5],  // E / A (4.ª justa)
+      [7, 0.5],  // G / C (3.ª menor / salto expresivo)
       [7, 1],    // F# / B (3.ª mayor / aproximación)
-      [5, 2],    // E / A 
+      [6, 2],    // E / A 
       [12, 1],   // B / E (Octava)
-      [10, 2],   // A / D 
+      [9, 2],   // A / D 
       [7, 2.5],  // F# / B 
-      [5, 1],    // E / A
-      [8, 1.5],  // G / C
+      [6, 1],    // E / A
+      [7, 1.5],  // G / C
       [7, 0.5],  // F# / B
       [6, 1],    // F / A# (♯4 Lidia - Nota característica de la magia)
-      [3, 2],    // D# / G
+      [2, 2],    // D# / G
       [6, 1],    // F / A# (♯4 Lidia)
       [0, 3]     // Resolución en Tónica
     ],
@@ -150,7 +150,7 @@ export const MODES: Mode[] = [
     ]
   },
   {
-    id: 'eolio-zelda',
+    id: 'eolico',
     name: 'Eólico (Menor Natural - Fantasía Épica)',
     scale: [0, 2, 3, 5, 7, 8, 10],
     emotion: 'Nostalgia mística, misterio ancestral y melancolía aventurera',
@@ -162,18 +162,18 @@ export const MODES: Mode[] = [
     bpm: 135,
     melody: [
       // Inspirado en el motivo de Song of Storms (Modo Eólico / Menor)
-      [4, 0.5],  // Mi
+      [3, 0.5],  // Mi
       [2, 0.5],  // Re
       [0, 1.0],  // Do
-      [4, 0.5],  // Mi
+      [3, 0.5],  // Mi
       [2, 0.5],  // Re
       [0, 1.0],  // Do
-      [-1, 0.5], // Si grave
+      [-2, 0.5], // Si grave
       [2, 0.5],  // Re
       [0, 0.5],  // Do
-      [-1, 0.5], // Si grave
-      [-3, 1.0], // Sol grave
-      [-1, 2.0]  // Si (Resolución mística)
+      [-2, 0.5], // Si grave
+      [-5, 1.0], // Sol grave
+      [-2, 2.0]  // Si (Resolución mística)
     ],
     accompaniment: [
       [chord(0, true), 0, 4],  // Am

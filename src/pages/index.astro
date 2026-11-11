@@ -32,6 +32,10 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
     qué notas forman cada sonido y prueba a tocarlas. Avanza a tu ritmo en piano
     y guitarra, desde los primeros acordes hasta crear tus propias ideas.
   </p>
+  <label class="glossary-switch">
+    <input type="checkbox" id="glossary-toggle" />
+    Mostrar glosario emergente al pulsar términos
+  </label>
   <aside class="learning-route" aria-label="Método de aprendizaje recomendado">
     <b>Una forma fácil de aprender</b>
     <ol>
@@ -46,10 +50,316 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
     </ol>
   </aside>
   <MelodyKeyboard />
+
+  <nav class="module-index" aria-label="Índice de módulos">
+    <h2>Índice de módulos</h2>
+    <p id="progress-summary" class="progress-summary" aria-live="polite">Progreso: 0/0 módulos completados</p>
+    <ol>
+      <li><a href="#m0">M0 · Cómo usar el manual + prueba de nivel</a></li>
+      <li><a href="#m1">M1 · Sonido y pulso</a></li>
+      <li><a href="#m2">M2 · Notas, teclado y cifrado</a></li>
+      <li><a href="#m3">M3 · Tonos, semitonos, escala mayor e intervalos</a></li>
+      <li><a href="#m4">M4 · Tríadas y primeros acordes</a></li>
+      <li><a href="#m5">M5 · Acordes de la escala (grados y funciones)</a></li>
+      <li><a href="#m6">M6 · Primeras progresiones</a></li>
+      <li><a href="#m7">M7 · Séptimas y cifrado ampliado</a></li>
+      <li><a href="#m8">M8 · Cadencias, forma y melodía</a></li>
+      <li><a href="#m9">M9 · Inversiones y arpegios</a></li>
+      <li><a href="#m10">M10 · Menor, modos e intercambio modal</a></li>
+      <li><a href="#m11">M11 · Círculo de quintas</a></li>
+      <li><a href="#m12">M12 · Dominantes secundarias y catálogo avanzado</a></li>
+      <li><a href="#m13">M13 · Ritmo por género</a></li>
+      <li><a href="#proyecto-final">Proyecto Final · Compón tu canción</a></li>
+      <li><a href="#pista-b">Pista B · Producción musical y DAW</a></li>
+
+    </ol>
+  </nav>
+
   <Nav />
 
+  <section class="module" id="m0" data-module="m0">
+    <h2>M0: Cómo usar el manual + prueba de nivel <span class="lesson-level">Inicial⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> conocer la metodología del manual y descubrir por dónde comenzar según tus conocimientos previos.</p>
+    <p><b>Explicación:</b> la música es un lenguaje. Este manual está diseñado para llevarte desde las bases absolutas hasta la producción musical avanzada de forma práctica. Realiza la prueba inicial para saber si debes empezar desde M1 (Bases) o saltar directamente a módulos más avanzados.</p>
+    <div class="box">
+      <b>Prueba de nivel (5 preguntas):</b>
+      <ol>
+        <li>¿Sabes ubicar la nota Do en el piano y conoces el cifrado americano (C=Do)?</li>
+        <li>¿Puedes explicar la diferencia entre un tono y un semitono?</li>
+        <li>¿Sabes cómo se construye una tríada mayor y una menor?</li>
+        <li>¿Identificas auditivamente la diferencia entre un acorde con séptima (maj7) y una tríada básica?</li>
+        <li>¿Tienes claro qué es una dominante secundaria o el intercambio modal?</li>
+      </ol>
+      <p class="mut">Cuenta cuántas respondiste con seguridad: 0–1 empieza en M1; 2–3 en M4; 4–5 en M7 o superior.</p>
+    </div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz (3 preguntas)</b></legend>
+        <label><input type="radio" name="q-m0-1" value="a" /> 1. La música es un lenguaje modular e interactivo. (Verdadero)</label><br/>
+        <label><input type="radio" name="q-m0-1" value="b" /> 1. La música es solo para expertos. (Falso)</label><br/>
+        <label><input type="radio" name="q-m0-2" value="a" /> 2. El glosario ayuda con términos nuevos. (Verdadero)</label><br/>
+        <label><input type="radio" name="q-m0-2" value="b" /> 2. El glosario es opcional y no se usa. (Falso)</label><br/>
+        <button type="button" data-check-quiz="m0">Comprobar</button>
+        <p data-quiz-answer="m0" aria-live="polite" hidden></p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> este manual es modular e interactivo; la prueba de nivel te ahorra tiempo guiándote a tu punto ideal; usa el glosario y los tooltips siempre que encuentres un término nuevo.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m0" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m1" data-module="m1">
+    <h2>M1: Sonido y pulso <span class="lesson-level">Inicial⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> comprender las cuatro propiedades del sonido, el pulso, el tempo, los compases y las figuras rítmicas.</p>
+    <p><b>Explicación:</b> <span class="term" data-tip="Altura, duración, intensidad y timbre">Propiedades del sonido</span>: altura (grave/agudo), duración (tiempo), intensidad (volumen) y timbre (color). El pulso es el latido constante; el tempo se mide en <span class="term" data-tip="Beats Per Minute">BPM</span>. Compases: 2/4, 3/4, 4/4 y 6/8. Figuras y silencios: redonda, blanca, negra, corchea, semicorchea, puntillo y ligadura.</p>
+    <div class="box"><b>Interacción:</b> usa el componente <a href="#beats">Ritmo y beats</a> de la sección inferior como metrónomo y panel de figuras.</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Qué propiedad permite diferenciar un piano de una guitarra? (Timbre)</p>
+        <p>2. ¿Qué indica el tempo? (Velocidad del pulso en BPM)</p>
+        <p>3. ¿Cuántas corcheas entran en una negra? (2)</p>
+        <button type="button" data-check-quiz="m1">Entendido</button>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> el sonido se define por altura, duración, intensidad y timbre; el pulso y los compases organizan el tiempo; las figuras rítmicas determinan duraciones.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m1" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m2" data-module="m2">
+    <h2>M2: Notas, teclado y cifrado <span class="lesson-level">Inicial⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> dominar los nombres de las notas naturales y alteradas, la distribución del teclado y el cifrado americano.</p>
+    <p><b>Explicación:</b> las notas naturales son 7: Do, Re, Mi, Fa, Sol, La, Si. Las teclas negras son sostenidos (♯) y bemoles (♭). Cifrado americano: C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si. <span class="term" data-tip="Dos notas con nombres distintos que suenan igual">Enarmonía</span> explica nombres distintos para la misma altura.</p>
+    <div class="box"><b>Interacción:</b> usa el teclado interactivo de la cabecera (<code>MelodyKeyboard</code>) para explorar notas, octavas y enarmonía.</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Qué letra representa a La? (A)</p>
+        <p>2. ¿Qué tecla hay entre Do y Re? (Do♯ / Re♭)</p>
+        <p>3. ¿Cómo se llama el fenómeno de dos nombres para la misma nota? (Enarmonía)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> el teclado se organiza en octavas; el cifrado americano es el estándar global; la enarmonía explica nombres múltiples.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m2" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m3" data-module="m3">
+    <h2>M3: Tonos, semitonos, escala mayor e intervalos <span class="lesson-level">Inicial⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> entender la distancia mínima musical, construir la escala mayor universal y medir intervalos.</p>
+    <p><b>Explicación:</b> semitono = distancia más pequeña (tecla adyacente); tono = dos semitonos. Escala mayor: fórmula T–T–S–T–T–T–S. <span class="term" data-tip="Distancia entre dos notas por tamaño y calidad">Intervalos</span>: número (tamaño) y cualidad (mayor, menor, justa…).</p>
+    <div class="box"><b>Interacción:</b> constructor de escala sobre el teclado y explorador auditivo de intervalos (usa el transpositor y el teclado).</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. Fórmula de la escala mayor: T-T-S-T-T-T-S.</p>
+        <p>2. ¿Cuántos semitonos hay en un tono? (2)</p>
+        <p>3. ¿Qué intervalo es Do–Sol? (Quinta)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> tonos y semitonos son los bloques de construcción; la fórmula mayor genera sonoridad alegre; los intervalos miden distancia y tensión.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m3" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m4" data-module="m4">
+    <h2>M4: Tríadas y primeros acordes (Piano y Guitarra) <span class="lesson-level">Inicial⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> construir tríadas básicas y aplicarlas al piano y la guitarra.</p>
+    <p><b>Explicación:</b> tríada mayor 1–3–5 (alegre); menor 1–♭3–5 (triste); disminuida 1–♭3–♭5 (tensa); aumentada 1–3–♯5 (suspenso). En guitarra: partes, postura, cuerdas, diagramas y acordes abiertos con cejilla. Integra el <a href="#afinador">afinador</a> y el <a href="#fretboard">mástil</a> existentes.</p>
+    <div class="box"><b>Interacción:</b> constructor de tríadas con iluminación simultánea en piano y guitarra; comparador auditivo. Reutiliza <a href="#afinador">Afinador</a> y <a href="#fretboard">Mástil</a>.</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Qué intervalo cambia entre mayor y menor? (La tercera)</p>
+        <p>2. ¿Componentes de la disminuida? (1, ♭3, ♭5)</p>
+        <p>3. ¿Para qué sirve un diagrama de acordes? (Ver trastes y cuerdas)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> las tríadas son acordes de tres notas que forman el esqueleto armónico; su calidad define la emoción; en el instrumento se ejecutan combinando dedos, cuerdas y trastes.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m4" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m5" data-module="m5">
+    <h2>M5: Los acordes de la escala (Grados y funciones) <span class="lesson-level">Inicial⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> armonizar la escala mayor para descubrir los acordes de una tonalidad y sus funciones tonales.</p>
+    <p><b>Explicación:</b> mantiene las secciones 1 y 2 actuales. Los grados se numeran con romanos (I, ii, iii, IV, V, vi, vii°). I, IV, V mayores; ii, iii, vi menores; vii° disminuido.</p>
+    <div class="box"><b>Interacción:</b> usa <a href="#s1">Leer progresiones</a> y <a href="#s2">Los siete grados</a> existentes.</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Grado de reposo/hogar? (I / Tónica)</p>
+        <p>2. ¿Acorde del V grado? (Dominante mayor con séptima)</p>
+        <p>3. ¿Función del IV grado? (Subdominante)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> cada nota de la escala mayor genera un acorde; los grados se clasifican en tónica, subdominante y dominante; conocerlos explica por qué suenan bien juntas las canciones.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m5" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m6" data-module="m6">
+    <h2>M6: Primeras progresiones <span class="lesson-level">Inicial⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> tocar progresiones de nivel inicial usando el catálogo limpio de duplicados y el secuenciador básico.</p>
+    <p><b>Explicación:</b> selección exclusiva de secuencias fundamentales (ej. I–V–vi–IV, ii–V–I). El catálogo inicial se centra en secuencias probadas.</p>
+    <div class="box"><b>Interacción:</b> usa el <a href="#s3">Catálogo de progresiones</a> existente (filtrado por nivel Inicial).</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Por qué se eliminan duplicados? (Aprendizaje limpio y directo)</p>
+        <p>2. ¿Qué hace el secuenciador básico? (Escuchar la progresión en bucle)</p>
+        <p>3. ¿Nivel de estas progresiones? (Inicial)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> las progresiones son sucesiones de acordes; el catálogo inicial usa secuencias muy usadas; el secuenciador entrena el oído.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m6" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m7" data-module="m7">
+    <h2>M7: Séptimas y cifrado ampliado <span class="lesson-level">Intermedio ⭐️⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> introducir armonías de cuatro notas y cifrados complejos (maj7, 7, m7, m7b5, dim7, slash chords, add9, sus).</p>
+    <p><b>Explicación:</b> maj7 séptima mayor (color jazzístico); 7 dominante (tensión); m7 menor (melancolía); slash chords (ej. G/B) inversiones con bajo específico; sus y add9 aportan modernidad.</p>
+    <div class="box"><b>Interacción:</b> comparador de séptimas C, Cmaj7, C7, Cm7 con audio y fórmulas.</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Diferencia entre Cmaj7 y C7? (Séptima mayor vs menor)</p>
+        <p>2. ¿Qué indica G/B? (Sol mayor con Si en el bajo)</p>
+        <p>3. ¿Qué reemplaza sus4? (La tercera por la cuarta justa)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> las séptimas añaden una cuarta nota; el cifrado ampliado comunica arreglos complejos; los slash chords suavizan líneas de bajo.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m7" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m8" data-module="m8">
+    <h2>M8: Cadencias, forma de canción y melodía sobre acordes <span class="lesson-level">Intermedio ⭐️⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> entender cómo cierran las frases, estructurar una canción y componer melodías cohesivas sobre los acordes.</p>
+    <p><b>Explicación:</b> cadencias: auténtica (V→I), plagal (IV→I), semicadencia (reposo en V), rota (V→vi). Forma: estrofa, pre-coro, coro y puente. Melodía: notas del acorde, notas de paso y motivos.</p>
+    <div class="box"><b>Interacción:</b> botonera de cadencias con test auditivo y editor simple de forma de canción.</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Cadencia "Amén"? (Plagal IV→I)</p>
+        <p>2. ¿Función del pre-coro? (Construir tensión)</p>
+        <p>3. ¿Qué son notas de paso? (Unen por grados conjuntos las notas estructurales)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> las cadencias son signos de puntuación armónicos; una estructura equilibrada alterna tensión y clímax; la melodía cobra vida con la armonía.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m8" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m9" data-module="m9">
+    <h2>M9: Inversiones y arpegios <span class="lesson-level">Intermedio ⭐️⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> dominar la disposición de las notas de un acorde y su ejecución lineal (arpegios).</p>
+    <p><b>Explicación:</b> mantiene las secciones 5 y 6 actuales. Primera y segunda inversión de tríadas y séptimas.</p>
+    <div class="box"><b>Interacción:</b> usa <a href="#s4">Inversiones</a> y <a href="#s5">Arpegios</a> existentes.</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Primera inversión? (Tercera al bajo)</p>
+        <p>2. ¿Qué es un arpegio? (Notas sucesivas del acorde)</p>
+        <p>3. ¿Para qué sirven las inversiones? (Evitar saltos bruscos)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> las inversiones reorganizan el orden vertical; los arpegios descomponen acordes en texturas; son clave para transiciones suaves.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m9" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m10" data-module="m10">
+    <h2>M10: Menor, modos, intercambio modal y sus <span class="lesson-level">Intermedio ⭐️⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> explorar la escala menor natural, menor armónica, menor melódica, los modos griegos, el intercambio modal y acordes suspendidos.</p>
+    <p><b>Explicación:</b> mantiene la sección 7. Menor armónica eleva el VII; menor melódica eleva VI y VII al ascender; modos: Dórico, Frigio, Lidio, Mixolidio, Eolio, Locrio; intercambio modal toma prestados acordes del modo paralelo.</p>
+    <div class="box"><b>Interacción:</b> usa <a href="#s6">Emociones: modos y tonalidades</a> existente.</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Alteración de la menor armónica? (VII elevado un semitono)</p>
+        <p>2. ¿Qué es intercambio modal? (Usar acordes de la tonalidad paralela)</p>
+        <p>3. ¿Modo con cuarta aumentada? (Lidio)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> las variantes menores expanden posibilidades; los modos ofrecen colores únicos; el intercambio modal aporta frescura.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m10" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m11" data-module="m11">
+    <h2>M11: Círculo de quintas y tonalidades vecinas <span class="lesson-level">Intermedio ⭐️⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> dominar el "mapa secreto" de la armonía para entender armaduras, modulaciones y relaciones tonales.</p>
+    <p><b>Explicación:</b> el círculo de quintas organiza las 12 tonalidades en disposición circular según sus alteraciones en armadura.</p>
+    <div class="box"><b>Interacción:</b> explora el <a href="#s2">mapa de quintas</a> existente (detalles "El mapa secreto").</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Cuántos sostenidos tiene Sol mayor? (1)</p>
+        <p>2. ¿Qué son tonalidades vecinas? (Comparten acordes y armadura)</p>
+        <p>3. ¿Para qué sirve el círculo? (Armaduras y progresiones)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> el círculo es la brújula geométrica; facilita armaduras y modulaciones; conecta tonalidades por cercanía.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m11" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m12" data-module="m12">
+    <h2>M12: Dominantes secundarias y catálogo avanzado <span class="lesson-level">Avanzado ⭐️⭐️⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> analizar y componer con dominantes secundarias y adentrarse en géneros complejos como el jazz y el bolero.</p>
+    <p><b>Explicación:</b> acordes de séptima dominante que apuntan temporalmente a un grado que no es la tónica (ej. V7/ii).</p>
+    <div class="box"><b>Interacción:</b> usa el <a href="#s3">Catálogo de progresiones</a> filtrado por nivel Avanzado.</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Función de la dominante secundaria? (Falsa resolución temporal)</p>
+        <p>2. ¿Cifrado de la dominante del sexto grado? (V7/vi)</p>
+        <p>3. ¿Estilo con tensiones extendidas? (Jazz)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> las dominantes secundarias generan dinamismo; el catálogo avanzado incluye jazz y latino; elevan la sofisticación.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m12" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="m13" data-module="m13">
+    <h2>M13: Ritmo por género (Síncopa, swing y dembow) <span class="lesson-level">Intermedio ⭐️⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> estudiar micro-ritmos y patrones característicos de géneros urbanos, latinos y jazzísticos.</p>
+    <p><b>Explicación:</b> mantiene la sección 10. Síncopa, contratiempo, swing y el ritmo de dembow.</p>
+    <div class="box"><b>Interacción:</b> usa <a href="#beats">Ritmo y beats</a> existente.</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Qué es una síncopa? (Desplazamiento del acento a partes débiles)</p>
+        <p>2. ¿Cómo se caracteriza el swing? (Corcheas desiguales / bounce)</p>
+        <p>3. ¿Patrón del reggaetón moderno? (Dembow)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> el ritmo da movimiento y personalidad; la síncopa juega con expectativas; las subdivisiones clavan el groove.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="m13" /> Marcar módulo como completado</label>
+  </section>
+
+  <section class="module" id="proyecto-final" data-module="proyecto-final">
+    <h2>Proyecto Final: Compón tu primera canción <span class="lesson-level">Avanzado ⭐️⭐️⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> aplicar toda la teoría aprendida componiendo una obra original desde cero.</p>
+    <p><b>Explicación:</b> selecciona tonalidad, una progresión limpia del catálogo, un patrón rítmico y diseña una melodía de 8 compases.</p>
+    <div class="box"><b>Interacción:</b> interfaz de composición en cuadrícula con reproducción y exportación a MIDI (en desarrollo; reutiliza el teclado y el catálogo).</div>
+    <p class="lesson-summary"><b>Resumen:</b> integra armonía, melodía y ritmo; te guía desde la hoja en blanco; permite exportar a un DAW.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="proyecto-final" /> Marcar proyecto como completado</label>
+  </section>
+
+  <section class="module" id="pista-b" data-module="pista-b">
+    <h2>Pista B (Separada): Producción musical y DAW <span class="lesson-level">Avanzado ⭐️⭐️⭐️</span></h2>
+    <p class="lesson-goal"><b>Objetivo:</b> entender el procesamiento de audio, mezcla básica y el flujo de trabajo en un DAW.</p>
+    <p><b>Explicación:</b> procesamiento: compresión, delay, distorsión, LFO, panorama y volumen relativo. Mezcla y síntesis: EQ, efectos de tiempo, síntesis básica, MIDI y enrutamiento.</p>
+    <div class="box"><b>Interacción:</b> sliders interactivos con demostraciones A/B para compresión y delay. Reutiliza <a href="#s8">Sonido y producción</a>, <code>FxLab</code> y <code>SynthLab</code>.</div>
+    <div class="box mini-challenge">
+      <fieldset>
+        <legend><b>Mini-quiz</b></legend>
+        <p>1. ¿Función del compresor? (Controlar rango dinámico)</p>
+        <p>2. ¿Efecto de repeticiones retardadas? (Delay)</p>
+        <p>3. ¿Qué es el panorama? (Distribución izquierda/derecha)</p>
+      </fieldset>
+    </div>
+    <p class="lesson-summary"><b>Resumen:</b> la producción transforma una composición cruda en obra pulida; efectos dan dimensión; el DAW centraliza grabación, edición y mezcla.</p>
+    <label class="progress-toggle"><input type="checkbox" data-module-toggle="pista-b" /> Marcar pista como completada</label>
+  </section>
+
+
+
+
   <h2 id="s1">
-    1. Cómo leer una progresión <span class="lesson-level">Inicial⭐️</span>
+    Cómo leer una progresión <span class="lesson-level">Inicial⭐️</span>
   </h2>
   <QuickListen />
   <p class="lesson-goal">
@@ -479,7 +789,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   </script>
 
   <h2 id="s2">
-    2. Los siete grados de Do mayor <span class="lesson-level">Inicial⭐️</span>
+    Los siete grados de Do mayor <span class="lesson-level">Inicial⭐️</span>
   </h2>
   <p class="lesson-goal">
     Meta: escuchar y reconocer los siete acordes que nacen de una escala mayor.
@@ -501,7 +811,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   </details>
 
   <h2 id="s3">
-    4. Catálogo de progresiones <span class="lesson-level"
+    Catálogo de progresiones <span class="lesson-level"
       >Inicial⭐️ · todos los niveles</span
     >
   </h2>
@@ -512,7 +822,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   <ProgressionCatalog />
 
   <h2 id="s4">
-    5. Inversiones y conducción de voces <span class="lesson-level"
+    Inversiones y conducción de voces <span class="lesson-level"
       >Intermedio ⭐️⭐️</span
     >
   </h2>
@@ -545,7 +855,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   </div>
 
   <h2 id="s5">
-    6. Ejercicio: arpegios con mínima distancia <span class="lesson-level"
+    Ejercicio: arpegios con mínima distancia <span class="lesson-level"
       >Intermedio ⭐️⭐️</span
     >
   </h2>
@@ -559,7 +869,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   <Exercise />
 
   <h2 id="s6">
-    7. Emociones: modos y tonalidades <span class="lesson-level"
+    Emociones: modos y tonalidades <span class="lesson-level"
       >Intermedio ⭐️⭐️</span
     >
   </h2>
@@ -579,7 +889,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   <Emotions />
 
   <h2 id="s7">
-    8. Consejos de interpretación <span class="lesson-level">Inicial⭐️</span>
+    Consejos de interpretación <span class="lesson-level">Inicial⭐️</span>
   </h2>
   <p class="lesson-goal">
     Aplica hábitos sencillos de postura, coordinación y práctica sin forzar las
@@ -588,7 +898,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   <Tips />
 
   <h2 id="s8">
-    9. Del acorde al sonido: síntesis, efectos y DAW <span class="lesson-level"
+    Del acorde al sonido: síntesis, efectos y DAW <span class="lesson-level"
       >Avanzado ⭐️⭐️⭐️</span
     >
   </h2>
@@ -674,4 +984,146 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   <Fretboard />
 
   <Beats />
+
+  <!-- ============================================================
+       NUEVA RUTA DE CONTENIDOS (M0–M13, Pista B, Glosario)
+       Insertada a continuación de la estructura base existente.
+       ============================================================ -->
+
+
+  <div id="glossary-modal" class="glossary-modal" hidden>
+    <div class="glossary-modal-card" role="dialog" aria-modal="true" aria-labelledby="glossary-modal-title">
+      <button type="button" class="glossary-modal-close" data-close-glossary aria-label="Cerrar">×</button>
+      <h3 id="glossary-modal-title"></h3>
+      <p id="glossary-modal-def"></p>
+      <small id="glossary-modal-meta"></small>
+    </div>
+  </div>
+
+  <style>
+    .module-index { margin: 24px 0; padding: 16px; border: 1px solid var(--bd); border-radius: 18px; background: var(--card); }
+    .progress-summary { margin: 0 0 10px; color: var(--mut); font-weight: 700; font-size: 0.85rem; }
+    .module-index a.is-active { color: var(--acc); font-weight: 800; }
+    .module-index ol { columns: 2; column-gap: 24px; }
+    @media (max-width: 640px) { .module-index ol { columns: 1; } }
+    .module { margin: 28px 0; padding: 20px; border: 1px solid var(--bd); border-radius: 20px; background: var(--card); }
+    .module h2 { margin-top: 0; }
+    .lesson-summary { color: var(--mut); }
+    .progress-toggle { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font-weight: 700; }
+    .term { text-decoration: underline dotted; cursor: help; position: relative; }
+    body.glossary-disabled .term:hover::after,
+    body.glossary-disabled .term:focus::after { display: none !important; }
+    .term:hover::after, .term:focus::after {
+      content: attr(data-tip);
+      position: absolute; left: 0; top: 1.4em; z-index: 10;
+      background: var(--bg); border: 1px solid var(--bd); border-radius: 10px;
+      padding: 6px 10px; font-size: 0.8rem; white-space: normal; width: 220px;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.12);
+    }
+    .glossary-list { margin-top: 12px; display: grid; gap: 8px; }
+    .glossary-item { padding: 10px 12px; border: 1px solid var(--bd); border-radius: 12px; background: var(--bg); }
+    .glossary-item b { display: block; }
+    .glossary-item small { color: var(--mut); }
+    .glossary-switch { display: inline-flex; align-items: center; gap: 8px; margin: 8px 0 16px; font-weight: 700; }
+    .glossary-modal { position: fixed; inset: 0; background: rgb(0 0 0 / 0.45); display: flex; align-items: center; justify-content: center; z-index: 100; }
+    .glossary-modal[hidden] { display: none; }
+    .glossary-modal-card { position: relative; max-width: 420px; width: 90%; background: var(--card); border: 1px solid var(--bd); border-radius: 18px; padding: 20px; box-shadow: 0 10px 30px rgb(0 0 0 / 0.2); }
+    .glossary-modal-close { position: absolute; top: 8px; right: 12px; border: none; background: transparent; font-size: 1.4rem; cursor: pointer; }
+    .glossary-modal-card h3 { margin: 0 0 8px; }
+    .glossary-modal-card small { color: var(--mut); }
+  </style>
+
+  <script>
+    import { GLOSSARY } from '../data/glossary';
+    import { readProgress, setModuleProgress } from '../lib/progress';
+
+    // Tooltips accesibles por teclado
+    document.querySelectorAll<HTMLElement>('.term').forEach((el) => {
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'button');
+      el.setAttribute('aria-label', el.dataset.tip ?? '');
+    });
+
+    // Persistencia de progreso por módulo
+    const toggles = Array.from(document.querySelectorAll<HTMLInputElement>('[data-module-toggle]'));
+    const progress = readProgress();
+    const summary = document.getElementById('progress-summary');
+    function updateProgressSummary() {
+      if (!summary) return;
+      const done = toggles.filter((t) => t.checked).length;
+      summary.textContent = `Progreso: ${done}/${toggles.length} módulos completados`;
+    }
+    toggles.forEach((toggle) => {
+      const id = toggle.dataset.moduleToggle ?? '';
+      toggle.checked = Boolean(progress[id]?.completed);
+      toggle.addEventListener('change', () => {
+        setModuleProgress(id, { completed: toggle.checked });
+        updateProgressSummary();
+      });
+    });
+    updateProgressSummary();
+
+    // Resaltado del índice de módulos según scroll
+    const moduleLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.module-index a'));
+    const moduleSections = moduleLinks
+      .map((a) => document.querySelector<HTMLElement>(a.getAttribute('href') ?? ''))
+      .filter((s): s is HTMLElement => Boolean(s));
+    const modObserver = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        moduleLinks.forEach((a) => a.classList.toggle('is-active', a.getAttribute('href') === '#' + visible.target.id));
+      },
+      { rootMargin: '-20% 0px -70% 0px', threshold: [0.1, 0.4] },
+    );
+    moduleSections.forEach((s) => modObserver.observe(s));
+
+    // Glosario emergente (modal) con interruptor
+    const GLOSSARY_KEY = 'progressive-music:glossary-modals';
+    const toggle = document.getElementById('glossary-toggle') as HTMLInputElement | null;
+    let glossaryEnabled = true;
+    try {
+      const stored = window.localStorage.getItem(GLOSSARY_KEY);
+      glossaryEnabled = stored === null ? true : stored === '1';
+    } catch { /* ignore */ }
+    function applyGlossaryState() {
+      document.body.classList.toggle('glossary-disabled', !glossaryEnabled);
+    }
+    applyGlossaryState();
+    if (toggle) {
+      toggle.checked = glossaryEnabled;
+      toggle.addEventListener('change', () => {
+        glossaryEnabled = toggle.checked;
+        applyGlossaryState();
+        try { window.localStorage.setItem(GLOSSARY_KEY, glossaryEnabled ? '1' : '0'); } catch { /* ignore */ }
+      });
+    }
+
+    const modal = document.getElementById('glossary-modal');
+    const modalTitle = document.getElementById('glossary-modal-title');
+    const modalDef = document.getElementById('glossary-modal-def');
+    const modalMeta = document.getElementById('glossary-modal-meta');
+    function openGlossary(term: string, tip: string) {
+      if (!glossaryEnabled || !modal) return;
+      const entry = GLOSSARY.find((e) => e.term.toLowerCase() === term.toLowerCase());
+      if (modalTitle) modalTitle.textContent = entry?.term ?? term;
+      if (modalDef) modalDef.textContent = entry?.definition ?? tip;
+      if (modalMeta) modalMeta.textContent = entry ? `${entry.english ?? ''} · ${entry.category}`.replace(/^ · /, '') : '';
+      modal.hidden = false;
+    }
+    function closeGlossary() {
+      if (modal) modal.hidden = true;
+    }
+    document.querySelector('[data-close-glossary]')?.addEventListener('click', closeGlossary);
+    modal?.addEventListener('click', (e) => { if (e.target === modal) closeGlossary(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeGlossary(); });
+
+    document.querySelectorAll<HTMLElement>('.term').forEach((el) => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        openGlossary(el.textContent?.trim() ?? '', el.dataset.tip ?? '');
+      });
+    });
+  </script>
 </Layout>
