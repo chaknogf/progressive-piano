@@ -36,6 +36,9 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
     <input type="checkbox" id="glossary-toggle" />
     Mostrar glosario emergente al pulsar términos
   </label>
+  <aside class="kid-note">
+    <b>Explicado fácil:</b> si una palabra te suena rara, está en color arcoíris. Púlsala y te diré qué significa con palabras sencillas.
+  </aside>
   <aside class="learning-route" aria-label="Método de aprendizaje recomendado">
     <b>Una forma fácil de aprender</b>
     <ol>
@@ -1010,7 +1013,16 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
     .module h2 { margin-top: 0; }
     .lesson-summary { color: var(--mut); }
     .progress-toggle { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font-weight: 700; }
-    .term { text-decoration: underline dotted; cursor: help; position: relative; }
+    .term {
+      text-decoration: underline dotted;
+      cursor: help;
+      position: relative;
+      font-weight: 700;
+      background: linear-gradient(90deg, #e11d48, #f97316, #eab308, #22c55e, #0ea5e9, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
     body.glossary-disabled .term:hover::after,
     body.glossary-disabled .term:focus::after { display: none !important; }
     .term:hover::after, .term:focus::after {
@@ -1025,6 +1037,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
     .glossary-item b { display: block; }
     .glossary-item small { color: var(--mut); }
     .glossary-switch { display: inline-flex; align-items: center; gap: 8px; margin: 8px 0 16px; font-weight: 700; }
+    .kid-note { margin: 8px 0 16px; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, #a855f7 12%, var(--card)); border: 1px solid color-mix(in srgb, #a855f7 30%, var(--bd)); font-size: 0.9rem; }
     .glossary-modal { position: fixed; inset: 0; background: rgb(0 0 0 / 0.45); display: flex; align-items: center; justify-content: center; z-index: 100; }
     .glossary-modal[hidden] { display: none; }
     .glossary-modal-card { position: relative; max-width: 420px; width: 90%; background: var(--card); border: 1px solid var(--bd); border-radius: 18px; padding: 20px; box-shadow: 0 10px 30px rgb(0 0 0 / 0.2); }
@@ -1108,7 +1121,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
       const entry = GLOSSARY.find((e) => e.term.toLowerCase() === term.toLowerCase());
       if (modalTitle) modalTitle.textContent = entry?.term ?? term;
       if (modalDef) modalDef.textContent = entry?.definition ?? tip;
-      if (modalMeta) modalMeta.textContent = entry ? `${entry.english ?? ''} · ${entry.category}`.replace(/^ · /, '') : '';
+      if (modalMeta) modalMeta.textContent = entry ? `${entry.english ?? ''} · ${entry.category}${entry.commonError ? ' · Error común: ' + entry.commonError : ''}`.replace(/^ · /, '') : '';
       modal.hidden = false;
     }
     function closeGlossary() {
