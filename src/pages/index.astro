@@ -113,7 +113,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   <section class="module" id="m1" data-module="m1">
     <h2>M1: Sonido y pulso <span class="lesson-level">Inicial⭐️</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> comprender las cuatro propiedades del sonido, el pulso, el tempo, los compases y las figuras rítmicas.</p>
-    <p><b>Explicación:</b> <span class="term" data-tip="Altura, duración, intensidad y timbre">Propiedades del sonido</span>: altura (grave/agudo), duración (tiempo), intensidad (volumen) y timbre (color). El pulso es el latido constante; el tempo se mide en <span class="term" data-tip="Beats Per Minute">BPM</span>. Compases: 2/4, 3/4, 4/4 y 6/8. Figuras y silencios: redonda, blanca, negra, corchea, semicorchea, puntillo y ligadura.</p>
+    <p><b>Explicación:</b> <span class="term" data-tip="Qué tan grave o agudo, largo, fuerte y de qué color suena">Propiedades del sonido</span>: altura (grave/agudo), duración (tiempo), intensidad (volumen) y timbre (color). El pulso es el latido constante; el tempo se mide en <span class="term" data-tip="Golpes por minuto: qué tan rápido va la canción">BPM</span>. Compases: 2/4, 3/4, 4/4 y 6/8. Figuras y silencios: redonda, blanca, negra, corchea, semicorchea, puntillo y ligadura.</p>
     <div class="box"><b>Interacción:</b> usa el componente <a href="#beats">Ritmo y beats</a> de la sección inferior como metrónomo y panel de figuras.</div>
     <div class="box mini-challenge">
       <fieldset>
@@ -131,7 +131,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   <section class="module" id="m2" data-module="m2">
     <h2>M2: Notas, teclado y cifrado <span class="lesson-level">Inicial⭐️</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> dominar los nombres de las notas naturales y alteradas, la distribución del teclado y el cifrado americano.</p>
-    <p><b>Explicación:</b> las notas naturales son 7: Do, Re, Mi, Fa, Sol, La, Si. Las teclas negras son sostenidos (♯) y bemoles (♭). Cifrado americano: C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si. <span class="term" data-tip="Dos notas con nombres distintos que suenan igual">Enarmonía</span> explica nombres distintos para la misma altura.</p>
+    <p><b>Explicación:</b> las notas naturales son 7: Do, Re, Mi, Fa, Sol, La, Si. Las teclas negras son sostenidos (♯) y bemoles (♭). Cifrado americano: C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si. <span class="term" data-tip="Dos nombres distintos para la misma nota">Enarmonía</span> explica nombres distintos para la misma altura.</p>
     <div class="box"><b>Interacción:</b> usa el teclado interactivo de la cabecera (<code>MelodyKeyboard</code>) para explorar notas, octavas y enarmonía.</div>
     <div class="box mini-challenge">
       <fieldset>
@@ -148,7 +148,7 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
   <section class="module" id="m3" data-module="m3">
     <h2>M3: Tonos, semitonos, escala mayor e intervalos <span class="lesson-level">Inicial⭐️</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> entender la distancia mínima musical, construir la escala mayor universal y medir intervalos.</p>
-    <p><b>Explicación:</b> semitono = distancia más pequeña (tecla adyacente); tono = dos semitonos. Escala mayor: fórmula T–T–S–T–T–T–S. <span class="term" data-tip="Distancia entre dos notas por tamaño y calidad">Intervalos</span>: número (tamaño) y cualidad (mayor, menor, justa…).</p>
+    <p><b>Explicación:</b> semitono = distancia más pequeña (tecla adyacente); tono = dos semitonos. Escala mayor: fórmula T–T–S–T–T–T–S. <span class="term" data-tip="Qué tan lejos están dos notas y cómo suenan juntas">Intervalos</span>: número (tamaño) y cualidad (mayor, menor, justa…).</p>
     <div class="box"><b>Interacción:</b> constructor de escala sobre el teclado y explorador auditivo de intervalos (usa el transpositor y el teclado).</div>
     <div class="box mini-challenge">
       <fieldset>
@@ -1028,9 +1028,10 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
     .term:hover::after, .term:focus::after {
       content: attr(data-tip);
       position: absolute; left: 0; top: 1.4em; z-index: 10;
-      background: var(--bg); border: 1px solid var(--bd); border-radius: 10px;
+      background: var(--bg); color: var(--fg); border: 1px solid var(--bd); border-radius: 10px;
       padding: 6px 10px; font-size: 0.8rem; white-space: normal; width: 220px;
       box-shadow: 0 4px 12px rgb(0 0 0 / 0.12);
+      pointer-events: none;
     }
     .glossary-list { margin-top: 12px; display: grid; gap: 8px; }
     .glossary-item { padding: 10px 12px; border: 1px solid var(--bd); border-radius: 12px; background: var(--bg); }
@@ -1133,9 +1134,13 @@ import MelodyKeyboard from "../components/MelodyKeyboard.astro";
 
     document.querySelectorAll<HTMLElement>('.term').forEach((el) => {
       el.style.cursor = 'pointer';
-      el.addEventListener('click', (ev) => {
-        ev.preventDefault();
+      const activate = (ev?: Event) => {
+        ev?.preventDefault();
         openGlossary(el.textContent?.trim() ?? '', el.dataset.tip ?? '');
+      };
+      el.addEventListener('click', activate);
+      el.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') activate(ev);
       });
     });
   </script>
