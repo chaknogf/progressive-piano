@@ -1,0 +1,2572 @@
+{
+  "version": 1,
+  "notes": "Mezclar el orden de opciones no es necesario: ya vienen barajadas. 'correct' es el id de la opción. Las preguntas con requires_lesson deben activarse solo cuando exista la explicación en la página.",
+  "placement": {
+    "title": "Prueba de nivel (objetiva)",
+    "rule": "Se muestran en orden. El módulo recomendado es el de la primera pregunta fallada. Si acierta todas: M8.",
+    "questions": [
+      {
+        "id": "p-q1",
+        "type": "multiple_choice",
+        "prompt": "En un compás de 4/4, ¿cuántas negras caben en un compás?",
+        "options": [
+          {
+            "id": "a",
+            "text": "8"
+          },
+          {
+            "id": "b",
+            "text": "2"
+          },
+          {
+            "id": "c",
+            "text": "4"
+          },
+          {
+            "id": "d",
+            "text": "3"
+          }
+        ],
+        "correct": "c",
+        "explanation": "Cuatro pulsos de negra por compás.",
+        "hint": "El número de arriba indica pulsos por compás.",
+        "level": "Inicial",
+        "if_wrong_start_at": "M1",
+        "reviewAnchor": "#m1"
+      },
+      {
+        "id": "p-q2",
+        "type": "multiple_choice",
+        "prompt": "¿Qué nota es la letra A en el cifrado americano?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Do"
+          },
+          {
+            "id": "b",
+            "text": "Re"
+          },
+          {
+            "id": "c",
+            "text": "Si"
+          },
+          {
+            "id": "d",
+            "text": "La"
+          }
+        ],
+        "correct": "d",
+        "explanation": "A = La.",
+        "hint": "C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si.",
+        "level": "Inicial",
+        "if_wrong_start_at": "M2",
+        "reviewAnchor": "#m2"
+      },
+      {
+        "id": "p-q3",
+        "type": "multiple_choice",
+        "prompt": "Entre Mi y Fa hay una distancia de…",
+        "options": [
+          {
+            "id": "a",
+            "text": "Un tono"
+          },
+          {
+            "id": "b",
+            "text": "Un semitono"
+          },
+          {
+            "id": "c",
+            "text": "Tono y medio"
+          },
+          {
+            "id": "d",
+            "text": "Dos tonos"
+          }
+        ],
+        "correct": "b",
+        "explanation": "Mi y Fa son notas contiguas sin tecla negra en medio.",
+        "hint": "Busca las teclas adyacentes sin tecla negra entre ellas.",
+        "level": "Inicial",
+        "if_wrong_start_at": "M3",
+        "reviewAnchor": "#m3"
+      },
+      {
+        "id": "p-q4",
+        "type": "multiple_choice",
+        "prompt": "¿Qué notas forman el acorde de Sol mayor (G)?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Sol – La – Re"
+          },
+          {
+            "id": "b",
+            "text": "Sol – Do – Re"
+          },
+          {
+            "id": "c",
+            "text": "Sol – Si – Re"
+          },
+          {
+            "id": "d",
+            "text": "Sol – Si♭ – Re"
+          }
+        ],
+        "correct": "c",
+        "explanation": "Fundamental, tercera mayor y quinta justa.",
+        "hint": "Una tríada mayor usa fundamental, tercera mayor y quinta justa.",
+        "level": "Inicial",
+        "if_wrong_start_at": "M4",
+        "reviewAnchor": "#m4"
+      },
+      {
+        "id": "p-q5",
+        "type": "multiple_choice",
+        "prompt": "En Do mayor, ¿qué acorde es el IV?",
+        "options": [
+          {
+            "id": "a",
+            "text": "La menor (Am)"
+          },
+          {
+            "id": "b",
+            "text": "Fa mayor (F)"
+          },
+          {
+            "id": "c",
+            "text": "Sol mayor (G)"
+          },
+          {
+            "id": "d",
+            "text": "Re menor (Dm)"
+          }
+        ],
+        "correct": "b",
+        "explanation": "El cuarto grado de Do es Fa.",
+        "hint": "Cuenta cuatro notas desde Do en la escala mayor.",
+        "level": "Inicial",
+        "if_wrong_start_at": "M5",
+        "reviewAnchor": "#m5"
+      },
+      {
+        "id": "p-q6",
+        "type": "multiple_choice",
+        "prompt": "¿Qué diferencia hay entre C y Cmaj7?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Cmaj7 es el mismo acorde una octava arriba"
+          },
+          {
+            "id": "b",
+            "text": "No hay diferencia"
+          },
+          {
+            "id": "c",
+            "text": "Cmaj7 añade la nota Si"
+          },
+          {
+            "id": "d",
+            "text": "Cmaj7 es Do menor"
+          }
+        ],
+        "correct": "c",
+        "explanation": "La séptima mayor de Do es Si.",
+        "hint": "La séptima mayor está un semitono debajo de la octava.",
+        "level": "Inicial",
+        "if_wrong_start_at": "M6",
+        "reviewAnchor": "#m6"
+      }
+    ],
+    "if_all_correct_start_at": "M8"
+  },
+  "modules": {
+    "M1": {
+      "title": "Sonido y pulso",
+      "questions": [
+        {
+          "id": "m1-q1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué propiedad del sonido permite distinguir un piano de una guitarra tocando la misma nota?",
+          "options": [
+            {
+              "id": "a",
+              "text": "La altura"
+            },
+            {
+              "id": "b",
+              "text": "La duración"
+            },
+            {
+              "id": "c",
+              "text": "La intensidad"
+            },
+            {
+              "id": "d",
+              "text": "El timbre"
+            }
+          ],
+          "correct": "d",
+          "explanation": "El timbre es el color del sonido.",
+          "hint": "Piensa en el color del sonido.",
+          "level": "Inicial",
+          "reviewAnchor": "#m1"
+        },
+        {
+          "id": "m1-q2",
+          "type": "multiple_choice",
+          "prompt": "¿Cuántas corcheas equivalen a una negra?",
+          "options": [
+            {
+              "id": "a",
+              "text": "8"
+            },
+            {
+              "id": "b",
+              "text": "2"
+            },
+            {
+              "id": "c",
+              "text": "4"
+            },
+            {
+              "id": "d",
+              "text": "1"
+            }
+          ],
+          "correct": "b",
+          "explanation": "Una negra se divide en dos corcheas.",
+          "hint": "Divide la negra en partes iguales.",
+          "level": "Inicial",
+          "reviewAnchor": "#m1"
+        },
+        {
+          "id": "m1-q3",
+          "type": "multiple_choice",
+          "prompt": "Una canción a 120 BPM tiene…",
+          "options": [
+            {
+              "id": "a",
+              "text": "120 compases por minuto"
+            },
+            {
+              "id": "b",
+              "text": "120 notas distintas"
+            },
+            {
+              "id": "c",
+              "text": "120 pulsos por minuto"
+            },
+            {
+              "id": "d",
+              "text": "120 acordes distintos"
+            }
+          ],
+          "correct": "c",
+          "explanation": "BPM mide pulsos por minuto.",
+          "hint": "BPM = beats por minuto.",
+          "level": "Inicial",
+          "reviewAnchor": "#m1"
+        },
+        {
+          "id": "m1-q4",
+          "type": "multiple_choice",
+          "prompt": "En un compás de 3/4, el número de arriba (3) indica…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Tres compases por frase"
+            },
+            {
+              "id": "b",
+              "text": "Tres acordes por compás"
+            },
+            {
+              "id": "c",
+              "text": "Tres notas por pulso"
+            },
+            {
+              "id": "d",
+              "text": "Tres pulsos por compás"
+            }
+          ],
+          "correct": "d",
+          "explanation": "El 3 indica pulsos por compás.",
+          "hint": "El numerador cuenta pulsos.",
+          "level": "Inicial",
+          "reviewAnchor": "#m1"
+        },
+        {
+          "id": "m1-q5",
+          "type": "listen_identify",
+          "prompt": "Escucha el patrón. ¿Cuántos pulsos por compás tiene?",
+          "audio": {
+            "mode": "sequence",
+            "notes": [
+              60,
+              60,
+              60,
+              60
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "2"
+            },
+            {
+              "id": "b",
+              "text": "3"
+            },
+            {
+              "id": "c",
+              "text": "4"
+            },
+            {
+              "id": "d",
+              "text": "6"
+            }
+          ],
+          "correct": "c",
+          "explanation": "Se escuchan cuatro pulsos iguales.",
+          "hint": "Cuenta los acentos principales.",
+          "level": "Inicial",
+          "reviewAnchor": "#m1"
+        },
+        {
+          "id": "m1-q6",
+          "type": "order_steps",
+          "prompt": "Ordena los pasos para leer un compás.",
+          "steps": [
+            "Identificar el número de pulsos",
+            "Identificar la figura del pulso",
+            "Contar los pulsos",
+            "Tocar el patrón"
+          ],
+          "explanation": "Primero se identifica la métrica y luego se cuenta.",
+          "hint": "Empieza por el numerador.",
+          "level": "Inicial",
+          "reviewAnchor": "#m1"
+        }
+      ]
+    },
+    "M2": {
+      "title": "Notas, teclado y cifrado",
+      "questions": [
+        {
+          "id": "m2-q1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué nota es la letra A en el cifrado americano?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Si"
+            },
+            {
+              "id": "b",
+              "text": "La"
+            },
+            {
+              "id": "c",
+              "text": "Do"
+            },
+            {
+              "id": "d",
+              "text": "Re"
+            }
+          ],
+          "correct": "b",
+          "explanation": "C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si.",
+          "hint": "Recuerda el orden alfabético adaptado.",
+          "level": "Inicial",
+          "reviewAnchor": "#m2"
+        },
+        {
+          "id": "m2-q2",
+          "type": "multiple_choice",
+          "prompt": "¿Qué nota hay entre Do y Re?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Ninguna"
+            },
+            {
+              "id": "b",
+              "text": "Mi"
+            },
+            {
+              "id": "c",
+              "text": "Si"
+            },
+            {
+              "id": "d",
+              "text": "Do♯ (o Re♭)"
+            }
+          ],
+          "correct": "d",
+          "explanation": "Entre Do y Re hay una tecla negra.",
+          "hint": "Busca la tecla negra intermedia.",
+          "level": "Inicial",
+          "reviewAnchor": "#m2"
+        },
+        {
+          "id": "m2-q3",
+          "type": "multiple_choice",
+          "prompt": "Do♯ y Re♭ suenan igual pero se escriben distinto. Eso se llama…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Modulación"
+            },
+            {
+              "id": "b",
+              "text": "Inversión"
+            },
+            {
+              "id": "c",
+              "text": "Enarmonía"
+            },
+            {
+              "id": "d",
+              "text": "Octava"
+            }
+          ],
+          "correct": "c",
+          "explanation": "Dos nombres para la misma altura son notas enarmónicas.",
+          "hint": "Piensa en nombres distintos para la misma nota.",
+          "level": "Inicial",
+          "reviewAnchor": "#m2"
+        },
+        {
+          "id": "m2-q4",
+          "type": "multiple_choice",
+          "prompt": "¿Qué par de notas naturales NO tiene tecla negra entre ellas?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Do y Re"
+            },
+            {
+              "id": "b",
+              "text": "Fa y Sol"
+            },
+            {
+              "id": "c",
+              "text": "Mi y Fa"
+            },
+            {
+              "id": "d",
+              "text": "Sol y La"
+            }
+          ],
+          "correct": "c",
+          "explanation": "Mi–Fa y Si–Do están a un semitono.",
+          "hint": "Hay dos pares sin tecla negra.",
+          "level": "Inicial",
+          "reviewAnchor": "#m2"
+        },
+        {
+          "id": "m2-q5",
+          "type": "play_it",
+          "prompt": "Toca en el teclado la nota La (A) en cualquier octava.",
+          "targetNotes": [
+            9
+          ],
+          "explanation": "La corresponde al número 9 en la octava de Do.",
+          "hint": "Cuenta nueve semitonos desde Do.",
+          "level": "Inicial",
+          "reviewAnchor": "#m2"
+        },
+        {
+          "id": "m2-q6",
+          "type": "listen_identify",
+          "prompt": "Escucha la nota. ¿Cuál es?",
+          "audio": {
+            "mode": "sequence",
+            "notes": [
+              4
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Do"
+            },
+            {
+              "id": "b",
+              "text": "Mi"
+            },
+            {
+              "id": "c",
+              "text": "Sol"
+            },
+            {
+              "id": "d",
+              "text": "La"
+            }
+          ],
+          "correct": "b",
+          "explanation": "El sonido corresponde a Mi.",
+          "hint": "Compara con la canción 'cumpleaños' en Mi.",
+          "level": "Inicial",
+          "reviewAnchor": "#m2"
+        }
+      ]
+    },
+    "M3": {
+      "title": "Tonos, semitonos, escala mayor e intervalos",
+      "questions": [
+        {
+          "id": "m3-q1",
+          "type": "multiple_choice",
+          "prompt": "¿Cuál es la fórmula de la escala mayor?",
+          "options": [
+            {
+              "id": "a",
+              "text": "T–S–T–T–S–T–T"
+            },
+            {
+              "id": "b",
+              "text": "T–T–T–S–T–T–S"
+            },
+            {
+              "id": "c",
+              "text": "S–T–T–S–T–T–T"
+            },
+            {
+              "id": "d",
+              "text": "T–T–S–T–T–T–S"
+            }
+          ],
+          "correct": "d",
+          "explanation": "T = tono, S = semitono.",
+          "hint": "Empieza con dos tonos.",
+          "level": "Inicial",
+          "reviewAnchor": "#m3"
+        },
+        {
+          "id": "m3-q2",
+          "type": "multiple_choice",
+          "prompt": "¿Cuántos semitonos tiene un tono?",
+          "options": [
+            {
+              "id": "a",
+              "text": "2"
+            },
+            {
+              "id": "b",
+              "text": "1"
+            },
+            {
+              "id": "c",
+              "text": "3"
+            },
+            {
+              "id": "d",
+              "text": "4"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Un tono equivale a dos semitonos.",
+          "hint": "Tono = dos semitonos.",
+          "level": "Inicial",
+          "reviewAnchor": "#m3"
+        },
+        {
+          "id": "m3-q3",
+          "type": "multiple_choice",
+          "prompt": "¿Qué intervalo hay entre Do y Sol?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Quinta justa"
+            },
+            {
+              "id": "b",
+              "text": "Sexta mayor"
+            },
+            {
+              "id": "c",
+              "text": "Cuarta justa"
+            },
+            {
+              "id": "d",
+              "text": "Tercera mayor"
+            }
+          ],
+          "correct": "a",
+          "explanation": "De Do a Sol hay siete semitonos.",
+          "hint": "Cuenta las letras: Do, Re, Mi, Fa, Sol.",
+          "level": "Inicial",
+          "reviewAnchor": "#m3"
+        },
+        {
+          "id": "m3-q4",
+          "type": "multiple_choice",
+          "prompt": "Si construyes la escala mayor desde Re, ¿qué notas llevan sostenido?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Ninguna"
+            },
+            {
+              "id": "b",
+              "text": "Fa♯ y Do♯"
+            },
+            {
+              "id": "c",
+              "text": "Solo Fa♯"
+            },
+            {
+              "id": "d",
+              "text": "Si♭ y Mi♭"
+            }
+          ],
+          "correct": "b",
+          "explanation": "Re mayor: Re Mi Fa♯ Sol La Si Do♯.",
+          "hint": "Aplica la fórmula desde Re.",
+          "level": "Inicial",
+          "reviewAnchor": "#m3"
+        },
+        {
+          "id": "m3-q5",
+          "type": "listen_identify",
+          "prompt": "Escucha el intervalo. ¿Cuál es?",
+          "audio": {
+            "mode": "sequence",
+            "notes": [
+              0,
+              7
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Cuarta justa"
+            },
+            {
+              "id": "b",
+              "text": "Quinta justa"
+            },
+            {
+              "id": "c",
+              "text": "Sexta mayor"
+            },
+            {
+              "id": "d",
+              "text": "Octava"
+            }
+          ],
+          "correct": "b",
+          "explanation": "Do–Sol es una quinta justa.",
+          "hint": "Es el intervalo más estable después de la octava.",
+          "level": "Inicial",
+          "reviewAnchor": "#m3"
+        },
+        {
+          "id": "m3-q6",
+          "type": "play_it",
+          "prompt": "Toca en el teclado los primeros tres grados de la escala mayor de Do: Do, Re, Mi.",
+          "targetNotes": [
+            0,
+            2,
+            4
+          ],
+          "explanation": "Los tres primeros grados de Do mayor son Do, Re y Mi.",
+          "hint": "Sigue la fórmula T–T.",
+          "level": "Inicial",
+          "reviewAnchor": "#m3"
+        }
+      ]
+    },
+    "M4": {
+      "title": "Tríadas y primeros acordes",
+      "questions": [
+        {
+          "id": "m4-q1",
+          "type": "multiple_choice",
+          "prompt": "Una tríada mayor se forma con…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Fundamental, segunda y quinta justa"
+            },
+            {
+              "id": "b",
+              "text": "Fundamental, tercera mayor y quinta justa"
+            },
+            {
+              "id": "c",
+              "text": "Fundamental, tercera menor y quinta disminuida"
+            },
+            {
+              "id": "d",
+              "text": "Fundamental, tercera menor y quinta justa"
+            }
+          ],
+          "correct": "b",
+          "explanation": "La tercera mayor da el carácter mayor.",
+          "hint": "Piensa en fundamental, tercera y quinta.",
+          "level": "Inicial",
+          "reviewAnchor": "#m4"
+        },
+        {
+          "id": "m4-q2",
+          "type": "multiple_choice",
+          "prompt": "¿Qué notas forman el acorde de La menor (Am)?",
+          "options": [
+            {
+              "id": "a",
+              "text": "La – Do – Fa"
+            },
+            {
+              "id": "b",
+              "text": "La – Do♯ – Mi"
+            },
+            {
+              "id": "c",
+              "text": "La – Re – Mi"
+            },
+            {
+              "id": "d",
+              "text": "La – Do – Mi"
+            }
+          ],
+          "correct": "d",
+          "explanation": "Fundamental La, tercera menor Do y quinta justa Mi.",
+          "hint": "La menor baja la tercera.",
+          "level": "Inicial",
+          "reviewAnchor": "#m4"
+        },
+        {
+          "id": "m4-q3",
+          "type": "multiple_choice",
+          "prompt": "¿Qué cambia entre C (Do mayor) y Cm (Do menor)?",
+          "options": [
+            {
+              "id": "a",
+              "text": "La tercera: Mi pasa a Mi♭"
+            },
+            {
+              "id": "b",
+              "text": "La quinta: Sol pasa a Sol♭"
+            },
+            {
+              "id": "c",
+              "text": "La fundamental"
+            },
+            {
+              "id": "d",
+              "text": "Nada, solo el nombre"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Bajar un semitono la tercera convierte mayor en menor.",
+          "hint": "La tercera define la calidad.",
+          "level": "Inicial",
+          "reviewAnchor": "#m4"
+        },
+        {
+          "id": "m4-q4",
+          "type": "multiple_choice",
+          "prompt": "En un diagrama de acordes de guitarra, una ✕ sobre una cuerda significa…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Esa cuerda va al aire"
+            },
+            {
+              "id": "b",
+              "text": "Esa cuerda no se toca"
+            },
+            {
+              "id": "c",
+              "text": "Hay una cejilla"
+            },
+            {
+              "id": "d",
+              "text": "Se usa el dedo 4"
+            }
+          ],
+          "correct": "b",
+          "explanation": "La ○ indica cuerda al aire y la ✕ cuerda muda.",
+          "hint": "✕ = no se toca.",
+          "level": "Inicial",
+          "reviewAnchor": "#m4"
+        },
+        {
+          "id": "m4-q5",
+          "type": "listen_identify",
+          "prompt": "Escucha el acorde. ¿Es mayor o menor?",
+          "audio": {
+            "mode": "chord",
+            "notes": [
+              0,
+              4,
+              7
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Mayor"
+            },
+            {
+              "id": "b",
+              "text": "Menor"
+            },
+            {
+              "id": "c",
+              "text": "Disminuido"
+            },
+            {
+              "id": "d",
+              "text": "Aumentado"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Do–Mi–Sol es una tríada mayor.",
+          "hint": "La tercera mayor suena más abierta.",
+          "level": "Inicial",
+          "reviewAnchor": "#m4"
+        },
+        {
+          "id": "m4-q6",
+          "type": "play_it",
+          "prompt": "Toca en el teclado o en el mástil las notas de Do mayor: Do, Mi, Sol.",
+          "targetNotes": [
+            0,
+            4,
+            7
+          ],
+          "explanation": "La tríada de Do mayor contiene Do, Mi y Sol.",
+          "hint": "Empieza en Do y cuenta 4 y 7 semitonos.",
+          "level": "Inicial",
+          "reviewAnchor": "#m4"
+        }
+      ]
+    },
+    "M5": {
+      "title": "Los acordes de la escala",
+      "questions": [
+        {
+          "id": "m5-q1",
+          "type": "multiple_choice",
+          "prompt": "En Do mayor, ¿qué acorde es el V?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Re menor (Dm)"
+            },
+            {
+              "id": "b",
+              "text": "Fa mayor (F)"
+            },
+            {
+              "id": "c",
+              "text": "La menor (Am)"
+            },
+            {
+              "id": "d",
+              "text": "Sol mayor (G)"
+            }
+          ],
+          "correct": "d",
+          "explanation": "El quinto grado de Do mayor es Sol y su tríada es mayor.",
+          "hint": "El V es la dominante.",
+          "level": "Inicial",
+          "reviewAnchor": "#m5"
+        },
+        {
+          "id": "m5-q2",
+          "type": "multiple_choice",
+          "prompt": "¿Qué grados de la escala mayor forman acordes menores?",
+          "options": [
+            {
+              "id": "a",
+              "text": "ii, IV y vi"
+            },
+            {
+              "id": "b",
+              "text": "ii, iii y vi"
+            },
+            {
+              "id": "c",
+              "text": "iii, V y vii°"
+            },
+            {
+              "id": "d",
+              "text": "I, IV y V"
+            }
+          ],
+          "correct": "b",
+          "explanation": "En una escala mayor: I, IV, V mayores; ii, iii, vi menores; vii° disminuido.",
+          "hint": "Los menores son ii, iii y vi.",
+          "level": "Inicial",
+          "reviewAnchor": "#m5"
+        },
+        {
+          "id": "m5-q3",
+          "type": "multiple_choice",
+          "prompt": "¿Qué función tiene el IV?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Dominante: empuja hacia la tónica"
+            },
+            {
+              "id": "b",
+              "text": "Subdominante: se aleja de la tónica"
+            },
+            {
+              "id": "c",
+              "text": "Tónica: es el punto de reposo"
+            },
+            {
+              "id": "d",
+              "text": "Sensible: es el acorde disminuido"
+            }
+          ],
+          "correct": "b",
+          "explanation": "El IV abre el camino hacia el V y hacia la tónica.",
+          "hint": "El IV es subdominante.",
+          "level": "Inicial",
+          "reviewAnchor": "#m5"
+        },
+        {
+          "id": "m5-q4",
+          "type": "multiple_choice",
+          "prompt": "En Sol mayor, ¿cuál es el acorde vi?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Do mayor (C)"
+            },
+            {
+              "id": "b",
+              "text": "La menor (Am)"
+            },
+            {
+              "id": "c",
+              "text": "Si menor (Bm)"
+            },
+            {
+              "id": "d",
+              "text": "Mi menor (Em)"
+            }
+          ],
+          "correct": "d",
+          "explanation": "La escala de Sol: Sol La Si Do Re Mi Fa♯. El sexto grado es Mi.",
+          "hint": "Cuenta seis grados desde Sol.",
+          "level": "Inicial",
+          "reviewAnchor": "#m5"
+        },
+        {
+          "id": "m5-q5",
+          "type": "fill_progression",
+          "prompt": "En Do mayor, completa la progresión: I – IV – V – ?",
+          "options": [
+            {
+              "id": "a",
+              "text": "I"
+            },
+            {
+              "id": "b",
+              "text": "ii"
+            },
+            {
+              "id": "c",
+              "text": "vi"
+            },
+            {
+              "id": "d",
+              "text": "vii°"
+            }
+          ],
+          "correct": "a",
+          "explanation": "La progresión típica resuelve a la tónica.",
+          "hint": "El último acorde suele ser el de reposo.",
+          "level": "Inicial",
+          "reviewAnchor": "#m5"
+        },
+        {
+          "id": "m5-q6",
+          "type": "order_steps",
+          "prompt": "Ordena los grados de la escala mayor de Do de tónica a sensible.",
+          "steps": [
+            "I",
+            "ii",
+            "iii",
+            "IV",
+            "V",
+            "vi",
+            "vii°"
+          ],
+          "explanation": "Los siete grados en orden.",
+          "hint": "Empieza en Do y sube.",
+          "level": "Inicial",
+          "reviewAnchor": "#m5"
+        }
+      ]
+    },
+    "M6": {
+      "title": "Primeras progresiones",
+      "questions": [
+        {
+          "id": "m6-q1",
+          "type": "multiple_choice",
+          "prompt": "La progresión I–V–vi–IV en Do mayor es…",
+          "options": [
+            {
+              "id": "a",
+              "text": "C – G – Am – F"
+            },
+            {
+              "id": "b",
+              "text": "C – F – Am – G"
+            },
+            {
+              "id": "c",
+              "text": "Am – G – C – F"
+            },
+            {
+              "id": "d",
+              "text": "C – G – Em – F"
+            }
+          ],
+          "correct": "a",
+          "explanation": "I=C, V=G, vi=Am, IV=F.",
+          "hint": "Traduce cada grado.",
+          "level": "Inicial",
+          "reviewAnchor": "#m6"
+        },
+        {
+          "id": "m6-q2",
+          "type": "multiple_choice",
+          "prompt": "La misma progresión I–V–vi–IV en Sol mayor es…",
+          "options": [
+            {
+              "id": "a",
+              "text": "G – D – Em – C"
+            },
+            {
+              "id": "b",
+              "text": "G – C – Em – D"
+            },
+            {
+              "id": "c",
+              "text": "G – D – Bm – C"
+            },
+            {
+              "id": "d",
+              "text": "G – D – Em – A"
+            }
+          ],
+          "correct": "a",
+          "explanation": "I=G, V=D, vi=Em, IV=C.",
+          "hint": "Aplica los grados en Sol mayor.",
+          "level": "Inicial",
+          "reviewAnchor": "#m6"
+        },
+        {
+          "id": "m6-q3",
+          "type": "multiple_choice",
+          "prompt": "¿Qué ventaja tiene escribir progresiones con números romanos?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Son más fáciles de tocar en guitarra"
+            },
+            {
+              "id": "b",
+              "text": "Suenan más rápido"
+            },
+            {
+              "id": "c",
+              "text": "Evitan las alteraciones"
+            },
+            {
+              "id": "d",
+              "text": "Se pueden transportar a cualquier tonalidad"
+            }
+          ],
+          "correct": "d",
+          "explanation": "Los grados describen la función.",
+          "hint": "Los grados no fijan la altura.",
+          "level": "Inicial",
+          "reviewAnchor": "#m6"
+        },
+        {
+          "id": "m6-q4",
+          "type": "multiple_choice",
+          "prompt": "En vi–IV–I–V en Do mayor, el primer acorde es…",
+          "options": [
+            {
+              "id": "a",
+              "text": "C"
+            },
+            {
+              "id": "b",
+              "text": "Am"
+            },
+            {
+              "id": "c",
+              "text": "F"
+            },
+            {
+              "id": "d",
+              "text": "G"
+            }
+          ],
+          "correct": "b",
+          "explanation": "El vi de Do mayor es La menor.",
+          "hint": "El primer grado es vi.",
+          "level": "Inicial",
+          "reviewAnchor": "#m6"
+        },
+        {
+          "id": "m6-q5",
+          "type": "listen_identify",
+          "prompt": "Escucha la progresión. ¿En qué tonalidad está?",
+          "audio": {
+            "mode": "chord",
+            "notes": [
+              0,
+              4,
+              7
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Do mayor"
+            },
+            {
+              "id": "b",
+              "text": "Sol mayor"
+            },
+            {
+              "id": "c",
+              "text": "La menor"
+            },
+            {
+              "id": "d",
+              "text": "Fa mayor"
+            }
+          ],
+          "correct": "a",
+          "explanation": "El acorde inicial es Do mayor.",
+          "hint": "Identifica el primer acorde.",
+          "level": "Inicial",
+          "reviewAnchor": "#m6"
+        },
+        {
+          "id": "m6-q6",
+          "type": "fill_progression",
+          "prompt": "En Sol mayor, completa: G – D – Em – ?",
+          "options": [
+            {
+              "id": "a",
+              "text": "C"
+            },
+            {
+              "id": "b",
+              "text": "A"
+            },
+            {
+              "id": "c",
+              "text": "F#"
+            },
+            {
+              "id": "d",
+              "text": "E"
+            }
+          ],
+          "correct": "a",
+          "explanation": "El IV de Sol mayor es Do.",
+          "hint": "El último acorde es el IV.",
+          "level": "Inicial",
+          "reviewAnchor": "#m6"
+        }
+      ]
+    },
+    "M7": {
+      "title": "Séptimas y cifrado ampliado",
+      "questions": [
+        {
+          "id": "m7-q1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué nota añade Cmaj7 a la tríada de Do mayor?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Fa"
+            },
+            {
+              "id": "b",
+              "text": "Si♭"
+            },
+            {
+              "id": "c",
+              "text": "Re"
+            },
+            {
+              "id": "d",
+              "text": "Si"
+            }
+          ],
+          "correct": "d",
+          "explanation": "La séptima mayor de Do es Si.",
+          "hint": "La séptima mayor está un semitono debajo de la octava.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m7"
+        },
+        {
+          "id": "m7-q2",
+          "type": "multiple_choice",
+          "prompt": "¿Qué diferencia hay entre Cmaj7 y C7?",
+          "options": [
+            {
+              "id": "a",
+              "text": "La séptima: Si frente a Si♭"
+            },
+            {
+              "id": "b",
+              "text": "La quinta"
+            },
+            {
+              "id": "c",
+              "text": "La tercera"
+            },
+            {
+              "id": "d",
+              "text": "No hay diferencia"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Cmaj7 lleva séptima mayor; C7 lleva séptima menor.",
+          "hint": "Compara la séptima.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m7"
+        },
+        {
+          "id": "m7-q3",
+          "type": "multiple_choice",
+          "prompt": "El cifrado G/B se lee…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Sol mayor con séptima"
+            },
+            {
+              "id": "b",
+              "text": "Sol y Si tocados a la vez"
+            },
+            {
+              "id": "c",
+              "text": "Sol mayor con Si en el bajo"
+            },
+            {
+              "id": "d",
+              "text": "Sol menor"
+            }
+          ],
+          "correct": "c",
+          "explanation": "Después de la barra se indica la nota del bajo.",
+          "hint": "La barra indica el bajo.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m7"
+        },
+        {
+          "id": "m7-q4",
+          "type": "multiple_choice",
+          "prompt": "En Csus4, ¿qué se sustituye?",
+          "options": [
+            {
+              "id": "a",
+              "text": "La quinta por la sexta"
+            },
+            {
+              "id": "b",
+              "text": "La fundamental por la cuarta"
+            },
+            {
+              "id": "c",
+              "text": "La tercera por la cuarta"
+            },
+            {
+              "id": "d",
+              "text": "La tercera por la segunda"
+            }
+          ],
+          "correct": "c",
+          "explanation": "Csus4 = Do – Fa – Sol.",
+          "hint": "Sus4 sustituye la tercera.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m7"
+        },
+        {
+          "id": "m7-q5",
+          "type": "listen_identify",
+          "prompt": "Escucha el acorde. ¿Es maj7 o 7?",
+          "audio": {
+            "mode": "chord",
+            "notes": [
+              0,
+              4,
+              7,
+              11
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "maj7"
+            },
+            {
+              "id": "b",
+              "text": "7"
+            },
+            {
+              "id": "c",
+              "text": "m7"
+            },
+            {
+              "id": "d",
+              "text": "dim7"
+            }
+          ],
+          "correct": "a",
+          "explanation": "La séptima mayor suena más suave.",
+          "hint": "La séptima mayor es Si.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m7"
+        },
+        {
+          "id": "m7-q6",
+          "type": "play_it",
+          "prompt": "Toca en el teclado las notas de Cmaj7: Do, Mi, Sol, Si.",
+          "targetNotes": [
+            0,
+            4,
+            7,
+            11
+          ],
+          "explanation": "Cmaj7 añade la séptima mayor (Si) a la tríada de Do mayor.",
+          "hint": "Añade Si a Do mayor.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m7"
+        }
+      ]
+    },
+    "M8": {
+      "title": "Cadencias, forma y melodía",
+      "questions": [
+        {
+          "id": "m8-q1",
+          "type": "multiple_choice",
+          "prompt": "¿Cómo se llama la cadencia V → I?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Plagal"
+            },
+            {
+              "id": "b",
+              "text": "Rota"
+            },
+            {
+              "id": "c",
+              "text": "Auténtica"
+            },
+            {
+              "id": "d",
+              "text": "Semicadencia"
+            }
+          ],
+          "correct": "c",
+          "explanation": "La dominante resolviendo a la tónica.",
+          "hint": "Es la cadencia más conclusiva.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m8"
+        },
+        {
+          "id": "m8-q2",
+          "type": "multiple_choice",
+          "prompt": "La cadencia 'amén' (IV → I) se llama…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Auténtica"
+            },
+            {
+              "id": "b",
+              "text": "Frigia"
+            },
+            {
+              "id": "c",
+              "text": "Plagal"
+            },
+            {
+              "id": "d",
+              "text": "Rota"
+            }
+          ],
+          "correct": "c",
+          "explanation": "Es la cadencia plagal.",
+          "hint": "Común en himnos.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m8"
+        },
+        {
+          "id": "m8-q3",
+          "type": "multiple_choice",
+          "prompt": "La cadencia V → vi se llama…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Rota (o interrumpida)"
+            },
+            {
+              "id": "b",
+              "text": "Auténtica"
+            },
+            {
+              "id": "c",
+              "text": "Plagal"
+            },
+            {
+              "id": "d",
+              "text": "Semicadencia"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Se espera la tónica, pero llega el vi.",
+          "hint": "Final sorpresa.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m8"
+        },
+        {
+          "id": "m8-q4",
+          "type": "multiple_choice",
+          "prompt": "¿Qué sección suele aumentar la tensión justo antes del coro?",
+          "options": [
+            {
+              "id": "a",
+              "text": "La primera estrofa"
+            },
+            {
+              "id": "b",
+              "text": "La introducción"
+            },
+            {
+              "id": "c",
+              "text": "El final"
+            },
+            {
+              "id": "d",
+              "text": "El pre-coro"
+            }
+          ],
+          "correct": "d",
+          "explanation": "El pre-coro prepara la llegada del coro.",
+          "hint": "La sección previa al coro.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m8"
+        },
+        {
+          "id": "m8-q5",
+          "type": "multiple_choice",
+          "prompt": "Sobre un acorde de Do mayor, ¿qué nota de la melodía suena más estable?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Mi"
+            },
+            {
+              "id": "b",
+              "text": "Fa"
+            },
+            {
+              "id": "c",
+              "text": "Re"
+            },
+            {
+              "id": "d",
+              "text": "La"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Las notas del acorde suenan estables.",
+          "hint": "Busca una nota del acorde.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m8"
+        },
+        {
+          "id": "m8-q6",
+          "type": "order_steps",
+          "prompt": "Ordena las secciones de una canción típica.",
+          "steps": [
+            "Introducción",
+            "Estrofa",
+            "Pre-coro",
+            "Coro",
+            "Puente",
+            "Final"
+          ],
+          "explanation": "Estructura habitual de una canción pop.",
+          "hint": "Empieza por la introducción.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m8"
+        }
+      ]
+    },
+    "M9": {
+      "title": "Inversiones y arpegios",
+      "questions": [
+        {
+          "id": "m9-q1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué nota va en el bajo en la primera inversión de Do mayor?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Mi"
+            },
+            {
+              "id": "b",
+              "text": "Sol"
+            },
+            {
+              "id": "c",
+              "text": "Si"
+            },
+            {
+              "id": "d",
+              "text": "Do"
+            }
+          ],
+          "correct": "a",
+          "explanation": "En la primera inversión la tercera está al bajo.",
+          "hint": "La tercera al bajo.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m9"
+        },
+        {
+          "id": "m9-q2",
+          "type": "multiple_choice",
+          "prompt": "Las notas Sol – Do – Mi (de abajo a arriba) forman…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Do mayor en segunda inversión"
+            },
+            {
+              "id": "b",
+              "text": "Do mayor en primera inversión"
+            },
+            {
+              "id": "c",
+              "text": "Do mayor en estado fundamental"
+            },
+            {
+              "id": "d",
+              "text": "Mi menor"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Con la quinta al bajo, es segunda inversión.",
+          "hint": "La nota más grave es la quinta.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m9"
+        },
+        {
+          "id": "m9-q3",
+          "type": "multiple_choice",
+          "prompt": "¿Qué es un arpegio?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Tocar solo la fundamental"
+            },
+            {
+              "id": "b",
+              "text": "Subir el acorde una octava"
+            },
+            {
+              "id": "c",
+              "text": "Tocar las notas de un acorde una tras otra"
+            },
+            {
+              "id": "d",
+              "text": "Tocar el acorde más fuerte"
+            }
+          ],
+          "correct": "c",
+          "explanation": "El arpegio despliega el acorde en el tiempo.",
+          "hint": "Notas sucesivas.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m9"
+        },
+        {
+          "id": "m9-q4",
+          "type": "multiple_choice",
+          "prompt": "Al pasar de C a Am, ¿qué notas puedes dejar quietas?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Ninguna"
+            },
+            {
+              "id": "b",
+              "text": "Do y Sol"
+            },
+            {
+              "id": "c",
+              "text": "Do y Mi"
+            },
+            {
+              "id": "d",
+              "text": "Mi y Sol"
+            }
+          ],
+          "correct": "c",
+          "explanation": "C y Am comparten Do y Mi.",
+          "hint": "Busca las notas comunes.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m9"
+        },
+        {
+          "id": "m9-q5",
+          "type": "play_it",
+          "prompt": "Toca en el teclado la primera inversión de Do mayor: Mi, Sol, Do.",
+          "targetNotes": [
+            4,
+            7,
+            0
+          ],
+          "explanation": "La primera inversión pone la tercera (Mi) en el bajo.",
+          "hint": "Empieza en Mi.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m9"
+        },
+        {
+          "id": "m9-q6",
+          "type": "listen_identify",
+          "prompt": "Escucha el acorde. ¿Está en estado fundamental o en inversión?",
+          "audio": {
+            "mode": "chord",
+            "notes": [
+              4,
+              7,
+              12
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Estado fundamental"
+            },
+            {
+              "id": "b",
+              "text": "Primera inversión"
+            },
+            {
+              "id": "c",
+              "text": "Segunda inversión"
+            },
+            {
+              "id": "d",
+              "text": "No es un acorde"
+            }
+          ],
+          "correct": "b",
+          "explanation": "La tercera (Mi) está en el bajo.",
+          "hint": "La nota más grave es Mi.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m9"
+        }
+      ]
+    },
+    "M10": {
+      "title": "Menor, modos e intercambio modal",
+      "questions": [
+        {
+          "id": "m10-q1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué nota se eleva un semitono en la escala menor armónica?",
+          "options": [
+            {
+              "id": "a",
+              "text": "El quinto grado"
+            },
+            {
+              "id": "b",
+              "text": "El segundo grado"
+            },
+            {
+              "id": "c",
+              "text": "El séptimo grado"
+            },
+            {
+              "id": "d",
+              "text": "El tercer grado"
+            }
+          ],
+          "correct": "c",
+          "explanation": "Eso crea una sensible.",
+          "hint": "La armónica eleva el VII.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m10"
+        },
+        {
+          "id": "m10-q2",
+          "type": "multiple_choice",
+          "prompt": "Usar Fm dentro de Do mayor es un ejemplo de…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Intercambio modal"
+            },
+            {
+              "id": "b",
+              "text": "Cadencia rota"
+            },
+            {
+              "id": "c",
+              "text": "Inversión"
+            },
+            {
+              "id": "d",
+              "text": "Modulación"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Fm se toma prestado de Do menor.",
+          "hint": "Préstamo de la tonalidad paralela.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m10"
+        },
+        {
+          "id": "m10-q3",
+          "type": "multiple_choice",
+          "prompt": "¿Qué modo tiene la cuarta aumentada?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Dórico"
+            },
+            {
+              "id": "b",
+              "text": "Mixolidio"
+            },
+            {
+              "id": "c",
+              "text": "Frigio"
+            },
+            {
+              "id": "d",
+              "text": "Lidio"
+            }
+          ],
+          "correct": "d",
+          "explanation": "El lidio eleva el cuarto grado.",
+          "hint": "Lidio = mayor con cuarta aumentada.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m10"
+        },
+        {
+          "id": "m10-q4",
+          "type": "multiple_choice",
+          "prompt": "El modo mixolidio es como la escala mayor pero con…",
+          "options": [
+            {
+              "id": "a",
+              "text": "La séptima menor"
+            },
+            {
+              "id": "b",
+              "text": "La cuarta aumentada"
+            },
+            {
+              "id": "c",
+              "text": "La segunda menor"
+            },
+            {
+              "id": "d",
+              "text": "La tercera menor"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Por eso aparece el acorde ♭VII.",
+          "hint": "La séptima baja un semitono.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m10"
+        },
+        {
+          "id": "m10-q5",
+          "type": "listen_identify",
+          "prompt": "Escucha la escala. ¿Es mayor o menor natural?",
+          "audio": {
+            "mode": "sequence",
+            "notes": [
+              0,
+              2,
+              3,
+              5,
+              7,
+              8,
+              10,
+              12
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Mayor"
+            },
+            {
+              "id": "b",
+              "text": "Menor natural"
+            },
+            {
+              "id": "c",
+              "text": "Menor armónica"
+            },
+            {
+              "id": "d",
+              "text": "Menor melódica"
+            }
+          ],
+          "correct": "b",
+          "explanation": "La tercera y la sexta menor indican menor natural.",
+          "hint": "Busca la tercera menor.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m10"
+        },
+        {
+          "id": "m10-q6",
+          "type": "fill_progression",
+          "prompt": "En Do mayor, completa: C – F – ? – G (préstamo modal).",
+          "options": [
+            {
+              "id": "a",
+              "text": "Fm"
+            },
+            {
+              "id": "b",
+              "text": "Dm"
+            },
+            {
+              "id": "c",
+              "text": "Am"
+            },
+            {
+              "id": "d",
+              "text": "B♭"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Fm es un préstamo de Do menor.",
+          "hint": "Toma un acorde de la tonalidad paralela.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m10"
+        }
+      ]
+    },
+    "M11": {
+      "title": "Círculo de quintas",
+      "questions": [
+        {
+          "id": "m11-q1",
+          "type": "multiple_choice",
+          "prompt": "¿Cuántos sostenidos tiene Sol mayor?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Un bemol"
+            },
+            {
+              "id": "b",
+              "text": "Uno (Fa♯)"
+            },
+            {
+              "id": "c",
+              "text": "Dos"
+            },
+            {
+              "id": "d",
+              "text": "Ninguno"
+            }
+          ],
+          "correct": "b",
+          "explanation": "Sol mayor tiene un sostenido: Fa♯.",
+          "hint": "Sol está una quinta arriba de Do.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m11"
+        },
+        {
+          "id": "m11-q2",
+          "type": "multiple_choice",
+          "prompt": "¿Cuál es el relativo menor de Do mayor?",
+          "options": [
+            {
+              "id": "a",
+              "text": "La menor"
+            },
+            {
+              "id": "b",
+              "text": "Mi menor"
+            },
+            {
+              "id": "c",
+              "text": "Re menor"
+            },
+            {
+              "id": "d",
+              "text": "Do menor"
+            }
+          ],
+          "correct": "a",
+          "explanation": "El relativo menor comparte la armadura.",
+          "hint": "Tres semitonos debajo de la tónica.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m11"
+        },
+        {
+          "id": "m11-q3",
+          "type": "multiple_choice",
+          "prompt": "¿Cuáles son las tonalidades vecinas de Do mayor en el círculo?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Sol mayor y Fa mayor"
+            },
+            {
+              "id": "b",
+              "text": "Mi mayor y Si♭ mayor"
+            },
+            {
+              "id": "c",
+              "text": "Re mayor y La mayor"
+            },
+            {
+              "id": "d",
+              "text": "Do menor y Fa menor"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Se mueven una quinta arriba o abajo.",
+          "hint": "Vecinos inmediatos.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m11"
+        },
+        {
+          "id": "m11-q4",
+          "type": "multiple_choice",
+          "prompt": "¿Cuántos bemoles tiene Fa mayor?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Un sostenido"
+            },
+            {
+              "id": "b",
+              "text": "Dos"
+            },
+            {
+              "id": "c",
+              "text": "Ninguno"
+            },
+            {
+              "id": "d",
+              "text": "Uno (Si♭)"
+            }
+          ],
+          "correct": "d",
+          "explanation": "Fa mayor tiene un bemol: Si♭.",
+          "hint": "Fa está una quinta debajo de Do.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m11"
+        },
+        {
+          "id": "m11-q5",
+          "type": "play_it",
+          "prompt": "Toca en el teclado las notas de la escala de Sol mayor: Sol, La, Si, Do, Re, Mi, Fa♯.",
+          "targetNotes": [
+            7,
+            9,
+            11,
+            0,
+            2,
+            4,
+            6
+          ],
+          "explanation": "Sol mayor tiene un sostenido: Fa♯.",
+          "hint": "Añade Fa♯.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m11"
+        },
+        {
+          "id": "m11-q6",
+          "type": "listen_identify",
+          "prompt": "Escucha la tonalidad. ¿Tiene sostenidos o bemoles?",
+          "audio": {
+            "mode": "sequence",
+            "notes": [
+              7,
+              9,
+              11,
+              0,
+              2,
+              4,
+              6,
+              7
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Un sostenido"
+            },
+            {
+              "id": "b",
+              "text": "Un bemol"
+            },
+            {
+              "id": "c",
+              "text": "Dos sostenidos"
+            },
+            {
+              "id": "d",
+              "text": "Ninguno"
+            }
+          ],
+          "correct": "a",
+          "explanation": "La escala de Sol mayor tiene un sostenido.",
+          "hint": "Escucha el Fa♯.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m11"
+        }
+      ]
+    },
+    "M12": {
+      "title": "Dominantes secundarias",
+      "questions": [
+        {
+          "id": "m12-q1",
+          "type": "multiple_choice",
+          "prompt": "En Do mayor, ¿qué acorde es V7/vi (la dominante del vi)?",
+          "options": [
+            {
+              "id": "a",
+              "text": "G7"
+            },
+            {
+              "id": "b",
+              "text": "A7"
+            },
+            {
+              "id": "c",
+              "text": "B7"
+            },
+            {
+              "id": "d",
+              "text": "E7"
+            }
+          ],
+          "correct": "d",
+          "explanation": "El vi es Am; su dominante es E7.",
+          "hint": "La dominante de Am es E7.",
+          "level": "Avanzado",
+          "reviewAnchor": "#m12"
+        },
+        {
+          "id": "m12-q2",
+          "type": "multiple_choice",
+          "prompt": "En Do mayor, ¿qué acorde es V7/ii (la dominante del ii)?",
+          "options": [
+            {
+              "id": "a",
+              "text": "E7"
+            },
+            {
+              "id": "b",
+              "text": "A7"
+            },
+            {
+              "id": "c",
+              "text": "F7"
+            },
+            {
+              "id": "d",
+              "text": "D7"
+            }
+          ],
+          "correct": "b",
+          "explanation": "El ii es Dm; su dominante es A7.",
+          "hint": "La dominante de Dm es A7.",
+          "level": "Avanzado",
+          "reviewAnchor": "#m12"
+        },
+        {
+          "id": "m12-q3",
+          "type": "multiple_choice",
+          "prompt": "¿Qué hace una dominante secundaria?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Sustituye al acorde de tónica"
+            },
+            {
+              "id": "b",
+              "text": "Baja el acorde un tono"
+            },
+            {
+              "id": "c",
+              "text": "Cambia la tonalidad para siempre"
+            },
+            {
+              "id": "d",
+              "text": "Apunta temporalmente a un acorde que no es la tónica"
+            }
+          ],
+          "correct": "d",
+          "explanation": "Funciona como V de otro grado.",
+          "hint": "Apunta a otro grado.",
+          "level": "Avanzado",
+          "reviewAnchor": "#m12"
+        },
+        {
+          "id": "m12-q4",
+          "type": "fill_progression",
+          "prompt": "En Do mayor, completa: C – A7 – Dm – G7 – ?",
+          "options": [
+            {
+              "id": "a",
+              "text": "C"
+            },
+            {
+              "id": "b",
+              "text": "Am"
+            },
+            {
+              "id": "c",
+              "text": "F"
+            },
+            {
+              "id": "d",
+              "text": "D"
+            }
+          ],
+          "correct": "a",
+          "explanation": "La progresión resuelve a la tónica.",
+          "hint": "Vuelve a la tónica.",
+          "level": "Avanzado",
+          "reviewAnchor": "#m12"
+        },
+        {
+          "id": "m12-q5",
+          "type": "listen_identify",
+          "prompt": "Escucha la progresión. ¿Incluye una dominante secundaria?",
+          "audio": {
+            "mode": "sequence",
+            "notes": [
+              0,
+              4,
+              7,
+              10,
+              2,
+              5,
+              9,
+              10,
+              0,
+              4,
+              7,
+              10,
+              7,
+              11,
+              2,
+              10
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Sí"
+            },
+            {
+              "id": "b",
+              "text": "No"
+            },
+            {
+              "id": "c",
+              "text": "No se puede saber"
+            },
+            {
+              "id": "d",
+              "text": "Es una cadencia plagal"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Se escucha una dominante antes de Dm.",
+          "hint": "Busca la tensión antes del ii.",
+          "level": "Avanzado",
+          "reviewAnchor": "#m12"
+        },
+        {
+          "id": "m12-q6",
+          "type": "order_steps",
+          "prompt": "Ordena los pasos para analizar una dominante secundaria.",
+          "steps": [
+            "Identificar el grado objetivo",
+            "Construir su dominante",
+            "Añadir la séptima",
+            "Resolver al grado objetivo"
+          ],
+          "explanation": "Se analiza el grado y se le asigna su V7.",
+          "hint": "Empieza por el grado objetivo.",
+          "level": "Avanzado",
+          "reviewAnchor": "#m12"
+        }
+      ]
+    },
+    "M13": {
+      "title": "Ritmo por género",
+      "questions": [
+        {
+          "id": "m13-q1",
+          "type": "multiple_choice",
+          "prompt": "¿Qué es una síncopa?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Tocar más rápido"
+            },
+            {
+              "id": "b",
+              "text": "Eliminar el pulso"
+            },
+            {
+              "id": "c",
+              "text": "Repetir el mismo golpe"
+            },
+            {
+              "id": "d",
+              "text": "Acentuar una parte débil del compás"
+            }
+          ],
+          "correct": "d",
+          "explanation": "La síncopa desplaza el acento.",
+          "hint": "Acento en tiempo débil.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m13"
+        },
+        {
+          "id": "m13-q2",
+          "type": "multiple_choice",
+          "prompt": "El swing se caracteriza por…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Un compás de 3/4 obligatorio"
+            },
+            {
+              "id": "b",
+              "text": "No tener pulso"
+            },
+            {
+              "id": "c",
+              "text": "Subdivisiones totalmente iguales"
+            },
+            {
+              "id": "d",
+              "text": "Subdivisiones desiguales"
+            }
+          ],
+          "correct": "d",
+          "explanation": "La primera corchea dura más que la segunda.",
+          "hint": "Corcheas desiguales.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m13"
+        },
+        {
+          "id": "m13-q3",
+          "type": "multiple_choice",
+          "prompt": "¿En qué tiempos cae el backbeat en un compás de 4/4?",
+          "options": [
+            {
+              "id": "a",
+              "text": "Solo en el 1"
+            },
+            {
+              "id": "b",
+              "text": "En el 1 y el 3"
+            },
+            {
+              "id": "c",
+              "text": "En todos"
+            },
+            {
+              "id": "d",
+              "text": "En el 2 y el 4"
+            }
+          ],
+          "correct": "d",
+          "explanation": "La caja suele marcar 2 y 4.",
+          "hint": "Tiempos pares.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m13"
+        },
+        {
+          "id": "m13-q4",
+          "type": "multiple_choice",
+          "prompt": "El reguetón se define sobre todo por…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Un patrón rítmico (dembow)"
+            },
+            {
+              "id": "b",
+              "text": "Un instrumento concreto"
+            },
+            {
+              "id": "c",
+              "text": "Una escala específica"
+            },
+            {
+              "id": "d",
+              "text": "Una progresión de acordes fija"
+            }
+          ],
+          "correct": "a",
+          "explanation": "El dembow es rítmico.",
+          "hint": "Patrón rítmico.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m13"
+        },
+        {
+          "id": "m13-q5",
+          "type": "listen_identify",
+          "prompt": "Escucha el patrón. ¿Es swing o recto?",
+          "audio": {
+            "mode": "sequence",
+            "notes": [
+              60,
+              64,
+              60,
+              64
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Swing"
+            },
+            {
+              "id": "b",
+              "text": "Recto"
+            },
+            {
+              "id": "c",
+              "text": "Síncopa"
+            },
+            {
+              "id": "d",
+              "text": "Dembow"
+            }
+          ],
+          "correct": "b",
+          "explanation": "Las subdivisiones son iguales.",
+          "hint": "Compara la duración de las notas.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m13"
+        },
+        {
+          "id": "m13-q6",
+          "type": "play_it",
+          "prompt": "Toca en el teclado un acorde de Do mayor en los tiempos 1 y 3 (simula backbeat).",
+          "targetNotes": [
+            0,
+            4,
+            7
+          ],
+          "explanation": "El acorde de Do mayor es Do, Mi, Sol.",
+          "hint": "Toca Do mayor.",
+          "level": "Intermedio",
+          "reviewAnchor": "#m13"
+        }
+      ]
+    },
+    "PistaB": {
+      "title": "Producción musical",
+      "questions": [
+        {
+          "id": "pistab-q1",
+          "type": "multiple_choice",
+          "prompt": "Un filtro de corte de graves (HPF) elimina…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Las frecuencias por debajo de la frecuencia de corte"
+            },
+            {
+              "id": "b",
+              "text": "Las frecuencias por encima del corte"
+            },
+            {
+              "id": "c",
+              "text": "Solo las frecuencias medias"
+            },
+            {
+              "id": "d",
+              "text": "Todo el volumen"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Se usa para limpiar graves.",
+          "hint": "HPF = high-pass filter.",
+          "level": "Avanzado",
+          "reviewAnchor": "#pista-b"
+        },
+        {
+          "id": "pistab-q2",
+          "type": "multiple_choice",
+          "prompt": "¿Qué forma de onda contiene todos los armónicos (pares e impares)?",
+          "options": [
+            {
+              "id": "a",
+              "text": "La onda seno"
+            },
+            {
+              "id": "b",
+              "text": "La onda cuadrada"
+            },
+            {
+              "id": "c",
+              "text": "La onda de sierra"
+            },
+            {
+              "id": "d",
+              "text": "La onda triangular"
+            }
+          ],
+          "correct": "c",
+          "explanation": "Por eso suena brillante y rica.",
+          "hint": "La sierra tiene todos los armónicos.",
+          "level": "Avanzado",
+          "reviewAnchor": "#pista-b"
+        },
+        {
+          "id": "pistab-q3",
+          "type": "multiple_choice",
+          "prompt": "En una envolvente ADSR, el sustain es…",
+          "options": [
+            {
+              "id": "a",
+              "text": "Un nivel de volumen, no un tiempo"
+            },
+            {
+              "id": "b",
+              "text": "El tiempo de caída tras soltar la tecla"
+            },
+            {
+              "id": "c",
+              "text": "El tiempo de subida"
+            },
+            {
+              "id": "d",
+              "text": "La frecuencia del filtro"
+            }
+          ],
+          "correct": "a",
+          "explanation": "Attack, Decay y Release son tiempos; Sustain es un nivel.",
+          "hint": "Sustain no es tiempo.",
+          "level": "Avanzado",
+          "reviewAnchor": "#pista-b"
+        },
+        {
+          "id": "pistab-q4",
+          "type": "multiple_choice",
+          "prompt": "En MIDI, la velocity indica…",
+          "options": [
+            {
+              "id": "a",
+              "text": "La duración de la nota"
+            },
+            {
+              "id": "b",
+              "text": "Con qué fuerza se pulsó la tecla (0–127)"
+            },
+            {
+              "id": "c",
+              "text": "Qué tan rápido es el tempo"
+            },
+            {
+              "id": "d",
+              "text": "La altura de la nota"
+            }
+          ],
+          "correct": "b",
+          "explanation": "La velocity controla la intensidad.",
+          "hint": "Fuerza de pulsación.",
+          "level": "Avanzado",
+          "reviewAnchor": "#pista-b"
+        },
+        {
+          "id": "pistab-q8",
+          "type": "listen_identify",
+          "prompt": "Escucha la forma de onda. ¿Es una sierra?",
+          "audio": {
+            "mode": "sequence",
+            "notes": [
+              0,
+              0
+            ]
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": "Sí, es una sierra"
+            },
+            {
+              "id": "b",
+              "text": "No, es un seno"
+            },
+            {
+              "id": "c",
+              "text": "No, es una cuadrada"
+            },
+            {
+              "id": "d",
+              "text": "No, es un triángulo"
+            }
+          ],
+          "correct": "a",
+          "explanation": "La onda de sierra contiene todos los armónicos.",
+          "hint": "Suena brillante y rica.",
+          "level": "Avanzado",
+          "reviewAnchor": "#pista-b"
+        },
+        {
+          "id": "pistab-q9",
+          "type": "order_steps",
+          "prompt": "Ordena las etapas de producción.",
+          "steps": [
+            "Grabar la idea MIDI",
+            "Corregir el tiempo",
+            "Elegir el instrumento",
+            "Mezclar y exportar"
+          ],
+          "explanation": "Flujo básico de producción.",
+          "hint": "Empieza por grabar.",
+          "level": "Avanzado",
+          "reviewAnchor": "#pista-b"
+        }
+      ]
+    }
+  }
+}

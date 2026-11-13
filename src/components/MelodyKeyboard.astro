@@ -1269,6 +1269,7 @@ function fullLabel(midi: number): string {
     const midi = Number(key.dataset.midi);
     playNote(midi, 1.1);
     setNote(midi);
+    window.dispatchEvent(new CustomEvent('note-played', { detail: { midi, source: 'keyboard' } }));
     window.clearTimeout(highlightTimer);
     highlightTimer = window.setTimeout(() => setNote(null), 500);
   }

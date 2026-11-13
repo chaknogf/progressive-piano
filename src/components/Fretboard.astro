@@ -352,7 +352,9 @@ import FingerPractice from "./FingerPractice.astro";
       const s = +r.dataset.s,
         f = +r.dataset.f;
       S.sel = { s, f };
-      pl(TU[S.tu][1][s] + f);
+      const midi = TU[S.tu][1][s] + f;
+      pl(midi);
+      window.dispatchEvent(new CustomEvent('note-played', { detail: { midi, source: 'fretboard' } }));
       draw();
     };
     $("#fact").onclick = () => {

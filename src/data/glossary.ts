@@ -11,7 +11,7 @@ export const GLOSSARY: GlossaryEntry[] = [
   { term: 'Subdominante', definition: 'El cuarto escalón que ayuda a alejarse un poco de la nota principal, como dar un paso corto antes de volver a casa.', english: 'Subdominant', category: 'armonia' },
   { term: 'Dominante', definition: 'El quinto escalón que crea mucha tensión y quiere volver a la nota principal, como un resorte estirado que quiere soltarse.', english: 'Dominant', category: 'armonia' },
   { term: 'Diatónico', definition: 'Que pertenece a la escala de la canción, como usar solo las piezas del mismo juego.', english: 'Diatonic', category: 'armonia' },
-  { term: 'Enarmonía', definition: 'Dos nombres distintos para la misma nota, como "tomate" y "jitomate".', english: 'Enharmonic', category: 'armonia' },
+  { term: 'Enarmonía', definition: 'Dos nombres distintos para la misma nota.', english: 'Enharmonic', category: 'armonia' },
   { term: 'Armadura', definition: 'Los sostenidos o bemoles que aparecen al principio de la partitura, como una lista de reglas al empezar un juego.', english: 'Key signature', category: 'armonia' },
   { term: 'Relativo', definition: 'La tonalidad menor que usa la misma armadura que una mayor, como dos hermanos que comparten la misma mochila.', english: 'Relative', category: 'armonia' },
   { term: 'Paralelo', definition: 'La tonalidad mayor y la menor que empiezan en la misma nota, como dos caminos que salen del mismo punto.', english: 'Parallel', category: 'armonia' },

@@ -1,0 +1,115 @@
+---
+import Layout from "../layouts/Layout.astro";
+import glossary from "../data/glossary.json";
+const entries = glossary.entries;
+const categories = [...new Set(entries.flatMap((e) => e.categoria || []))].sort();
+const levels = [...new Set(entries.map((e) => e.nivel).filter(Boolean))].sort();
+---
+<Layout title="Glosario · Progressive Music">
+  <h1>Glosario musical</h1>
+  <p class="lead">Definiciones técnicas en español neutro. {entries.length} entradas.</p>
+  <div class="glossary-controls">
+    <input type="search" id="glossary-search" placeholder="Buscar término o definición" aria-label="Buscar en el glosario" />
+    <select id="glossary-category" aria-label="Filtrar por categoría">
+      <option value="">Todas las categorías</option>
+      {categories.map((c) => <option value={c}>{c}</option>)}
+    </select>
+    <select id="glossary-level" aria-label="Filtrar por nivel">
+      <option value="">Todos los niveles</option>
+      {levels.map((l) => <option value={l}>{l}</option>)}
+    </select>
+    <span id="glossary-count" aria-live="polite"></span>
+  </div>
+
+  <details class="box">
+    <summary><b>Diagramas de instrumentos</b></summary>
+    <p class="mut">Pulsa una parte para ir a su definición.</p>
+    <svg viewBox="0 0 300 120" role="img" aria-label="Guitarra">
+      <text x="10" y="20">Guitarra:</text>
+      <a href="#g-011"><text x="10" y="40">Mástil</text></a>
+      <a href="#g-012"><text x="10" y="60">Diapasón</text></a>
+      <a href="#g-013"><text x="10" y="80">Traste</text></a>
+      <a href="#puente"><text x="10" y="100">Puente</text></a>
+    </svg>
+    <svg viewBox="0 0 300 120" role="img" aria-label="Piano">
+      <text x="10" y="20">Piano:</text>
+      <a href="#g-044"><text x="10" y="40">Tecla</text></a>
+      <a href="#g-055"><text x="10" y="60">Pedal de resonancia</text></a>
+      <a href="#g-050"><text x="10" y="80">Martillos</text></a>
+    </svg>
+    <svg viewBox="0 0 300 120" role="img" aria-label="Batería">
+      <text x="10" y="20">Batería:</text>
+      <a href="#g-061"><text x="10" y="40">Bombo</text></a>
+      <a href="#g-062"><text x="10" y="60">Caja</text></a>
+      <a href="#g-063"><text x="10" y="80">Charles</text></a>
+    </svg>
+  </details>
+
+  <section id="glossary-list" class="glossary-list">
+    {entries.map((e) => (
+      <article class="glossary-item" id={e.id} data-term={(e.term + ' ' + (e.variantes || []).join(' ')).toLowerCase()} data-def={(e.definicion_corta || '').toLowerCase()} data-cat={(e.categoria || []).join(',')} data-level={e.nivel || ''}>
+        <header>
+          <h2>{e.term}</h2>
+          <button type="button" class="copy-link" data-id={e.id}>Copiar enlace</button>
+        </header>
+        <p class="short">{e.definicion_corta}</p>
+        <p>{e.definicion}</p>
+        {e.ejemplo && <p><strong>Ejemplo:</strong> {e.ejemplo}</p>}
+        {e.ver_tambien && e.ver_tambien.length > 0 && (
+          <p><strong>Ver también:</strong> {e.ver_tambien.map((v) => {
+            const t = entries.find((x) => x.id === v);
+            return t ? <a href={`#${v}`}>{t.term}</a> : null;
+          }).filter(Boolean)}</p>
+        )}
+        {e.modulos && e.modulos.length > 0 && <p><strong>Módulos:</strong> {e.modulos.join(', ')}</p>}
+        {e.ingles && <p class="mut"><strong>Inglés:</strong> {e.ingles}</p>}
+        {e.verificar && <p class="mut"><em>Dato marcado para verificar.</em></p>}
+      </article>
+    ))}
+  </section>
+
+  <script>
+    const search = document.getElementById('glossary-search');
+    const cat = document.getElementById('glossary-category');
+    const level = document.getElementById('glossary-level');
+    const count = document.getElementById('glossary-count');
+    const items = Array.from(document.querySelectorAll<HTMLElement>('.glossary-item'));
+    function norm(s){ return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+    function filter(){
+      const q = norm(search?.value || '');
+      const c = cat?.value || '';
+      const l = level?.value || '';
+      let visible = 0;
+      items.forEach((item) => {
+        const text = norm(item.dataset.term + ' ' + item.dataset.def);
+        const cats = item.dataset.cat || '';
+        const lvl = item.dataset.level || '';
+        const ok = (q === '' || text.includes(q)) && (c === '' || cats.includes(c)) && (l === '' || lvl === l);
+        item.hidden = !ok;
+        if (ok) visible++;
+      });
+      if (count) count.textContent = `${visible} resultados`;
+    }
+    search?.addEventListener('input', filter);
+    cat?.addEventListener('change', filter);
+    level?.addEventListener('change', filter);
+    filter();
+
+    document.querySelectorAll<HTMLButtonElement>('.copy-link').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const url = `${location.origin}${location.pathname}#${id}`;
+        try { await navigator.clipboard.writeText(url); btn.textContent = 'Copiado'; setTimeout(() => btn.textContent = 'Copiar enlace', 1200); } catch {}
+      });
+    });
+  </script>
+
+  <style>
+    .glossary-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 16px 0; }
+    .glossary-controls input, .glossary-controls select { min-height: 40px; }
+    .glossary-item { margin: 16px 0; padding: 14px; border: 1px solid var(--bd); border-radius: 14px; background: var(--card); }
+    .glossary-item h2 { margin-top: 0; font-size: 1.2rem; }
+    .copy-link { float: right; min-height: 32px; padding: 4px 8px; font-size: 0.8rem; }
+    .short { font-weight: 700; color: var(--mut); }
+  </style>
+</Layout>
