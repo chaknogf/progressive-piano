@@ -1,944 +1,74 @@
 ---
-// src/components/MelodyKeyboard.astro
-// Teclado de cuatro octavas que reproduce la melodía y ilumina cada tecla.
+/**
+ * Teclado de práctica interactivo (Laboratorio).
+ * Herramienta nueva: QWERTY, sustain, indicador de notas/acordes (sin reproducción de melodías).
+ */
 const WHITE_PITCHES = [0, 2, 4, 5, 7, 9, 11];
 const BLACK_PITCHES = [1, 3, 6, 8, 10];
 const FIRST_MIDI = 36; // Do2
-const LAST_MIDI = 88; // Mi6
-const ALL_MIDIS = Array.from(
-  { length: LAST_MIDI - FIRST_MIDI + 1 },
-  (_, index) => FIRST_MIDI + index,
-);
-const WHITE_KEYS = ALL_MIDIS.filter((midi) =>
-  WHITE_PITCHES.includes(midi % 12),
-);
-const BLACK_WIDTH = 2.1;
-// Posición horizontal de cada tecla negra, medida desde el total de teclas blancas.
-const BLACK_KEYS = ALL_MIDIS.filter((midi) =>
-  BLACK_PITCHES.includes(midi % 12),
-).map((midi) => {
-  const whitesBefore = WHITE_KEYS.filter((white) => white < midi).length;
-  return {
-    midi,
-    left: (whitesBefore / WHITE_KEYS.length) * 100 - BLACK_WIDTH / 2,
-  };
+const LAST_MIDI = 84; // Do6 (4 octavas visibles)
+const ALL_MIDIS = Array.from({ length: LAST_MIDI - FIRST_MIDI + 1 }, (_, i) => FIRST_MIDI + i);
+const WHITE_KEYS = ALL_MIDIS.filter((midi) => WHITE_PITCHES.includes(midi % 12));
+const BLACK_WIDTH = 3.2;
+const BLACK_KEYS = ALL_MIDIS.filter((midi) => BLACK_PITCHES.includes(midi % 12)).map((midi) => {
+  const whitesBefore = WHITE_KEYS.filter((w) => w < midi).length;
+  return { midi, left: (whitesBefore / WHITE_KEYS.length) * 100 - BLACK_WIDTH / 2 };
 });
-const NOTE_NAMES = [
-  "Do",
-  "Do♯",
-  "Re",
-  "Re♯",
-  "Mi",
-  "Fa",
-  "Fa♯",
-  "Sol",
-  "Sol♯",
-  "La",
-  "La♯",
-  "Si",
-];
-function keyLabel(midi: number): string {
-  return NOTE_NAMES[midi % 12];
-}
-function fullLabel(midi: number): string {
-  return `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`;
-}
-// Mapeo QWERTY (letras mostradas sobre teclas cuando baseOctave coincide)
-const QWERTY_LOW: Record<string, number> = { KeyZ:0, KeyS:1, KeyX:2, KeyD:3, KeyC:4, KeyV:5, KeyG:6, KeyB:7, KeyH:8, KeyN:9, KeyJ:10, KeyM:11 };
-const QWERTY_HIGH: Record<string, number> = { KeyQ:0, Digit2:1, KeyW:2, Digit3:3, KeyE:4, KeyR:5, Digit5:6, KeyT:7, Digit6:8, KeyY:9, Digit7:10, KeyU:11, KeyI:12, Digit9:13, KeyO:14, Digit0:15, KeyP:16 };
-const QWERTY_LABELS: Record<number, string> = {};
-// etiquetas calculadas en runtime, pero preparamos helper
+const NOTE_NAMES = ["Do", "Do♯", "Re", "Re♯", "Mi", "Fa", "Fa♯", "Sol", "Sol♯", "La", "La♯", "Si"];
+function keyLabel(midi: number): string { return NOTE_NAMES[midi % 12]; }
+function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`; }
 ---
 
-<section class="mk" id="lk-root" aria-labelledby="lk-title">
-  <header class="mk-head">
-    <div class="mk-head-text">
-      <span class="mk-kicker">Herramienta de práctica</span>
+<section class="lk" id="lk-root" aria-labelledby="lk-title">
+  <header class="lk-head">
+    <div>
+      <span class="lk-kicker">Herramienta de práctica</span>
       <h2 id="lk-title">Teclado de práctica interactivo</h2>
-      <p class="mk-sub">
-        Practica con dos octavas QWERTY, sustain y visualización de notas y acordes en tiempo real. También puedes reproducir melodías y tocar teclas con el mouse.
-      </p>
+      <p class="lk-sub">Toca con el mouse o con el teclado de la computadora. Usa <b>+ / -</b> para cambiar de octava y <b>Espacio</b> como pedal de sustain.</p>
     </div>
-    <div class="mk-transport">
-      <label class="mk-melody-select" for="lk-melody">
-        Melodía
-        <select id="lk-melody">
-          <option value="melody-1">Melodía 1 · Sol → Do mayor · 3/4</option>
-          <option value="melody-2">Melodía 2 · Do mayor · 4/4</option>
-          <option value="melody-3">Melodía 3 · La♭ mayor · 4/4</option>
-        </select>
-      </label>
-      <div class="mk-view" role="group" aria-label="Qué ver y escuchar">
-        <button type="button" class="mk-view-btn" data-view="melody" aria-pressed="false">Melodía</button>
-        <button type="button" class="mk-view-btn" data-view="chords" aria-pressed="false">Acordes</button>
-        <button type="button" class="mk-view-btn" data-view="both" aria-pressed="true">Ambos</button>
-      </div>
-      <button type="button" class="mk-play" id="lk-play" aria-pressed="false">▶ Reproducir</button>
-      <button type="button" class="mk-iconbtn" id="lk-restart" aria-label="Reiniciar melodía">↺</button>
-      <label class="mk-tempo">
-        Tempo
-        <input type="range" id="lk-bpm" min="60" max="180" step="1" value="106" />
-        <span id="lk-bpm-value">106</span>
-      </label>
-      <div class="mk-practice" role="group" aria-label="Práctica con teclado de computadora">
-        <span class="mk-practice-label">Octava QWERTY: <b id="lk-octave">4–5</b></span>
-        <button type="button" class="mk-iconbtn mk-mini" id="lk-oct-down" aria-label="Bajar octava (tecla -)">−</button>
-        <button type="button" class="mk-iconbtn mk-mini" id="lk-oct-up" aria-label="Subir octava (tecla +)">+</button>
-        <button type="button" class="mk-view-btn mk-mini" id="lk-qwerty-labels" aria-pressed="true">Teclas QWERTY</button>
-        <span class="mk-pedal" id="lk-pedal" aria-live="polite">Sustain: OFF (Espacio)</span>
-      </div>
+    <div class="lk-controls" role="group" aria-label="Controles de práctica">
+      <span class="lk-chip">Octava base: <b id="lk-octave">4</b></span>
+      <button type="button" class="lk-btn" id="lk-oct-down" aria-label="Bajar octava">−</button>
+      <button type="button" class="lk-btn" id="lk-oct-up" aria-label="Subir octava">+</button>
+      <button type="button" class="lk-btn lk-toggle" id="lk-qwerty-labels" aria-pressed="true">Mostrar teclas QWERTY</button>
+      <span class="lk-pedal" id="lk-pedal" aria-live="polite">Sustain: OFF (Espacio)</span>
     </div>
   </header>
 
-  <div class="mk-progress" aria-hidden="true">
-    <div id="lk-progress-bar"></div>
+  <div class="lk-live" aria-live="polite">
+    <span>Nota: <b id="lk-note">—</b></span>
+    <span>Notas activas: <b id="lk-live-notes">—</b></span>
+    <span>Acorde detectado: <b id="lk-live-chord">—</b></span>
   </div>
 
-  <div class="mk-status">
-    <span class="mk-status-item">Nota: <b id="lk-note">—</b></span>
-    <span class="mk-status-item">Acorde: <b id="lk-chord">—</b></span>
-    <span class="mk-status-item" id="lk-beat">Compás 1</span>
-  </div>
-  <div class="mk-live" aria-live="polite">
-    <span class="mk-status-item">Notas activas: <b id="lk-live-notes">—</b></span>
-    <span class="mk-status-item">Acorde detectado: <b id="lk-live-chord">—</b></span>
-  </div>
-
-  <div class="mk-keys-scroll">
-    <div
-      class="mk-keys"
-      id="lk-keys"
-      role="group"
-      aria-label="Teclado de cuatro octavas"
-      style={`--bw: ${BLACK_WIDTH}%`}
-    >
-      {
-        WHITE_KEYS.map((midi) => (
-          <button
-            type="button"
-            class="mk-key mk-key--white"
-            data-midi={midi}
-            aria-label={fullLabel(midi)}
-          >
-            <span class="mk-key-label">{keyLabel(midi)}</span>
-            <span class="mk-key-qwerty" aria-hidden="true"></span>
-          </button>
-        ))
-      }
-      {
-        BLACK_KEYS.map((key) => (
-          <button
-            type="button"
-            class="mk-key mk-key--black"
-            data-midi={key.midi}
-            style={`left: ${key.left}%`}
-            aria-label={fullLabel(key.midi)}
-          >
-            <span class="mk-key-label">{keyLabel(key.midi)}</span>
-            <span class="mk-key-qwerty" aria-hidden="true"></span>
-          </button>
-        ))
-      }
+  <div class="lk-keys-scroll">
+    <div class="lk-keys" id="lk-keys" role="group" aria-label="Teclado de piano" style={`--bw: ${BLACK_WIDTH}%`}>
+      {WHITE_KEYS.map((midi) => (
+        <button type="button" class="lk-key lk-key--white" data-midi={midi} aria-label={fullLabel(midi)}>
+          <span class="lk-key-note">{keyLabel(midi)}</span>
+          <span class="lk-key-qwerty" aria-hidden="true"></span>
+        </button>
+      ))}
+      {BLACK_KEYS.map((key) => (
+        <button type="button" class="lk-key lk-key--black" data-midi={key.midi} style={`left: ${key.left}%`} aria-label={fullLabel(key.midi)}>
+          <span class="lk-key-qwerty" aria-hidden="true"></span>
+        </button>
+      ))}
     </div>
   </div>
 
-  <p class="mk-hint" id="lk-hint"><span class="mk-leg mk-leg-mel">● Melodía</span> <span class="mk-leg mk-leg-ch">■ Acordes</span> · Toca con el mouse o con tu teclado: <b>Z–M</b> (octava baja), <b>Q–P</b> (octava alta), <b>+/-</b> cambia octavas, <b>Espacio</b> = sustain.</p>
+  <p class="lk-hint" id="lk-hint">
+    Mapeo: <b>A</b>=Do, <b>W</b>=Do♯, <b>S</b>=Re, <b>E</b>=Re♯, <b>D</b>=Mi, <b>F</b>=Fa, <b>T</b>=Fa♯, <b>G</b>=Sol, <b>Y</b>=Sol♯, <b>H</b>=La, <b>U</b>=La♯, <b>J</b>=Si, <b>K</b>=Do, <b>I</b>=Do♯, <b>L</b>=Re, <b>P</b>=Re♯.
+  </p>
 </section>
 
 <script>
   import { $$, must } from "../lib/dom";
-  import {
-    playPiano,
-    playNote,
-    noteOn,
-    noteOff,
-    setSustainPedal,
-    START_DELAY,
-    type PianoEvent,
-  } from "../lib/piano-engine";
-
-  type MelodyNote = {
-    beat: number;
-    duration: number;
-    sd: string;
-    octave: number;
-    isRest?: boolean;
-    tonic: number;
-  };
-  type HarmonyChord = {
-    beat: number;
-    duration: number;
-    root: number;
-    type: number;
-    inversion: number;
-    adds: number[];
-    borrowed: string;
-    applied: number; // grado al que resuelve (dominante secundario), 0 = ninguno
-    tri: boolean; // sustitución tritonal
-    sus: number[]; // suspensiones (4 = sus4, 2 = sus2)
-    tonic: number; // MIDI de la tónica de la tonalidad en la que está escrito
-  };
-  type MelodyDefinition = {
-    name: string;
-    meter: number; // pulsos por compás
-    bpm: number;
-    totalBeats: number;
-    bassLow: number; // el bajo se coloca en [bassLow, bassLow + 12)
-    upperLow: number; // el resto del acorde se coloca en [upperLow, upperLow + 12)
-    notes: MelodyNote[];
-    chords: HarmonyChord[];
-  };
-  type ViewMode = "melody" | "chords" | "both";
-
-  const n = (
-    beat: number,
-    duration: number,
-    sd: string,
-    octave: number,
-    isRest = false,
-  ): MelodyNote => ({
-    beat,
-    duration,
-    sd,
-    octave,
-    isRest,
-    tonic: 0,
-  });
-  const c = (
-    beat: number,
-    duration: number,
-    root: number,
-    type: number,
-    inversion = 0,
-    adds: number[] = [],
-    borrowed = "",
-    applied = 0,
-    tri = false,
-    sus: number[] = [],
-  ): HarmonyChord => ({
-    beat,
-    duration,
-    root,
-    type,
-    inversion,
-    adds,
-    borrowed,
-    applied,
-    tri,
-    sus,
-    tonic: 0,
-  });
-  // Acorde con cuarta suspendida (sus4).
-  const cs = (
-    beat: number,
-    duration: number,
-    root: number,
-    type: number,
-  ): HarmonyChord => c(beat, duration, root, type, 0, [], "", 0, false, [4]);
-  // Lista compacta de notas: [pulso, duración, grado, octava].
-  const ns = (rows: [number, number, string, number][]): MelodyNote[] =>
-    rows.map(([beat, duration, sd, octave]) => n(beat, duration, sd, octave));
-
-  // Asigna la tonalidad (MIDI de la tónica) y desplaza los pulsos de una sección.
-  const inKey = <T extends { beat: number; tonic: number }>(
-    items: T[],
-    tonic: number,
-    offset = 0,
-  ): T[] => items.map((item) => ({ ...item, beat: item.beat + offset, tonic }));
-
-  // Melodía 1 · parte A en Sol mayor · 3/4 · 106 BPM (24 compases)
-  const MELODY_1A: MelodyNote[] = [
-    n(1, 2, "3", -1),
-    n(3, 1, "5", -1),
-    n(4, 2, "2", -1),
-    n(6, 0.5, "1", -1),
-    n(6.5, 0.5, "2", -1),
-    n(7, 2, "3", -1),
-    n(9, 1, "5", -1),
-    n(10, 3, "2", -1),
-    n(13, 2, "3", -1),
-    n(15, 1, "5", -1),
-    n(16, 2, "2", 0),
-    n(18, 1, "1", 0),
-    n(19, 2, "5", -1),
-    n(21, 0.5, "4", -1),
-    n(21.5, 0.5, "3", -1),
-    n(22, 3, "2", -1),
-    n(25, 2, "3", -1),
-    n(27, 1, "5", -1),
-    n(28, 2, "2", -1),
-    n(30, 0.5, "1", -1),
-    n(30.5, 0.5, "2", -1),
-    n(31, 2, "3", -1),
-    n(33, 1, "5", -1),
-    n(34, 3, "2", -1),
-    n(37, 2, "3", -1),
-    n(39, 1, "5", -1),
-    n(40, 2, "2", 0),
-    n(42, 1, "1", 0),
-    n(43, 6, "5", 0),
-  ];
-  const CHORDS_1A: HarmonyChord[] = [
-    c(1, 3, 4, 7),
-    c(4, 3, 5, 7, 3),
-    c(7, 3, 4, 7),
-    c(10, 3, 5, 7, 3),
-    c(13, 3, 3, 7),
-    c(16, 3, 1, 5, 1, [], "locrian"),
-    c(19, 3, 2, 7),
-    c(22, 3, 5, 7),
-    c(25, 3, 4, 7),
-    c(28, 3, 5, 7, 3),
-    c(31, 3, 4, 7),
-    c(34, 3, 5, 7, 3),
-    c(37, 3, 3, 7),
-    c(40, 3, 1, 5, 1, [], "locrian"),
-    c(43, 3, 2, 7),
-    c(46, 3, 5, 7),
-  ];
-
-  // Melodía 1 · parte B en Do mayor (empieza en el pulso 49).
-  // Los acordes usan la versión "modern" del archivo: V7/ii con sustitución tritonal (A7 → Mi♭7).
-  const MELODY_1B: MelodyNote[] = [
-    n(1, 2, "2", 1),
-    n(3, 0.5, "1", 1),
-    n(3.5, 0.5, "7", 0),
-    n(4, 0.5, "1", 1),
-    n(4.5, 0.5, "7", 0),
-    n(5, 2, "5", 0),
-    n(7, 2, "1", 1),
-    n(9, 0.5, "7", 0),
-    n(9.5, 0.5, "6", 0),
-    n(10, 0.5, "7", 0),
-    n(10.5, 0.5, "6", 0),
-    n(11, 2, "3", 0),
-    n(13, 2, "2", 1),
-    n(15, 0.5, "1", 1),
-    n(15.5, 0.5, "7", 0),
-    n(16, 0.5, "1", 1),
-    n(16.5, 0.5, "7", 0),
-    n(17, 1, "5", 0),
-    n(18, 1, "1", 1),
-    n(19, 6, "5", 1),
-  ];
-  const CHORDS_1B: HarmonyChord[] = [
-    c(1, 3, 4, 7),
-    c(4, 3, 3, 7),
-    c(7, 3, 2, 7),
-    c(10, 3, 1, 7),
-    c(13, 3, 4, 7),
-    c(16, 3, 3, 7),
-    c(19, 3, 5, 7, 0, [], "", 2, true),
-    c(22, 1.5, 2, 7),
-    c(23.5, 1.5, 5, 5),
-  ];
-
-  // Melodía 2 · Do mayor · 4/4 · 72 BPM (las pausas conservan el tiempo)
-  const MELODY_2: MelodyNote[] = [
-    n(1, 6, "1", 0, true),
-    n(7, 1, "2", 1),
-    n(8, 1, "3", 1),
-    n(9, 5 / 3, "2", 2),
-    n(32 / 3, 1 / 6, "b2", 2),
-    n(10 + 5 / 6, 1 / 6, "1", 2),
-    n(11, 3.5, "7", 1),
-    n(14.5, 0.5, "6", 1),
-    n(15, 1, "5", 1),
-    n(16, 0.5, "2", 1),
-    n(16.5, 0.5, "3", 1),
-    n(17, 5 / 3, "2", 2),
-    n(56 / 3, 1 / 6, "b2", 2),
-    n(18 + 5 / 6, 1 / 6, "1", 2),
-    n(19, 5 / 3, "7", 1),
-    n(62 / 3, 1 / 3, "1", 2),
-    n(21, 2, "7", 1),
-    n(23, 1, "1", 0, true),
-    n(24, 0.5, "2", 1),
-    n(24.5, 0.5, "3", 1),
-    n(25, 5 / 3, "2", 2),
-    n(80 / 3, 1 / 6, "b2", 2),
-    n(26 + 5 / 6, 1 / 6, "1", 2),
-    n(27, 3.5, "7", 1),
-    n(30.5, 0.5, "6", 1),
-    n(31, 1, "5", 1),
-    n(32, 0.5, "2", 1),
-    n(32.5, 0.5, "3", 1),
-    n(33, 5 / 3, "2", 2),
-    n(104 / 3, 1 / 6, "b2", 2),
-    n(34 + 5 / 6, 1 / 6, "1", 2),
-    n(35, 5 / 3, "7", 1),
-    n(110 / 3, 1 / 3, "3", 2),
-    n(37, 4, "7", 1),
-  ];
-  const CHORDS_2: HarmonyChord[] = [
-    c(1, 4, 4, 7, 0, [6]),
-    c(5, 4, 1, 9),
-    c(9, 4, 4, 7, 0, [6]),
-    c(13, 4, 1, 9),
-    c(17, 4, 4, 7, 0, [6]),
-    c(21, 4, 1, 9),
-    c(25, 4, 4, 7, 0, [6]),
-    c(29, 4, 1, 9),
-    c(33, 4, 4, 7, 0, [6]),
-    c(37, 4, 1, 9),
-  ];
-
-  // Melodía 2 · continuación en Do mayor (empieza en el pulso 41).
-  const MELODY_2B: MelodyNote[] = ns([
-    [1, 1, "6", 1],
-    [2, 3, "3", 1],
-    [5, 1, "2", 1],
-    [6, 2.5, "5", 1],
-    [9, 1, "6", 1],
-    [10, 3, "3", 1],
-    [13, 1, "7", 1],
-    [14, 2, "5", 1],
-    [17, 1, "6", 1],
-    [18, 3, "3", 1],
-    [21, 1, "2", 1],
-    [22, 2.5, "5", 1],
-    [25, 1, "1", 2],
-    [26, 3, "5", 1],
-    [29, 1, "4", 1],
-    [30, 2.5, "5", 1],
-  ]);
-  const CHORDS_2B: HarmonyChord[] = [
-    c(1, 4, 4, 7),
-    c(5, 4, 5, 5),
-    c(9, 4, 4, 7),
-    c(13, 4, 5, 5),
-    c(17, 4, 4, 7),
-    c(21, 4, 5, 5),
-    c(25, 4, 6, 7, 0, [], "minor"), // bVImaj7 (préstamo modal)
-    c(29, 4, 5, 7, 1, [], "minor"), // v7 en primera inversión
-  ];
-
-  // Melodía 3 · La♭ mayor · 4/4 · 138 BPM. Seis secciones seguidas, en el orden en que se importaron.
-  // Parte 1 (16 pulsos): línea de bajo.
-  const M3_P1: MelodyNote[] = ns([
-    [1, 0.5, "4", -2],
-    [2, 0.5, "4", -2],
-    [3, 0.5, "4", -2],
-    [4, 0.5, "4", -2],
-    [4.5, 0.5, "5", -2],
-    [5.5, 0.5, "5", -2],
-    [6.5, 0.5, "5", -2],
-    [7, 0.5, "5", -2],
-    [8, 0.5, "5", -2],
-    [9, 0.5, "1", -2],
-    [10, 0.5, "1", -2],
-    [11, 0.5, "1", -2],
-    [12, 0.5, "1", -2],
-    [12.5, 0.5, "6", -3],
-    [13.5, 0.5, "6", -3],
-    [14.5, 0.5, "6", -3],
-    [15, 0.5, "6", -3],
-    [16, 0.5, "6", -3],
-  ]);
-  const M3_C1: HarmonyChord[] = [
-    c(1, 3.5, 4, 5),
-    cs(4.5, 4.5, 5, 7),
-    c(9, 3.5, 1, 5),
-    c(12.5, 4.5, 6, 5),
-  ];
-
-  // Parte 2 (36 pulsos): empieza con 4 pulsos de silencio.
-  const M3_P2: MelodyNote[] = ns([
-    [2.5, 0.5, "3", -1],
-    [3, 1, "3", -1],
-    [4, 1, "3", -1],
-    [5, 3, "3", -1],
-    [8, 0.5, "4", -1],
-    [8.5, 2, "2", -1],
-    [11.5, 1, "2", -1],
-    [12.5, 0.5, "2", -2],
-    [13, 1, "2", -1],
-    [14, 0.5, "2", -1],
-    [14.5, 0.5, "1", -1],
-    [15, 1, "3", -1],
-    [16, 0.5, "5", -2],
-    [16.5, 1, "6", -2],
-    [17.5, 0.5, "3", -1],
-    [18, 0.5, "3", -1],
-    [18.5, 0.5, "3", -1],
-    [19, 0.5, "3", -1],
-    [19.5, 0.5, "3", -1],
-    [20, 1, "3", -1],
-    [21, 3, "3", -1],
-    [24, 0.5, "4", -1],
-    [24.5, 2, "2", -1],
-    [27.5, 1, "2", -1],
-    [28.5, 0.5, "2", -2],
-    [29, 1, "2", -1],
-    [30, 1, "2", -1],
-    [31, 1, "2", -1],
-    [32, 0.5, "3", -1],
-    [32.5, 0.5, "1", -1],
-    [33, 0.5, "7", -2],
-    [33.5, 1.5, "6", -2],
-  ]);
-  const M3_C2: HarmonyChord[] = [
-    c(5, 3.5, 4, 7),
-    cs(8.5, 4.5, 5, 7),
-    c(13, 3.5, 1, 5),
-    c(16.5, 4.5, 6, 5),
-    c(21, 3.5, 4, 7),
-    cs(24.5, 4.5, 5, 7),
-    c(29, 3.5, 1, 5),
-    c(32.5, 4.5, 6, 5),
-  ];
-
-  // Parte 3 (68 pulsos)
-  const M3_P3: MelodyNote[] = ns([
-    [2.5, 0.5, "3", -1],
-    [3, 1, "3", -1],
-    [4, 1, "3", -1],
-    [5, 3, "3", -1],
-    [8, 0.5, "4", -1],
-    [8.5, 2, "2", -1],
-    [11.5, 1, "2", -1],
-    [12.5, 0.5, "2", -2],
-    [13, 1, "2", -1],
-    [14, 0.5, "2", -1],
-    [14.5, 0.5, "1", -1],
-    [15, 0.5, "2", -1],
-    [15.5, 0.5, "2", -1],
-    [16, 0.5, "3", -1],
-    [16.5, 0.5, "1", -1],
-    [17, 0.5, "7", -2],
-    [17.5, 0.5, "6", -2],
-    [19, 0.5, "3", -1],
-    [19.5, 0.5, "3", -1],
-    [20, 0.5, "3", -1],
-    [20.5, 0.5, "3", -1],
-    [21, 2.5, "3", -1],
-    [23.5, 1, "4", -1],
-    [24.5, 2, "2", -1],
-    [28, 0.5, "1", -1],
-    [28.5, 0.5, "1", -1],
-    [29, 0.5, "b3", -1],
-    [29.5, 0.5, "2", -1],
-    [30, 0.5, "1", -1],
-    [30.5, 1.5, "1", -1],
-    [32, 0.5, "b3", -1],
-    [32.5, 0.5, "2", -1],
-    [33, 0.5, "1", -1],
-    [33.5, 1, "1", -1],
-    [34.5, 0.5, "6", -1],
-    [35, 0.5, "6", -1],
-    [35.5, 0.5, "6", -1],
-    [36, 1, "6", -1],
-    [37, 3, "6", -1],
-    [40, 0.5, "3", -1],
-    [40.5, 2, "5", -1],
-    [43.5, 1, "5", -1],
-    [44.5, 0.5, "5", -1],
-    [45, 1.5, "5", -1],
-    [46.5, 0.5, "6", -2],
-    [47, 0.5, "5", -1],
-    [47.5, 0.5, "4", -1],
-    [48, 0.5, "4", -1],
-    [48.5, 0.5, "3", -1],
-    [49, 0.5, "3", -1],
-    [49.5, 0.5, "3", -2],
-    [50, 0.5, "3", -1],
-    [50.5, 0.5, "3", -1],
-    [51, 0.5, "3", -1],
-    [51.5, 0.5, "3", -1],
-    [52, 0.5, "3", -1],
-    [52.5, 0.5, "3", -1],
-    [53, 2.5, "3", -1],
-    [55.5, 1, "4", -1],
-    [56.5, 1.5, "2", -1],
-    [59.5, 0.5, "6", -2],
-    [60, 1, "1", -1],
-    [61, 0.5, "b3", -1],
-    [61.5, 0.5, "2", -1],
-    [62, 0.5, "1", -1],
-    [62.5, 1, "1", -1],
-    [63.5, 0.5, "1", -1],
-    [64, 0.5, "b3", -1],
-    [64.5, 0.5, "2", -1],
-    [65, 0.5, "1", -1],
-    [65.5, 1.5, "1", -1],
-    [68.5, 0.5, "1", -1],
-  ]);
-  const M3_C3: HarmonyChord[] = [
-    c(5, 3.5, 4, 7),
-    cs(8.5, 4.5, 5, 7),
-    c(13, 3.5, 1, 5),
-    c(16.5, 4.5, 6, 5),
-    c(21, 3.5, 4, 7),
-    cs(24.5, 4.5, 5, 7),
-    c(29, 3.5, 1, 5),
-    c(32.5, 4.5, 6, 5),
-    c(37, 3.5, 4, 7),
-    cs(40.5, 4.5, 5, 7),
-    c(45, 3.5, 1, 5),
-    c(48.5, 4.5, 6, 5),
-    c(53, 3.5, 4, 7),
-    cs(56.5, 4.5, 5, 7),
-    c(61, 3.5, 1, 5),
-    c(64.5, 4.5, 6, 5),
-  ];
-
-  // Parte 4 (64 pulsos)
-  const M3_P4: MelodyNote[] = ns([
-    [1, 1, "6", -1],
-    [2, 1, "6", -1],
-    [3, 0.5, "6", -1],
-    [3.5, 0.5, "5", -1],
-    [4, 0.5, "6", -1],
-    [4.5, 1.5, "5", -1],
-    [6, 0.5, "2", -1],
-    [6.5, 1, "3", -1],
-    [7.5, 1, "4", -1],
-    [9, 1, "5", -1],
-    [10, 1, "5", -1],
-    [11, 0.5, "5", -1],
-    [11.5, 0.5, "3", -1],
-    [12, 0.5, "5", -1],
-    [12.5, 1.5, "3", -1],
-    [14, 0.5, "6", -2],
-    [14.5, 1, "7", -2],
-    [15.5, 1, "1", -1],
-    [17, 1, "6", -1],
-    [18, 1, "6", -1],
-    [19, 0.5, "6", -1],
-    [19.5, 0.5, "5", -1],
-    [20, 0.5, "6", -1],
-    [20.5, 1.5, "5", -1],
-    [22, 0.5, "2", -1],
-    [22.5, 1, "3", -1],
-    [23.5, 1, "4", -1],
-    [24.5, 0.5, "4", -1],
-    [25, 0.5, "5", -1],
-    [25.5, 0.5, "3", -1],
-    [26, 1, "5", -1],
-    [27, 0.5, "5", -1],
-    [27.5, 0.5, "3", -1],
-    [28, 0.5, "5", -1],
-    [28.5, 1, "3", -1],
-    [29.5, 1, "6", -2],
-    [30.5, 1, "7", -2],
-    [31.5, 1, "1", -1],
-    [33, 1, "6", -1],
-    [34, 1, "6", -1],
-    [35, 0.5, "6", -1],
-    [35.5, 0.5, "5", -1],
-    [36, 0.5, "6", -1],
-    [36.5, 1, "7", -1],
-    [37.5, 1, "7", -1],
-    [38.5, 1.5, "7", -1],
-    [41, 1, "5", -1],
-    [42, 1, "5", -1],
-    [43, 1, "5", -1],
-    [44, 0.5, "5", -1],
-    [44.5, 0.5, "4", -1],
-    [45, 0.5, "4", -1],
-    [45.5, 1, "3", -1],
-    [47, 0.5, "3", -1],
-    [47.5, 0.5, "3", -1],
-    [48, 0.5, "3", -1],
-    [48.5, 3, "3", -1],
-    [51.5, 1, "4", -1],
-    [52.5, 2.5, "2", -1],
-    [55.5, 0.5, "2", -1],
-    [56, 0.5, "2", -1],
-    [56.5, 0.5, "1", -1],
-    [57, 0.5, "7", -2],
-    [57.5, 1.5, "7", -2],
-    [59, 1, "3", -1],
-    [60, 0.5, "7", -2],
-    [60.5, 3.5, "1", -1],
-  ]);
-  const M3_C4: HarmonyChord[] = [
-    c(1, 3.5, 4, 7),
-    cs(4.5, 4.5, 5, 7),
-    c(9, 3.5, 1, 5),
-    c(12.5, 4.5, 6, 11),
-    c(17, 3.5, 4, 7),
-    cs(20.5, 4.5, 5, 7),
-    c(25, 3.5, 1, 5),
-    c(28.5, 4.5, 6, 11),
-    c(33, 3.5, 4, 7),
-    c(36.5, 4.5, 5, 7, 0, [4]),
-    c(41, 3.5, 1, 5, 1),
-    c(44.5, 4.5, 6, 11),
-    c(49, 3.5, 4, 7),
-    c(52.5, 4.5, 5, 7),
-    c(57, 3.5, 1, 9),
-    c(60.5, 4.5, 6, 5),
-  ];
-
-  // Parte 5 (64 pulsos): pulso rápido en la tónica y la sensible, luego frases largas.
-  const P5_ONES: [number, number][] = [
-    [1, 0.5],
-    [2, 0.5],
-    [3, 0.5],
-    [4, 0.25],
-    [4.5, 0.5],
-    [5.5, 0.5],
-    [6.5, 0.25],
-    [7, 0.5],
-    [8, 0.5],
-    [9, 0.5],
-    [10, 0.5],
-    [11, 0.5],
-    [12, 0.25],
-    [12.5, 0.5],
-    [13.5, 0.5],
-    [14.5, 0.25],
-    [15, 0.5],
-    [16, 0.5],
-    [17, 0.5],
-    [18, 0.5],
-    [19, 0.5],
-    [20, 0.25],
-    [20.5, 0.5],
-    [21.5, 0.5],
-    [22.5, 0.25],
-    [23, 0.5],
-    [24, 0.5],
-  ];
-  const P5_SEVENS = [
-    1.5, 2.5, 3.5, 5, 6, 7.5, 8.5, 9.5, 10.5, 11.5, 13, 14, 15.5, 16.5, 17.5,
-    18.5, 19.5, 21, 22, 23.5, 24.5,
-  ];
-  const M3_P5: MelodyNote[] = [
-    ...P5_ONES.map(([beat, duration]) => n(beat, duration, "1", 0)),
-    ...P5_SEVENS.map((beat) => n(beat, 0.25, "7", -1)),
-    ...ns([
-      [25.5, 0.5, "2", 0],
-      [26.5, 0.5, "2", 0],
-      [27, 0.5, "2", 0],
-      [28, 0.5, "2", 0],
-      [29.5, 0.5, "3", -1],
-      [30, 0.5, "5", -1],
-      [30.5, 1.5, "1", 0],
-      [32, 0.5, "7", -1],
-      [32.5, 4, "6", -1],
-      [36.5, 0.5, "5", -1],
-      [37.5, 0.5, "3", -1],
-      [38, 0.5, "5", -1],
-      [38.5, 1.5, "1", 0],
-      [40, 0.5, "7", -1],
-      [40.5, 4, "5", -1],
-      [44.5, 0.5, "3", -1],
-      [45.5, 0.5, "3", -1],
-      [46, 0.5, "5", -1],
-      [46.5, 1.5, "1", 0],
-      [48, 0.5, "7", -1],
-      [48.5, 4, "6", -1],
-      [52.5, 0.5, "5", -1],
-      [53.5, 0.5, "3", -1],
-      [54, 0.5, "5", -1],
-      [54.5, 1.5, "1", 0],
-      [56, 0.5, "7", -1],
-      [56.5, 4, "5", -1],
-      [60.5, 0.5, "3", -1],
-      [61.5, 0.5, "3", -1],
-      [62, 0.5, "5", -1],
-      [62.5, 1.5, "1", 0],
-      [64, 0.5, "7", -1],
-      [64.5, 0.5, "6", -1],
-    ]),
-  ].sort((a, b) => a.beat - b.beat);
-  const M3_C5: HarmonyChord[] = [
-    c(1, 3.5, 4, 5),
-    c(4.5, 4.5, 6, 5),
-    c(9, 3.5, 4, 5),
-    c(12.5, 4.5, 6, 5),
-    c(17, 3.5, 4, 5),
-    c(20.5, 5, 6, 5),
-    cs(25.5, 7.5, 5, 7),
-    c(33, 3.5, 4, 7),
-    cs(36.5, 4.5, 5, 7),
-    c(41, 3.5, 1, 5),
-    c(44.5, 4.5, 6, 11),
-    c(49, 3.5, 4, 7),
-    cs(52.5, 4.5, 5, 7),
-    c(57, 3.5, 1, 5),
-    c(60.5, 4.5, 6, 11),
-  ];
-
-  // Parte 6 (32 pulsos): notas largas.
-  const M3_P6: MelodyNote[] = ns([
-    [1, 3.5, "3", -1],
-    [4.5, 4.5, "4", -1],
-    [9, 3.5, "3", -1],
-    [12.5, 3.5, "1", -1],
-    [17, 3.5, "3", -1],
-    [20.5, 4.5, "4", -1],
-    [25, 3.5, "3", -1],
-    [28.5, 3.5, "1", -1],
-  ]);
-  const M3_C6: HarmonyChord[] = [
-    c(1, 3.5, 4, 7),
-    c(4.5, 4.5, 5, 7),
-    c(9, 3.5, 1, 9),
-    c(12.5, 4.5, 6, 5),
-    c(17, 3.5, 4, 7),
-    c(20.5, 4.5, 5, 7),
-    c(25, 3.5, 1, 9),
-    c(28.5, 4.5, 6, 5),
-  ];
-  const AB = 68; // tónica de La♭ (La♭4)
-
-  const MELODIES: Record<string, MelodyDefinition> = {
-    "melody-1": {
-      name: "Zelda's Lullaby · Sol → Do mayor",
-      meter: 3,
-      bpm: 106,
-      totalBeats: 72,
-      bassLow: 38,
-      upperLow: 50,
-      notes: [...inKey(MELODY_1A, 67), ...inKey(MELODY_1B, 60, 48)],
-      chords: [...inKey(CHORDS_1A, 67), ...inKey(CHORDS_1B, 60, 48)],
-    },
-    "melody-2": {
-      name: "Legend of Zelda Ocarina of Time · Do mayor",
-      meter: 4,
-      bpm: 72,
-      totalBeats: 72,
-      bassLow: 38,
-      upperLow: 53,
-      notes: [...inKey(MELODY_2, 60), ...inKey(MELODY_2B, 60, 40)],
-      chords: [...inKey(CHORDS_2, 60), ...inKey(CHORDS_2B, 60, 40)],
-    },
-    "melody-3": {
-      name: "Viva La Vida Coldplay · La♭ mayor",
-      meter: 4,
-      bpm: 138,
-      totalBeats: 280,
-      bassLow: 36,
-      upperLow: 50,
-      notes: [
-        ...inKey(M3_P1, AB, 0),
-        ...inKey(M3_P2, AB, 16),
-        ...inKey(M3_P3, AB, 52),
-        ...inKey(M3_P4, AB, 120),
-        ...inKey(M3_P5, AB, 184),
-        ...inKey(M3_P6, AB, 248),
-      ],
-      chords: [
-        ...inKey(M3_C1, AB, 0),
-        ...inKey(M3_C2, AB, 16),
-        ...inKey(M3_C3, AB, 52),
-        ...inKey(M3_C4, AB, 120),
-        ...inKey(M3_C5, AB, 184),
-        ...inKey(M3_C6, AB, 248),
-      ],
-    },
-  };
-
-  const SCALE_OFFSETS: Record<string, number> = {
-    "1": 0,
-    b2: 1,
-    "2": 2,
-    b3: 3,
-    "3": 4,
-    "4": 5,
-    "#4": 6,
-    b5: 6,
-    "5": 7,
-    b6: 8,
-    "6": 9,
-    b7: 10,
-    "7": 11,
-  };
-  const SCALES: Record<string, number[]> = {
-    major: [0, 2, 4, 5, 7, 9, 11],
-    locrian: [0, 1, 3, 5, 6, 8, 10],
-    minor: [0, 2, 3, 5, 7, 8, 10],
-  };
-  // Pasos diatónicos sobre la fundamental para cada extensión ("add6" = 5 pasos arriba).
-  const ADD_STEPS: Record<number, number> = {
-    2: 1,
-    4: 3,
-    6: 5,
-    7: 6,
-    9: 8,
-    11: 10,
-    13: 12,
-  };
-  const NAMES_SHARP = [
-    "Do",
-    "Do♯",
-    "Re",
-    "Re♯",
-    "Mi",
-    "Fa",
-    "Fa♯",
-    "Sol",
-    "Sol♯",
-    "La",
-    "La♯",
-    "Si",
-  ];
-  const NAMES_FLAT = [
-    "Do",
-    "Re♭",
-    "Re",
-    "Mi♭",
-    "Mi",
-    "Fa",
-    "Sol♭",
-    "Sol",
-    "La♭",
-    "La",
-    "Si♭",
-    "Si",
-  ];
-  // Tonalidades que se escriben con sostenidos (Sol, Re, La, Mi, Si, Fa♯).
-  const SHARP_TONICS = new Set([7, 2, 9, 4, 11, 6]);
+  import { playNote, noteOn, noteOff, setSustainPedal } from "../lib/piano-engine";
 
   const root = must(document.querySelector<HTMLElement>("#lk-root"), "#lk-root");
-  const melodySelect = must(
-    document.querySelector<HTMLSelectElement>("#lk-melody"),
-    "#lk-melody",
-  );
-  const keysEl = must(
-    document.querySelector<HTMLElement>("#lk-keys"),
-    "#lk-keys",
-  );
-  const playButton = must(
-    document.querySelector<HTMLButtonElement>("#lk-play"),
-    "#lk-play",
-  );
-  const restartButton = must(
-    document.querySelector<HTMLButtonElement>("#lk-restart"),
-    "#lk-restart",
-  );
-  const bpmInput = must(
-    document.querySelector<HTMLInputElement>("#lk-bpm"),
-    "#lk-bpm",
-  );
-  const bpmValue = must(
-    document.querySelector<HTMLElement>("#lk-bpm-value"),
-    "#lk-bpm-value",
-  );
-  const progressBar = must(
-    document.querySelector<HTMLElement>("#lk-progress-bar"),
-    "#lk-progress-bar",
-  );
-  const noteEl = must(
-    document.querySelector<HTMLElement>("#lk-note"),
-    "#lk-note",
-  );
-  const chordEl = must(
-    document.querySelector<HTMLElement>("#lk-chord"),
-    "#lk-chord",
-  );
-  const beatEl = must(
-    document.querySelector<HTMLElement>("#lk-beat"),
-    "#lk-beat",
-  );
-  const hintEl = must(
-    document.querySelector<HTMLElement>("#lk-hint"),
-    "#lk-hint",
-  );
-  const viewButtons = $$<HTMLButtonElement>(".mk-view-btn[data-view]", root);
+  const keysEl = must(document.querySelector<HTMLElement>("#lk-keys"), "#lk-keys");
+  const noteEl = must(document.querySelector<HTMLElement>("#lk-note"), "#lk-note");
   const octaveEl = must(document.querySelector<HTMLElement>("#lk-octave"), "#lk-octave");
   const octDownBtn = must(document.querySelector<HTMLButtonElement>("#lk-oct-down"), "#lk-oct-down");
   const octUpBtn = must(document.querySelector<HTMLButtonElement>("#lk-oct-up"), "#lk-oct-up");
@@ -947,468 +77,158 @@ const QWERTY_LABELS: Record<number, string> = {};
   const liveNotesEl = must(document.querySelector<HTMLElement>("#lk-live-notes"), "#lk-live-notes");
   const liveChordEl = must(document.querySelector<HTMLElement>("#lk-live-chord"), "#lk-live-chord");
 
-  const midiOf = (tonic: number, sd: string, octave: number): number =>
-    tonic +
-    octave * 12 +
-    (SCALE_OFFSETS[sd.replace("♭", "b").replace("♯", "#")] ?? 0);
-  const fullLabel = (midi: number): string =>
-    `${NAMES_SHARP[midi % 12]}${Math.floor(midi / 12) - 1}`;
-  const mod12 = (value: number): number => ((value % 12) + 12) % 12;
-  const place = (pc: number, low: number): number => low + mod12(pc - low);
+  const NOTE_NAMES = ["Do","Do♯","Re","Re♯","Mi","Fa","Fa♯","Sol","Sol♯","La","La♯","Si"];
+  const fullLabel = (midi: number): string => `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`;
 
-  // ---------------------------------------------------------------- armonía
+  // Mapeo solicitado: C cromático desde Do base
+  // do=a, do#=w, re=s, re#=e, mi=d, fa=f, fa#=t, sol=g, sol#=y, la=h, la#=u, si=j, do=k, do#=i, re=l, re#=p
+  const QWERTY_MAP: Record<string, number> = {
+    KeyA: 0, KeyW: 1, KeyS: 2, KeyE: 3, KeyD: 4, KeyF: 5, KeyT: 6, KeyG: 7, KeyY: 8, KeyH: 9, KeyU: 10, KeyJ: 11, KeyK: 12, KeyI: 13, KeyL: 14, KeyP: 15,
+  };
+  const CODE_LABEL: Record<string, string> = {
+    KeyA:"A", KeyW:"W", KeyS:"S", KeyE:"E", KeyD:"D", KeyF:"F", KeyT:"T", KeyG:"G", KeyY:"Y", KeyH:"H", KeyU:"U", KeyJ:"J", KeyK:"K", KeyI:"I", KeyL:"L", KeyP:"P",
+  };
 
-  type Voicing = { bass: number; upper: number[]; all: number[]; name: string };
-
-  function buildVoicing(chord: HarmonyChord, def: MelodyDefinition): Voicing {
-    const scale = SCALES[SCALES[chord.borrowed] ? chord.borrowed : "major"];
-    // Dominante secundario: la escala se construye sobre el grado al que resuelve;
-    // la sustitución tritonal sube todo el acorde seis semitonos.
-    const shift =
-      (chord.applied > 0 ? SCALES.major[chord.applied - 1] : 0) +
-      (chord.tri ? 6 : 0);
-    const degreeSemis = (index: number): number =>
-      scale[index % 7] + 12 * Math.floor(index / 7) + shift;
-    const rootIndex = chord.root - 1;
-    const rootSemi = scale[rootIndex] + shift;
-    const count =
-      ({ 5: 3, 7: 4, 9: 5, 11: 6, 13: 7 } as Record<number, number>)[
-        chord.type
-      ] ?? 4;
-    // Suspensión: la tercera se sustituye por la cuarta (sus4) o la segunda (sus2).
-    const steps = [0, 2, 4, 6, 8, 10, 12]
-      .slice(0, count)
-      .map((step) =>
-        step === 2 && chord.sus.includes(4)
-          ? 3
-          : step === 2 && chord.sus.includes(2)
-            ? 1
-            : step,
-      );
-    for (const add of chord.adds) {
-      const step = ADD_STEPS[add];
-      if (step !== undefined) steps.push(step);
-    }
-    const raw = [
-      ...new Set(steps.map((step) => degreeSemis(rootIndex + step))),
-    ].sort((a, b) => a - b);
-
-    // Inversión: las notas más graves suben una octava.
-    const inverted = [...raw];
-    for (let i = 0; i < chord.inversion && inverted.length > 1; i++) {
-      inverted.push((inverted.shift() as number) + 12);
-    }
-
-    const pcOf = (semis: number): number => mod12(chord.tonic + semis);
-    const bass = place(pcOf(inverted[0]), def.bassLow);
-    const restSemis = inverted.length >= 4 ? inverted.slice(1) : inverted;
-    const upper = [
-      ...new Set(restSemis.map((semis) => place(pcOf(semis), def.upperLow))),
-    ].sort((a, b) => a - b);
-
-    // Nombre del acorde
-    const names =
-      SHARP_TONICS.has(mod12(chord.tonic)) && !chord.borrowed
-        ? NAMES_SHARP
-        : NAMES_FLAT;
-    const rel = new Set(raw.map((semis) => mod12(semis - rootSemi)));
-    const minor = rel.has(3) && !rel.has(4);
-    const dim5 = rel.has(6) && !rel.has(7);
-    const seventh = rel.has(11)
-      ? "maj"
-      : rel.has(10)
-        ? "b7"
-        : rel.has(9) && dim5
-          ? "dim7"
-          : "";
-    const num = chord.type >= 7 ? String(chord.type) : "7";
-    let quality: string;
-    if (chord.type === 5)
-      quality = dim5 ? (minor ? "dim" : "♭5") : minor ? "m" : "";
-    else if (dim5 && seventh === "dim7") quality = "dim7";
-    else if (dim5) quality = `m${num}♭5`;
-    else if (minor && seventh === "maj") quality = `m(maj${num})`;
-    else if (minor) quality = `m${num}`;
-    else quality = seventh === "maj" ? `maj${num}` : num;
-    const adds = chord.adds.length ? `(add${chord.adds.join(",")})` : "";
-    const sus = chord.sus.map((value) => `sus${value}`).join("");
-    const slash = chord.inversion > 0 ? `/${names[pcOf(inverted[0])]}` : "";
-    const name = `${names[pcOf(rootSemi)]}${quality}${sus}${adds}${slash}${chord.tri ? " · sust. tritonal" : ""}`;
-
-    return { bass, upper, all: [bass, ...upper], name };
-  }
-
-  // Ritmo del acompañamiento según el compás.
-  function chordEventsFor(
-    chord: HarmonyChord,
-    def: MelodyDefinition,
-  ): PianoEvent[] {
-    const voicing = buildVoicing(chord, def);
-    const start = chord.beat - 1;
-    const events: PianoEvent[] = [];
-    const push = (
-      midi: number,
-      offset: number,
-      dur: number,
-      vel: number,
-    ): void => {
-      if (offset >= chord.duration - 1e-6) return;
-      events.push({
-        midi,
-        start: start + offset,
-        dur: Math.min(dur, chord.duration - offset),
-        vel,
-      });
-    };
-
-    if (def.meter === 3) {
-      // Vals: bajo sostenido en el 1, acorde en el 2 y el 3.
-      push(voicing.bass, 0, chord.duration, 0.42);
-      for (let beat = 1; beat < chord.duration; beat++) {
-        voicing.upper.forEach((midi, i) =>
-          push(midi, beat + i * 0.02, 0.95, 0.25),
-        );
-      }
-    } else {
-      // Arpegio en corcheas sobre un bajo largo.
-      const extended = [...voicing.upper, voicing.upper[0] + 12];
-      const pattern = extended.concat(extended.slice(1, -1).reverse());
-      push(voicing.bass, 0, chord.duration, 0.4);
-      const steps = Math.round(chord.duration * 2);
-      for (let step = 1; step < steps; step++) {
-        const midi = pattern[(step - 1) % pattern.length];
-        push(midi, step * 0.5, 1.4, step % 2 === 0 ? 0.28 : 0.22);
-      }
-    }
-    return events;
-  }
-
-  // ------------------------------------------------------------------ estado
-
-  let activeMelody = MELODIES[melodySelect.value] ?? MELODIES["melody-1"];
-  let melodyEvents: PianoEvent[] = [];
-  let chordEvents: PianoEvent[] = [];
-  let events: PianoEvent[] = [];
-  let totalBeats = activeMelody.totalBeats;
-  let cancelPlayback: (() => void) | null = null;
-  let playing = false;
-  let bpm = activeMelody.bpm;
-  let view: ViewMode = "both";
-  let highlightTimer = 0;
-  let chordTimers: number[] = [];
-  let rafId = 0;
-  let startTime = 0;
-
-  function syncTempoUi(): void {
-    bpmInput.value = String(bpm);
-    bpmValue.textContent = String(bpm);
-  }
-
-  function buildTrack(): void {
-    activeMelody = MELODIES[melodySelect.value] ?? MELODIES["melody-1"];
-    totalBeats = activeMelody.totalBeats;
-    melodyEvents = activeMelody.notes
-      .filter((note) => !note.isRest)
-      .map((note) => ({
-        midi: midiOf(note.tonic, note.sd, note.octave),
-        start: note.beat - 1,
-        dur: note.duration,
-        vel: 0.85,
-        focus: true,
-      }));
-    chordEvents = activeMelody.chords.flatMap((chord) =>
-      chordEventsFor(chord, activeMelody),
-    );
-    events =
-      view === "melody"
-        ? [...melodyEvents]
-        : view === "chords"
-          ? [...chordEvents]
-          : [...melodyEvents, ...chordEvents];
-    hintEl.textContent = `${activeMelody.name} · ${activeMelody.meter}/4 · ${totalBeats} pulsos. ● Melodía, ■ Acordes.`;
-    progressBar.style.width = "0%";
-    chordEl.textContent = "—";
-    setNote(null);
-  }
-
-  function setNote(midi: number | null): void {
-    $$(".mk-key", keysEl).forEach((key) => {
-      key.classList.toggle("is-active", Number(key.dataset.midi) === midi);
-    });
-    noteEl.textContent = midi === null ? "—" : fullLabel(midi);
-  }
-
-  function clearChordHighlights(): void {
-    chordTimers.forEach((timer) => window.clearTimeout(timer));
-    chordTimers = [];
-    $$(".mk-key", keysEl).forEach((key) => key.classList.remove("is-chord"));
-  }
-
-  function scheduleChordHighlights(): void {
-    clearChordHighlights();
-    if (view === "melody") return;
-    const beatMs = (60 / bpm) * 1000;
-    const delayMs = START_DELAY * 1000;
-    for (const chord of activeMelody.chords) {
-      const voicing = buildVoicing(chord, activeMelody);
-      const startMs = (chord.beat - 1) * beatMs + delayMs;
-      const endMs = (chord.beat - 1 + chord.duration) * beatMs + delayMs;
-      chordTimers.push(
-        window.setTimeout(() => {
-          chordEl.textContent = voicing.name;
-          $$(".mk-key", keysEl).forEach((key) => {
-            if (voicing.all.includes(Number(key.dataset.midi)))
-              key.classList.add("is-chord");
-          });
-        }, startMs),
-      );
-      chordTimers.push(
-        window.setTimeout(() => {
-          $$(".mk-key", keysEl).forEach((key) => {
-            if (voicing.all.includes(Number(key.dataset.midi)))
-              key.classList.remove("is-chord");
-          });
-        }, endMs),
-      );
-    }
-  }
-
-  function onNote(index: number): void {
-    const event = melodyEvents[index];
-    if (!event) return;
-    setNote(event.midi);
-    window.clearTimeout(highlightTimer);
-    highlightTimer = window.setTimeout(
-      () => setNote(null),
-      event.dur * (60 / bpm) * 1000,
-    );
-    const meter = activeMelody.meter;
-    beatEl.textContent = `Compás ${Math.floor(event.start / meter) + 1} · tiempo ${Math.floor(event.start % meter) + 1}`;
-  }
-
-  function tick(): void {
-    if (!playing) return;
-    const elapsed = Math.max(0, (performance.now() - startTime) / 1000);
-    const beat = elapsed * (bpm / 60);
-    progressBar.style.width = `${Math.min(100, (beat / totalBeats) * 100)}%`;
-    rafId = requestAnimationFrame(tick);
-  }
-
-  function onEnd(): void {
-    playing = false;
-    cancelPlayback = null;
-    cancelAnimationFrame(rafId);
-    playButton.setAttribute("aria-pressed", "false");
-    playButton.textContent = "▶ Reproducir";
-    setNote(null);
-    chordEl.textContent = "—";
-    clearChordHighlights();
-    beatEl.textContent = "Compás 1";
-    progressBar.style.width = "0%";
-  }
-
-  function play(): void {
-    if (playing) return;
-    playing = true;
-    playButton.setAttribute("aria-pressed", "true");
-    playButton.textContent = "■ Detener";
-    startTime = performance.now() + START_DELAY * 1000;
-    cancelPlayback = playPiano(events, bpm, { onNote, onEnd });
-    scheduleChordHighlights();
-    rafId = requestAnimationFrame(tick);
-  }
-
-  function stop(): void {
-    if (!playing) return;
-    cancelPlayback?.();
-  }
-
-  playButton.addEventListener("click", () => (playing ? stop() : play()));
-  restartButton.addEventListener("click", () => {
-    if (playing) cancelPlayback?.();
-    window.setTimeout(play, 30);
-  });
-  bpmInput.addEventListener("input", () => {
-    bpm = Number(bpmInput.value);
-    bpmValue.textContent = String(bpm);
-    if (playing) {
-      cancelPlayback?.();
-      window.setTimeout(play, 30);
-    }
-  });
-  melodySelect.addEventListener("change", () => {
-    if (playing) cancelPlayback?.();
-    bpm = (MELODIES[melodySelect.value] ?? MELODIES["melody-1"]).bpm;
-    syncTempoUi();
-    buildTrack();
-    beatEl.textContent = "Compás 1";
-  });
-  viewButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const nextView = (button.dataset.view ?? "both") as ViewMode;
-      if (nextView === view) return;
-      const wasPlaying = playing;
-      if (wasPlaying) cancelPlayback?.();
-      view = nextView;
-      viewButtons.forEach((item) =>
-        item.setAttribute("aria-pressed", String(item === button)),
-      );
-      buildTrack();
-      beatEl.textContent = "Compás 1";
-      if (wasPlaying) window.setTimeout(play, 30);
-    });
-  });
-
-  function triggerKey(event: Event): void {
-    const key = (event.target as HTMLElement).closest<HTMLButtonElement>(
-      ".mk-key",
-    );
-    if (!key) return;
-    const midi = Number(key.dataset.midi);
-    playNote(midi, 1.1);
-    setNote(midi);
-    window.dispatchEvent(new CustomEvent('note-played', { detail: { midi, source: 'keyboard' } }));
-    window.clearTimeout(highlightTimer);
-    highlightTimer = window.setTimeout(() => setNote(null), 500);
-  }
-
-  let lastPointerDown = 0;
-  keysEl.addEventListener("pointerdown", (event) => {
-    lastPointerDown = Date.now();
-    triggerKey(event);
-  });
-  // Los botones también se activan con Enter/Espacio: el clic de teclado no
-  // debe duplicar la pulsación por puntero.
-  keysEl.addEventListener("click", (event) => {
-    if (Date.now() - lastPointerDown < 500) return;
-    triggerKey(event);
-  });
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden && playing) stop();
-  });
-
-  // --- Práctica QWERTY (2 octavas), sustain y indicador de notas/acordes ---
-  const LOW_MAP: Record<string, number> = { KeyZ:0, KeyS:1, KeyX:2, KeyD:3, KeyC:4, KeyV:5, KeyG:6, KeyB:7, KeyH:8, KeyN:9, KeyJ:10, KeyM:11 };
-  const HIGH_MAP: Record<string, number> = { KeyQ:0, Digit2:1, KeyW:2, Digit3:3, KeyE:4, KeyR:5, Digit5:6, KeyT:7, Digit6:8, KeyY:9, Digit7:10, KeyU:11, KeyI:12, Digit9:13, KeyO:14, Digit0:15, KeyP:16 };
-  const CODE_LABEL: Record<string, string> = { KeyZ:'Z',KeyS:'S',KeyX:'X',KeyD:'D',KeyC:'C',KeyV:'V',KeyG:'G',KeyB:'B',KeyH:'H',KeyN:'N',KeyJ:'J',KeyM:'M', KeyQ:'Q',Digit2:'2',KeyW:'W',Digit3:'3',KeyE:'E',KeyR:'R',Digit5:'5',KeyT:'T',Digit6:'6',KeyY:'Y',Digit7:'7',KeyU:'U',KeyI:'I',Digit9:'9',KeyO:'O',Digit0:'0',KeyP:'P' };
-  let baseOctave = 4; // Do4 base para octava baja (Z-M), alta = baseOctave+1
+  let baseOctave = 4; // Do base = C4 (MIDI 60)
   let showQwerty = true;
-  let sustainDown = false;
-  const pressedCodes = new Set<string>(); // evita autorepetición
-  const userActiveMidis = new Set<number>(); // notas activas por usuario
+  const pressedCodes = new Set<string>();
+  const userActiveMidis = new Set<number>();
 
+  function baseMidi(): number { return (baseOctave + 1) * 12; } // C of baseOctave
   function midiForCode(code: string): number | null {
-    if (code in LOW_MAP) return (baseOctave + 1) * 12 + LOW_MAP[code];
-    if (code in HIGH_MAP) return (baseOctave + 2) * 12 + HIGH_MAP[code];
-    return null;
+    if (!(code in QWERTY_MAP)) return null;
+    return baseMidi() + QWERTY_MAP[code];
   }
   function isTypingTarget(el: EventTarget | null): boolean {
     const t = el as HTMLElement | null;
     if (!t) return false;
     const tag = t.tagName;
-    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || t.isContentEditable;
+    return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || t.isContentEditable;
   }
-  function updateOctaveUi(): void {
-    octaveEl.textContent = `${baseOctave}–${baseOctave + 1}`;
-    refreshQwertyLabels();
-  }
+  function clampMidi(midi: number): boolean { return midi >= 36 && midi <= 96; }
+
   function refreshQwertyLabels(): void {
     const byMidi = new Map<number, string[]>();
     if (showQwerty) {
-      for (const [code, semi] of Object.entries(LOW_MAP)) {
-        const m = (baseOctave + 1) * 12 + semi;
-        const arr = byMidi.get(m) ?? []; arr.push(CODE_LABEL[code]); byMidi.set(m, arr);
-      }
-      for (const [code, semi] of Object.entries(HIGH_MAP)) {
-        const m = (baseOctave + 2) * 12 + semi;
-        const arr = byMidi.get(m) ?? []; arr.push(CODE_LABEL[code]); byMidi.set(m, arr);
+      for (const [code, semi] of Object.entries(QWERTY_MAP)) {
+        const m = baseMidi() + semi;
+        const arr = byMidi.get(m) ?? [];
+        arr.push(CODE_LABEL[code]);
+        byMidi.set(m, arr);
       }
     }
-    $$('.mk-key', keysEl).forEach((key) => {
+    $$(".lk-key", keysEl).forEach((key) => {
       const midi = Number(key.dataset.midi);
-      const lbl = key.querySelector<HTMLElement>('.mk-key-qwerty');
+      const lbl = key.querySelector<HTMLElement>(".lk-key-qwerty");
       const labels = byMidi.get(midi);
-      if (lbl) lbl.textContent = labels ? labels.join('/') : '';
-      key.classList.toggle('has-qwerty', Boolean(labels && labels.length));
+      if (lbl) lbl.textContent = labels ? labels.join("/") : "";
+      key.classList.toggle("has-qwerty", Boolean(labels && labels.length));
     });
   }
-  function setUserKeyVisual(midi: number, on: boolean): void {
-    $$('.mk-key', keysEl).forEach((key) => {
-      if (Number(key.dataset.midi) === midi) key.classList.toggle('is-user', on);
+
+  function setKeyVisual(midi: number, cls: string, on: boolean): void {
+    $$(".lk-key", keysEl).forEach((key) => {
+      if (Number(key.dataset.midi) === midi) key.classList.toggle(cls, on);
     });
   }
-  function notePcName(midi: number): string { return fullLabel(midi); }
+
+  function setCurrentNote(midi: number | null): void {
+    $$(".lk-key", keysEl).forEach((key) => key.classList.toggle("is-active", midi !== null && Number(key.dataset.midi) === midi));
+    noteEl.textContent = midi === null ? "—" : fullLabel(midi);
+  }
+
   function detectChordName(midis: number[]): string {
-    if (midis.length < 2) return '—';
-    const pcs = [...new Set(midis.map(m => ((m % 12) + 12) % 12))].sort((a,b)=>a-b);
+    if (midis.length < 2) return "—";
+    const pcs = [...new Set(midis.map((m) => ((m % 12) + 12) % 12))].sort((a, b) => a - b);
     const names = ["Do","Do♯","Re","Re♯","Mi","Fa","Fa♯","Sol","Sol♯","La","La♯","Si"];
     const patterns: Array<[string, number[]]> = [
-      ['maj7',[0,4,7,11]],['7',[0,4,7,10]],['m7',[0,3,7,10]],['mMaj7',[0,3,7,11]],['m7b5',[0,3,6,10]],['dim7',[0,3,6,9]],
-      ['m',[0,3,7]],['',[0,4,7]],['dim',[0,3,6]],['aug',[0,4,8]],['sus4',[0,5,7]],['sus2',[0,2,7]],['5',[0,7]]
+      ["maj7",[0,4,7,11]],["7",[0,4,7,10]],["m7",[0,3,7,10]],["mMaj7",[0,3,7,11]],["m7b5",[0,3,6,10]],["dim7",[0,3,6,9]],
+      ["m",[0,3,7]],["",[0,4,7]],["dim",[0,3,6]],["aug",[0,4,8]],["sus4",[0,5,7]],["sus2",[0,2,7]],["5",[0,7]],
     ];
     const bassPc = ((Math.min(...midis) % 12) + 12) % 12;
-    const roots = [bassPc, ...pcs.filter(p=>p!==bassPc)];
-    for (const root of roots) {
-      const rel = pcs.map(p => (p - root + 12) % 12).sort((a,b)=>a-b).join(',');
+    const roots = [bassPc, ...pcs.filter((p) => p !== bassPc)];
+    for (const r of roots) {
+      const rel = pcs.map((p) => (p - r + 12) % 12).sort((a, b) => a - b).join(",");
       for (const [qual, ints] of patterns) {
-        if (ints.slice().sort((a,b)=>a-b).join(',') === rel) {
-          const slash = root !== bassPc ? `/${names[bassPc]}` : '';
-          return `${names[root]}${qual}${slash}`;
+        if (ints.slice().sort((a, b) => a - b).join(",") === rel) {
+          const slash = r !== bassPc ? `/${names[bassPc]}` : "";
+          return `${names[r]}${qual}${slash}`;
         }
       }
     }
-    return '—';
+    return "—";
   }
+
   function updateLiveIndicator(): void {
-    const midis = [...userActiveMidis].sort((a,b)=>a-b);
-    liveNotesEl.textContent = midis.length ? midis.map(notePcName).join(', ') : '—';
+    const midis = [...userActiveMidis].sort((a, b) => a - b);
+    liveNotesEl.textContent = midis.length ? midis.map(fullLabel).join(", ") : "—";
     liveChordEl.textContent = detectChordName(midis);
   }
+
   function userNoteOn(midi: number): void {
-    if (midi < 36 || midi > 88) return;
-    if (userActiveMidis.has(midi)) { noteOff(midi); }
+    if (!clampMidi(midi)) return;
+    if (userActiveMidis.has(midi)) noteOff(midi);
     userActiveMidis.add(midi);
     noteOn(midi, 0.85);
-    setUserKeyVisual(midi, true);
-    setNote(midi);
-    window.dispatchEvent(new CustomEvent('note-played', { detail: { midi, source: 'qwerty' } }));
+    setKeyVisual(midi, "is-user", true);
+    setCurrentNote(midi);
+    window.dispatchEvent(new CustomEvent("note-played", { detail: { midi, source: "qwerty" } }));
     updateLiveIndicator();
   }
+
   function userNoteOff(midi: number): void {
     if (!userActiveMidis.has(midi)) return;
     userActiveMidis.delete(midi);
     noteOff(midi);
-    // si el pedal está abajo mantenemos visual mientras suene? simplificamos: quitamos visual al soltar tecla física salvo que queramos sostener; mejor quitar is-user al soltar tecla y dejar sonido al pedal
-    setUserKeyVisual(midi, false);
-    if (userActiveMidis.size === 0) setNote(null);
-    else setNote([...userActiveMidis].sort((a,b)=>a-b).at(-1) ?? null);
+    setKeyVisual(midi, "is-user", false);
+    if (userActiveMidis.size === 0) setCurrentNote(null);
+    else setCurrentNote([...userActiveMidis].sort((a, b) => a - b).at(-1) ?? null);
     updateLiveIndicator();
   }
+
   function changeOctave(delta: number): void {
     baseOctave = Math.max(1, Math.min(6, baseOctave + delta));
-    updateOctaveUi();
+    octaveEl.textContent = String(baseOctave);
+    refreshQwertyLabels();
   }
 
-  octDownBtn.addEventListener('click', () => changeOctave(-1));
-  octUpBtn.addEventListener('click', () => changeOctave(1));
-  qwertyLabelsBtn.addEventListener('click', () => {
+  // Mouse / touch
+  function triggerPointer(event: Event): void {
+    const key = (event.target as HTMLElement).closest<HTMLButtonElement>(".lk-key");
+    if (!key) return;
+    const midi = Number(key.dataset.midi);
+    if (!clampMidi(midi)) return;
+    playNote(midi, 1.1);
+    setCurrentNote(midi);
+    window.dispatchEvent(new CustomEvent("note-played", { detail: { midi, source: "keyboard" } }));
+  }
+  let lastPointerDown = 0;
+  keysEl.addEventListener("pointerdown", (e) => { lastPointerDown = Date.now(); triggerPointer(e); });
+  keysEl.addEventListener("click", (e) => { if (Date.now() - lastPointerDown < 500) return; triggerPointer(e); });
+
+  // Controls
+  octDownBtn.addEventListener("click", () => changeOctave(-1));
+  octUpBtn.addEventListener("click", () => changeOctave(1));
+  qwertyLabelsBtn.addEventListener("click", () => {
     showQwerty = !showQwerty;
-    qwertyLabelsBtn.setAttribute('aria-pressed', String(showQwerty));
+    qwertyLabelsBtn.setAttribute("aria-pressed", String(showQwerty));
+    qwertyLabelsBtn.textContent = showQwerty ? "Mostrar teclas QWERTY" : "Ocultar teclas QWERTY";
     refreshQwertyLabels();
   });
-  document.addEventListener('keydown', (e) => {
+
+  document.addEventListener("keydown", (e) => {
     if (isTypingTarget(e.target)) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.code === 'Space') {
+    if (e.code === "Space") {
       e.preventDefault();
       if (e.repeat) return;
-      sustainDown = true; setSustainPedal(true);
-      pedalEl.textContent = 'Sustain: ON (Espacio)';
-      pedalEl.classList.add('on');
+      setSustainPedal(true);
+      pedalEl.textContent = "Sustain: ON (Espacio)";
+      pedalEl.classList.add("on");
       return;
     }
-    if (e.code === 'Equal' || e.code === 'NumpadAdd') { e.preventDefault(); if (!e.repeat) changeOctave(1); return; }
-    if (e.code === 'Minus' || e.code === 'NumpadSubtract') { e.preventDefault(); if (!e.repeat) changeOctave(-1); return; }
+    if (e.code === "Equal" || e.code === "NumpadAdd") { e.preventDefault(); if (!e.repeat) changeOctave(1); return; }
+    if (e.code === "Minus" || e.code === "NumpadSubtract") { e.preventDefault(); if (!e.repeat) changeOctave(-1); return; }
     const midi = midiForCode(e.code);
     if (midi == null) return;
     e.preventDefault();
@@ -1416,15 +236,15 @@ const QWERTY_LABELS: Record<number, string> = {};
     pressedCodes.add(e.code);
     userNoteOn(midi);
   });
-  document.addEventListener('keyup', (e) => {
-    if (e.code === 'Space') {
-      sustainDown = false; setSustainPedal(false);
-      pedalEl.textContent = 'Sustain: OFF (Espacio)';
-      pedalEl.classList.remove('on');
-      // al soltar pedal, notas ya no pulsadas deben perder visual
-      $$('.mk-key.is-user', keysEl).forEach((key) => {
+
+  document.addEventListener("keyup", (e) => {
+    if (e.code === "Space") {
+      setSustainPedal(false);
+      pedalEl.textContent = "Sustain: OFF (Espacio)";
+      pedalEl.classList.remove("on");
+      $$(".lk-key.is-user", keysEl).forEach((key) => {
         const m = Number(key.dataset.midi);
-        if (!userActiveMidis.has(m)) key.classList.remove('is-user');
+        if (!userActiveMidis.has(m)) key.classList.remove("is-user");
       });
       return;
     }
@@ -1434,340 +254,113 @@ const QWERTY_LABELS: Record<number, string> = {};
     pressedCodes.delete(e.code);
     userNoteOff(midi);
   });
-  window.addEventListener('blur', () => {
-    // soltar todo al perder foco
-    [...userActiveMidis].forEach(m => { userActiveMidis.delete(m); noteOff(m); setUserKeyVisual(m,false); });
+
+  window.addEventListener("blur", () => {
+    [...userActiveMidis].forEach((m) => { userActiveMidis.delete(m); noteOff(m); setKeyVisual(m, "is-user", false); });
     pressedCodes.clear();
-    setSustainPedal(false); sustainDown = false;
-    pedalEl.textContent = 'Sustain: OFF (Espacio)'; pedalEl.classList.remove('on');
-    updateLiveIndicator(); setNote(null);
+    setSustainPedal(false);
+    pedalEl.textContent = "Sustain: OFF (Espacio)";
+    pedalEl.classList.remove("on");
+    updateLiveIndicator();
+    setCurrentNote(null);
   });
 
-  updateOctaveUi();
+  octaveEl.textContent = String(baseOctave);
   refreshQwertyLabels();
-
-  syncTempoUi();
-  buildTrack();
 </script>
 
 <style>
-  .mk {
-    margin: 24px 0;
-    padding: 20px;
+  .lk {
+    margin: 16px 0 8px;
+    padding: 16px;
     border: 1px solid var(--bd);
-    border-radius: 24px;
+    border-radius: 18px;
     background: var(--card);
-    box-shadow: 0 1px 2px rgb(36 31 26 / 0.08);
   }
-  .mk-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 14px;
-  }
-  .mk-head-text {
-    min-width: 0;
-  }
-  .mk-kicker {
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--acc);
-  }
-  .mk h2 {
-    margin: 4px 0;
-    font:
-      700 1.4rem/1.2 Georgia,
-      "Times New Roman",
-      serif;
-  }
-  .mk-sub {
-    margin: 0;
-    max-width: 60ch;
-    color: var(--mut);
-    font-size: 0.9rem;
-  }
-  .mk-transport {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .mk-melody-select {
-    display: grid;
-    gap: 4px;
-    color: var(--mut);
-    font-size: 0.78rem;
-    font-weight: 700;
-  }
-  .mk-melody-select select {
-    min-height: 44px;
-    border-radius: 12px;
-  }
-  .mk-view {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    gap: 4px;
-    padding: 4px;
-    border: 1px solid var(--bd);
-    border-radius: 12px;
-    background: var(--bg);
-  }
-  .mk-view-btn {
-    min-height: 44px;
-    padding: 6px 12px;
-    border: 0;
-    border-radius: 9px;
-    background: transparent;
-    color: var(--mut);
-    font: inherit;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition:
-      background 0.18s ease,
-      color 0.18s ease,
-      transform 0.12s ease;
-  }
-  .mk-view-btn:hover {
-    color: var(--fg);
-  }
-  .mk-view-btn:active {
-    transform: scale(0.96);
-  }
-  .mk-view-btn[aria-pressed="true"] {
-    background: var(--card);
-    color: var(--fg);
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
-  }
-  .mk-play {
-    min-height: 48px;
-    padding: 10px 18px;
-    border: 0;
-    border-radius: 14px;
-    background: var(--acc);
-    color: #fff;
-    font: inherit;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: 0 6px 18px color-mix(in srgb, var(--acc) 30%, transparent);
-    transition:
-      transform 0.12s ease,
-      background 0.2s,
-      box-shadow 0.2s;
-  }
-  .mk-play:hover {
-    box-shadow: 0 8px 22px color-mix(in srgb, var(--acc) 40%, transparent);
-  }
-  .mk-play:active {
-    transform: scale(0.97);
-  }
-  .mk-play[aria-pressed="true"] {
-    background: #c2410c;
-  }
-  .mk-iconbtn {
-    width: 44px;
-    height: 44px;
-    border: 1px solid var(--bd);
-    border-radius: 12px;
-    background: var(--bg);
-    color: var(--fg);
-    font: inherit;
-    font-size: 1rem;
-    cursor: pointer;
-    transition:
-      transform 0.12s ease,
-      border-color 0.2s;
-  }
-  .mk-iconbtn:hover {
-    border-color: var(--acc);
-  }
-  .mk-iconbtn:active {
-    transform: scale(0.94);
-  }
-  .mk-tempo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--mut);
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-  .mk-tempo input {
-    accent-color: var(--acc);
-  }
-  .mk-progress {
-    height: 8px;
-    margin: 12px 0 10px;
-    border-radius: 999px;
-    background: var(--bd);
-    overflow: hidden;
-  }
-  .mk-progress > div {
-    width: 0;
-    height: 100%;
-    border-radius: inherit;
-    background: var(--acc);
-  }
-  .mk-status {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 16px;
-    margin-bottom: 12px;
-    color: var(--mut);
-    font-size: 0.85rem;
-  }
-  .mk-status-item b {
-    color: var(--fg);
-    font-variant-numeric: tabular-nums;
-  }
-  /* El teclado tiene 4 octavas: en pantallas estrechas se desplaza en horizontal. */
-  .mk-keys-scroll {
-    overflow-x: auto;
-    border-radius: 16px;
-    -webkit-overflow-scrolling: touch;
-  }
-  .mk-keys {
+  .lk-head { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: flex-end; justify-content: space-between; margin-bottom: 12px; }
+  .lk-kicker { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--acc); }
+  .lk h2 { margin: 4px 0; font: 700 1.25rem/1.2 Georgia, "Times New Roman", serif; }
+  .lk-sub { margin: 0; color: var(--mut); font-size: .9rem; max-width: 60ch; }
+  .lk-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .lk-chip, .lk-pedal { font-size: .78rem; color: var(--mut); padding: 6px 10px; border-radius: 10px; background: var(--bg); border: 1px solid var(--bd); }
+  .lk-pedal.on { color: #fff; background: #16a34a; border-color: #16a34a; font-weight: 700; }
+  .lk-btn { min-height: 36px; padding: 6px 12px; border: 1px solid var(--bd); border-radius: 10px; background: var(--bg); color: var(--fg); font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
+  .lk-btn:hover { border-color: var(--acc); }
+  .lk-toggle[aria-pressed="true"] { background: var(--card); box-shadow: 0 1px 2px rgb(0 0 0 / .12); }
+  .lk-live { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 4px 0 10px; color: var(--mut); font-size: .85rem; }
+  .lk-live b { color: var(--fg); font-variant-numeric: tabular-nums; }
+
+  .lk-keys-scroll { overflow-x: auto; border-radius: 14px; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+  .lk-keys {
     position: relative;
     display: flex;
-    min-width: 860px;
-    height: clamp(160px, 24vw, 240px);
-    border: 1px solid var(--bd);
-    border-radius: 16px;
+    min-width: 760px;
+    height: clamp(170px, 26vw, 230px);
+    border: 2px solid #1f2937;
+    border-radius: 10px;
     overflow: hidden;
-    background: var(--bk);
-    box-shadow: inset 0 2px 8px rgb(0 0 0 / 0.45);
+    background: #111827;
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,.25), 0 6px 18px rgba(0,0,0,.18);
   }
-  .mk-key {
-    position: relative;
-    padding: 0;
-    border: 1px solid #d8cfbe;
-    cursor: pointer;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    transition:
-      background 0.12s ease,
-      transform 0.08s ease,
-      box-shadow 0.12s ease;
-  }
-  .mk-key--white {
+  .lk-key { position: relative; padding: 0; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font: inherit; }
+  .lk-key--white {
     flex: 1 1 0;
     z-index: 1;
     display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
     padding-bottom: 8px;
-    border-radius: 0 0 8px 8px;
-    background: linear-gradient(180deg, #fffdf8, #efe8da);
-    box-shadow: inset 0 -3px 0 #e0d7c4;
+    gap: 2px;
+    border: 0;
+    border-right: 1px solid #cbd5e1;
+    border-bottom: 4px solid #d1d5db;
+    border-radius: 0 0 6px 6px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 55%, #eef2f7 100%);
+    box-shadow: inset 0 1px 0 #fff;
   }
-  .mk-key--white + .mk-key--white {
-    margin-left: -1px;
-  }
-  .mk-key--black {
+  .lk-key--white:last-of-type { border-right: 0; }
+  .lk-key--black {
     position: absolute;
     top: 0;
-    z-index: 2;
-    width: var(--bw, 2.1%);
-    height: 60%;
+    z-index: 3;
+    width: var(--bw, 3.2%);
+    height: 62%;
+    border: 1px solid #0b0f19;
+    border-top: 0;
+    border-radius: 0 0 5px 5px;
+    background: linear-gradient(180deg, #374151 0%, #111827 45%, #030712 100%);
+    box-shadow: inset 0 -8px 8px rgba(255,255,255,.06), 2px 3px 5px rgba(0,0,0,.45);
     display: flex;
     align-items: flex-end;
     justify-content: center;
     padding-bottom: 6px;
-    border: 1px solid #0e0b08;
-    border-radius: 0 0 6px 6px;
-    background: linear-gradient(180deg, #3a332b, #17130f);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.14),
-      0 2px 3px rgb(0 0 0 / 0.45);
   }
-  .mk-key-label {
-    color: var(--mut);
-    font-size: 0.6rem;
-    font-weight: 700;
-    pointer-events: none;
+  .lk-key-note { font-size: .58rem; font-weight: 700; color: #64748b; pointer-events: none; line-height: 1; }
+  .lk-key-qwerty { font: 700 .62rem/1 system-ui, sans-serif; color: var(--acc); pointer-events: none; display: none; }
+  .lk-key.has-qwerty .lk-key-qwerty { display: block; }
+  .lk-key--black .lk-key-qwerty { color: #fff; font-size: .58rem; text-shadow: 0 1px 2px #000; }
+
+  .lk-key--white.is-active, .lk-key--white:active {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--acc) 65%, #fff), color-mix(in srgb, var(--acc) 85%, #fff));
+    border-bottom-color: color-mix(in srgb, var(--acc) 55%, #000);
+    transform: translateY(1px);
   }
-  .mk-key--black .mk-key-label {
-    display: none;
+  .lk-key--white.is-active .lk-key-note { color: #fff; }
+  .lk-key--black.is-active, .lk-key--black:active {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--acc) 70%, #111), var(--acc));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
   }
-  .mk-key--white.is-active {
-    background: linear-gradient(
-      180deg,
-      var(--acc),
-      color-mix(in srgb, var(--acc) 72%, #fff)
-    );
-    box-shadow: inset 0 -5px 0 color-mix(in srgb, var(--acc) 55%, #000);
-    transform: translateY(2px);
-  }
-  .mk-key--white.is-active .mk-key-label {
-    color: #fff;
-  }
-  .mk-key--black.is-active {
-    background: linear-gradient(
-      180deg,
-      var(--acc),
-      color-mix(in srgb, var(--acc) 60%, #000)
-    );
-    box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.6);
-  }
-  .mk-key--white.is-chord:not(.is-active) {
-    background: linear-gradient(180deg, #93c5fd, #60a5fa);
-    box-shadow: inset 0 -3px 0 #3b82f6;
-  }
-  .mk-key--white.is-chord:not(.is-active) .mk-key-label {
-    color: #fff;
-  }
-  .mk-key--black.is-chord:not(.is-active) {
-    background: linear-gradient(180deg, #60a5fa, #2563eb);
-    box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.6);
-  }
-  .mk-key:focus-visible {
-    outline: 2px solid var(--acc);
-    outline-offset: -2px;
-    z-index: 3;
-  }
-  .mk-hint {
-    margin: 12px 0 0;
-    color: var(--mut);
-    font-size: 0.8rem;
-    text-align: center;
-  }
-  .mk-live { display:flex; flex-wrap:wrap; gap:6px 16px; margin: 4px 0 10px; color: var(--mut); font-size: .85rem; }
-  .mk-practice { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:6px 8px; border:1px dashed var(--bd); border-radius:12px; }
-  .mk-practice-label { font-size:.78rem; color:var(--mut); }
-  .mk-mini { min-height:34px; height:34px; padding:4px 10px; font-size:.78rem; }
-  .mk-pedal { font-size:.78rem; color:var(--mut); padding:4px 8px; border-radius:8px; background:var(--bg); }
-  .mk-pedal.on { color:#fff; background:#16a34a; font-weight:700; }
-  .mk-key { position: relative; }
-  .mk-key-qwerty { position:absolute; left:50%; transform:translateX(-50%); bottom:22px; font:700 .55rem/1 system-ui,sans-serif; color:var(--acc); pointer-events:none; display:none; }
-  .mk-key.has-qwerty .mk-key-qwerty { display:block; }
-  .mk-key--black .mk-key-qwerty { bottom:4px; color:#fff; font-size:.5rem; }
-  .mk-key.is-user.mk-key--white { background: linear-gradient(180deg, #f59e0b, #fbbf24) !important; box-shadow: inset 0 -5px 0 #b45309; transform: translateY(2px); }
-  .mk-key.is-user.mk-key--white .mk-key-label, .mk-key.is-user.mk-key--white .mk-key-qwerty { color:#111; }
-  .mk-key.is-user.mk-key--black { background: linear-gradient(180deg, #f59e0b, #b45309) !important; box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.6); }
+  .lk-key--white.is-user { background: linear-gradient(180deg, #fde68a, #f59e0b) !important; border-bottom-color: #b45309; transform: translateY(1px); }
+  .lk-key--white.is-user .lk-key-note, .lk-key--white.is-user .lk-key-qwerty { color: #111; }
+  .lk-key--black.is-user { background: linear-gradient(180deg, #fbbf24, #b45309) !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); }
+
+  .lk-key:focus-visible { outline: 2px solid var(--acc); outline-offset: -2px; z-index: 4; }
+  .lk-hint { margin: 10px 0 0; color: var(--mut); font-size: .8rem; text-align: center; }
+
   @media (max-width: 520px) {
-    .mk {
-      padding: 16px;
-    }
-    .mk-head {
-      align-items: flex-start;
-      flex-direction: column;
-    }
-    .mk-transport {
-      width: 100%;
-    }
-    .mk-play {
-      flex: 1;
-    }
+    .lk { padding: 12px; }
+    .lk-head { align-items: flex-start; flex-direction: column; }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .mk-key,
-    .mk-play,
-    .mk-iconbtn {
-      transition: none;
-    }
-  }
+  @media (prefers-reduced-motion: reduce) { .lk-key, .lk-btn { transition: none; } }
 </style>
