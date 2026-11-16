@@ -1,12 +1,12 @@
 ---
 /**
  * Teclado de práctica interactivo (Laboratorio).
- * Herramienta nueva: QWERTY, sustain, indicador de notas/acordes (sin reproducción de melodías).
+ * Práctica por escala (una escala activa a la vez), modo concentración y fullscreen móvil.
  */
 const WHITE_PITCHES = [0, 2, 4, 5, 7, 9, 11];
 const BLACK_PITCHES = [1, 3, 6, 8, 10];
 const FIRST_MIDI = 36; // Do2
-const LAST_MIDI = 84; // Do6 (4 octavas visibles)
+const LAST_MIDI = 84; // Do6
 const ALL_MIDIS = Array.from({ length: LAST_MIDI - FIRST_MIDI + 1 }, (_, i) => FIRST_MIDI + i);
 const WHITE_KEYS = ALL_MIDIS.filter((midi) => WHITE_PITCHES.includes(midi % 12));
 const BLACK_WIDTH = 3.2;
@@ -21,25 +21,43 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
 
 <section class="lk" id="lk-root" aria-labelledby="lk-title" tabindex="-1">
   <header class="lk-head">
-    <div>
+    <div class="lk-head-copy">
       <span class="lk-kicker">Herramienta de práctica</span>
       <h2 id="lk-title">Teclado de práctica interactivo</h2>
-      <p class="lk-sub">Toca con el mouse o activa el <b>modo concentración</b> para usar el teclado de la computadora. <b>+ / -</b> cambia la octava y <b>Espacio</b> es sustain. <b>Esc</b> sale del modo.</p>
+      <p class="lk-sub">Practica <b>una escala a la vez</b>. Usa <b>Subir/Bajar escala</b> para cambiar la tonalidad. Activa <b>modo concentración</b> para tocar con el teclado QWERTY (<b>Espacio</b> sustain, <b>Esc</b> salir).</p>
     </div>
     <div class="lk-controls" role="group" aria-label="Controles de práctica">
       <button type="button" class="lk-btn lk-focus" id="lk-focus" aria-pressed="false">Activar modo concentración</button>
-      <span class="lk-chip">Octava base: <b id="lk-octave">4</b></span>
+      <button type="button" class="lk-btn lk-fs" id="lk-fs" aria-pressed="false" hidden>Pantalla completa</button>
+      <div class="lk-scale-row" role="group" aria-label="Escala activa">
+        <button type="button" class="lk-btn" id="lk-scale-down" aria-label="Bajar tonalidad">▼ Tonalidad</button>
+        <span class="lk-scale-badge" id="lk-scale-badge">Do Mayor</span>
+        <button type="button" class="lk-btn" id="lk-scale-up" aria-label="Subir tonalidad">▲ Tonalidad</button>
+      </div>
+      <label class="lk-select-wrap">Tipo
+        <select id="lk-scale-type" class="lk-select" aria-label="Tipo de escala">
+          <option value="major" selected>Mayor</option>
+          <option value="minor">Menor natural</option>
+          <option value="harmonic">Menor armónica</option>
+          <option value="melodic">Menor melódica</option>
+          <option value="penta-major">Pentatónica mayor</option>
+          <option value="penta-minor">Pentatónica menor</option>
+        </select>
+      </label>
+      <button type="button" class="lk-btn lk-toggle" id="lk-scale-toggle" aria-pressed="true">Escala: ON</button>
+      <span class="lk-chip">Octava: <b id="lk-octave">4</b></span>
       <button type="button" class="lk-btn" id="lk-oct-down" aria-label="Bajar octava">−</button>
       <button type="button" class="lk-btn" id="lk-oct-up" aria-label="Subir octava">+</button>
-      <button type="button" class="lk-btn lk-toggle" id="lk-qwerty-labels" aria-pressed="true">Mostrar teclas QWERTY</button>
-      <span class="lk-pedal" id="lk-pedal" aria-live="polite">Sustain: OFF (Espacio)</span>
+      <button type="button" class="lk-btn lk-toggle" id="lk-qwerty-labels" aria-pressed="true">Teclas QWERTY</button>
+      <span class="lk-pedal" id="lk-pedal" aria-live="polite">Sustain: OFF</span>
     </div>
   </header>
 
   <div class="lk-live" aria-live="polite">
+    <span>Modo: <b id="lk-scale-live">Do Mayor</b></span>
     <span>Nota: <b id="lk-note">—</b></span>
-    <span>Notas activas: <b id="lk-live-notes">—</b></span>
-    <span>Acorde detectado: <b id="lk-live-chord">—</b></span>
+    <span>Activas: <b id="lk-live-notes">—</b></span>
+    <span>Acorde: <b id="lk-live-chord">—</b></span>
   </div>
 
   <div class="lk-keys-scroll">
@@ -59,7 +77,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
   </div>
 
   <p class="lk-hint" id="lk-hint">
-    Mapeo (en modo concentración): <b>A</b>=Do, <b>W</b>=Do♯, <b>S</b>=Re, <b>E</b>=Re♯, <b>D</b>=Mi, <b>F</b>=Fa, <b>T</b>=Fa♯, <b>G</b>=Sol, <b>Y</b>=Sol♯, <b>H</b>=La, <b>U</b>=La♯, <b>J</b>=Si, <b>K</b>=Do, <b>I</b>=Do♯, <b>L</b>=Re, <b>P</b>=Re♯.
+    Con <b>Escala: ON</b>, las teclas QWERTY tocan los grados de la escala activa (en orden) y se atenúan las notas fuera de escala. Con <b>Escala: OFF</b>, el mapeo es cromático. Cambia tonalidad con <b>▼/▲</b>, octava con <b>+ / -</b> y usa <b>Esc</b> para salir del modo concentración.
   </p>
 </section>
 
@@ -75,50 +93,106 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
   const octUpBtn = must(document.querySelector<HTMLButtonElement>("#lk-oct-up"), "#lk-oct-up");
   const qwertyLabelsBtn = must(document.querySelector<HTMLButtonElement>("#lk-qwerty-labels"), "#lk-qwerty-labels");
   const focusBtn = must(document.querySelector<HTMLButtonElement>("#lk-focus"), "#lk-focus");
+  const fsBtn = must(document.querySelector<HTMLButtonElement>("#lk-fs"), "#lk-fs");
   const pedalEl = must(document.querySelector<HTMLElement>("#lk-pedal"), "#lk-pedal");
   const liveNotesEl = must(document.querySelector<HTMLElement>("#lk-live-notes"), "#lk-live-notes");
   const liveChordEl = must(document.querySelector<HTMLElement>("#lk-live-chord"), "#lk-live-chord");
+  const scaleBadge = must(document.querySelector<HTMLElement>("#lk-scale-badge"), "#lk-scale-badge");
+  const scaleLive = must(document.querySelector<HTMLElement>("#lk-scale-live"), "#lk-scale-live");
+  const scaleDownBtn = must(document.querySelector<HTMLButtonElement>("#lk-scale-down"), "#lk-scale-down");
+  const scaleUpBtn = must(document.querySelector<HTMLButtonElement>("#lk-scale-up"), "#lk-scale-up");
+  const scaleTypeSel = must(document.querySelector<HTMLSelectElement>("#lk-scale-type"), "#lk-scale-type");
+  const scaleToggleBtn = must(document.querySelector<HTMLButtonElement>("#lk-scale-toggle"), "#lk-scale-toggle");
 
   const NOTE_NAMES = ["Do","Do♯","Re","Re♯","Mi","Fa","Fa♯","Sol","Sol♯","La","La♯","Si"];
   const fullLabel = (midi: number): string => `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`;
 
-  // Mapeo solicitado: C cromático desde Do base
-  // do=a, do#=w, re=s, re#=e, mi=d, fa=f, fa#=t, sol=g, sol#=y, la=h, la#=u, si=j, do=k, do#=i, re=l, re#=p
-  const QWERTY_MAP: Record<string, number> = {
-    KeyA: 0, KeyW: 1, KeyS: 2, KeyE: 3, KeyD: 4, KeyF: 5, KeyT: 6, KeyG: 7, KeyY: 8, KeyH: 9, KeyU: 10, KeyJ: 11, KeyK: 12, KeyI: 13, KeyL: 14, KeyP: 15,
+  const SCALES: Record<string, { label: string; intervals: number[] }> = {
+    major: { label: "Mayor", intervals: [0,2,4,5,7,9,11] },
+    minor: { label: "Menor natural", intervals: [0,2,3,5,7,8,10] },
+    harmonic: { label: "Menor armónica", intervals: [0,2,3,5,7,8,11] },
+    melodic: { label: "Menor melódica", intervals: [0,2,3,5,7,9,11] },
+    "penta-major": { label: "Pentatónica mayor", intervals: [0,2,4,7,9] },
+    "penta-minor": { label: "Pentatónica menor", intervals: [0,3,5,7,10] },
   };
+
+  // Orden de teclas QWERTY para tocar grados consecutivos de la escala activa
+  const QWERTY_ORDER = ["KeyA","KeyW","KeyS","KeyE","KeyD","KeyF","KeyT","KeyG","KeyY","KeyH","KeyU","KeyJ","KeyK","KeyI","KeyL","KeyP"];
   const CODE_LABEL: Record<string, string> = {
     KeyA:"A", KeyW:"W", KeyS:"S", KeyE:"E", KeyD:"D", KeyF:"F", KeyT:"T", KeyG:"G", KeyY:"Y", KeyH:"H", KeyU:"U", KeyJ:"J", KeyK:"K", KeyI:"I", KeyL:"L", KeyP:"P",
   };
 
-  let baseOctave = 4; // Do base = C4 (MIDI 60)
+  let baseOctave = 4; // referencia de octava
+  let tonicPc = 0; // 0 = Do
+  let scaleType: keyof typeof SCALES = "major";
+  let scaleEnabled = true;
   let showQwerty = true;
   let practiceMode = false;
   const pressedCodes = new Set<string>();
   const userActiveMidis = new Set<number>();
 
-  function baseMidi(): number { return (baseOctave + 1) * 12; } // C of baseOctave
-  function midiForCode(code: string): number | null {
-    if (!(code in QWERTY_MAP)) return null;
-    return baseMidi() + QWERTY_MAP[code];
+  const isMobileDevice = (): boolean =>
+    window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(max-width: 820px)").matches;
+
+  function baseMidi(): number { return (baseOctave + 1) * 12; }
+  function clampMidi(midi: number): boolean { return midi >= 36 && midi <= 96; }
+
+  function scalePcs(): Set<number> {
+    const def = SCALES[scaleType] ?? SCALES.major;
+    return new Set(def.intervals.map((i) => (tonicPc + i) % 12));
   }
+
+  function scaleName(): string {
+    if (!scaleEnabled) return "Sin escala (cromático)";
+    const def = SCALES[scaleType] ?? SCALES.major;
+    return `${NOTE_NAMES[tonicPc]} ${def.label}`;
+  }
+
+  function buildMappedMidis(): number[] {
+    if (!scaleEnabled) {
+      // Cromático: 16 semitonos consecutivos desde Do de la octava base
+      return QWERTY_ORDER.map((_, i) => baseMidi() + i);
+    }
+    const pcs = [...(SCALES[scaleType] ?? SCALES.major).intervals];
+    const start = baseMidi() + tonicPc; // raíz en octava base
+    const out: number[] = [];
+    let oct = 0;
+    while (out.length < QWERTY_ORDER.length) {
+      for (const iv of pcs) {
+        const m = start + oct * 12 + iv;
+        if (m >= 36 && m <= 96) out.push(m);
+        if (out.length >= QWERTY_ORDER.length) break;
+      }
+      oct += 1;
+      if (start + oct * 12 > 108) break;
+    }
+    return out;
+  }
+
+  function midiForCode(code: string): number | null {
+    const idx = QWERTY_ORDER.indexOf(code);
+    if (idx === -1) return null;
+    const midis = buildMappedMidis();
+    return midis[idx] ?? null;
+  }
+
   function isTypingTarget(el: EventTarget | null): boolean {
     const t = el as HTMLElement | null;
     if (!t) return false;
     const tag = t.tagName;
     return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || t.isContentEditable;
   }
-  function clampMidi(midi: number): boolean { return midi >= 36 && midi <= 96; }
 
   function refreshQwertyLabels(): void {
     const byMidi = new Map<number, string[]>();
     if (showQwerty) {
-      for (const [code, semi] of Object.entries(QWERTY_MAP)) {
-        const m = baseMidi() + semi;
+      QWERTY_ORDER.forEach((code) => {
+        const m = midiForCode(code);
+        if (m == null) return;
         const arr = byMidi.get(m) ?? [];
         arr.push(CODE_LABEL[code]);
         byMidi.set(m, arr);
-      }
+      });
     }
     $$(".lk-key", keysEl).forEach((key) => {
       const midi = Number(key.dataset.midi);
@@ -127,6 +201,26 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
       if (lbl) lbl.textContent = labels ? labels.join("/") : "";
       key.classList.toggle("has-qwerty", Boolean(labels && labels.length));
     });
+  }
+
+  function refreshScaleVisuals(): void {
+    const pcs = scalePcs();
+    $$(".lk-key", keysEl).forEach((key) => {
+      const midi = Number(key.dataset.midi);
+      if (!scaleEnabled) {
+        key.classList.remove("in-scale", "out-scale");
+        return;
+      }
+      const inScale = pcs.has(((midi % 12) + 12) % 12);
+      key.classList.toggle("in-scale", inScale);
+      key.classList.toggle("out-scale", !inScale);
+    });
+    const name = scaleName();
+    scaleBadge.textContent = name;
+    scaleLive.textContent = name;
+    scaleDownBtn.disabled = !scaleEnabled;
+    scaleUpBtn.disabled = !scaleEnabled;
+    scaleTypeSel.disabled = !scaleEnabled;
   }
 
   function setKeyVisual(midi: number, cls: string, on: boolean): void {
@@ -199,10 +293,30 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     [...userActiveMidis].forEach((m) => { userActiveMidis.delete(m); noteOff(m); setKeyVisual(m, "is-user", false); });
     pressedCodes.clear();
     setSustainPedal(false);
-    pedalEl.textContent = "Sustain: OFF (Espacio)";
+    pedalEl.textContent = "Sustain: OFF";
     pedalEl.classList.remove("on");
     updateLiveIndicator();
     setCurrentNote(null);
+  }
+
+  function updateFsButton(): void {
+    const canFs = isMobileDevice() && practiceMode;
+    fsBtn.hidden = !canFs;
+    const active = Boolean(document.fullscreenElement && root.contains(document.fullscreenElement as Node));
+    fsBtn.setAttribute("aria-pressed", String(active));
+    fsBtn.textContent = active ? "Salir de pantalla completa" : "Pantalla completa";
+    root.classList.toggle("is-immersive", active);
+  }
+
+  async function toggleFullscreen(): Promise<void> {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen?.();
+      } else if (isMobileDevice() && practiceMode) {
+        await (root as any).requestFullscreen?.();
+      }
+    } catch { /* fullscreen no disponible: se ignora sin romper */ }
+    updateFsButton();
   }
 
   function setPracticeMode(on: boolean): void {
@@ -214,7 +328,29 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
       root.focus({ preventScroll: true });
     } else {
       releaseAll();
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
     }
+    updateFsButton();
+  }
+
+  function shiftScale(delta: number): void {
+    tonicPc = (tonicPc + delta + 12) % 12;
+    refreshScaleVisuals();
+    refreshQwertyLabels();
+  }
+
+  function setScaleType(type: string): void {
+    if (type in SCALES) scaleType = type as keyof typeof SCALES;
+    refreshScaleVisuals();
+    refreshQwertyLabels();
+  }
+
+  function setScaleEnabled(on: boolean): void {
+    scaleEnabled = on;
+    scaleToggleBtn.setAttribute("aria-pressed", String(on));
+    scaleToggleBtn.textContent = on ? "Escala: ON" : "Escala: OFF";
+    refreshScaleVisuals();
+    refreshQwertyLabels();
   }
 
   // Mouse / touch
@@ -238,19 +374,27 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
 
   // Controls
   focusBtn.addEventListener("click", () => setPracticeMode(!practiceMode));
+  fsBtn.addEventListener("click", () => { void toggleFullscreen(); });
   octDownBtn.addEventListener("click", () => changeOctave(-1));
   octUpBtn.addEventListener("click", () => changeOctave(1));
+  scaleDownBtn.addEventListener("click", () => shiftScale(-1));
+  scaleUpBtn.addEventListener("click", () => shiftScale(1));
+  scaleTypeSel.addEventListener("change", () => setScaleType(scaleTypeSel.value));
+  scaleToggleBtn.addEventListener("click", () => setScaleEnabled(!scaleEnabled));
   qwertyLabelsBtn.addEventListener("click", () => {
     showQwerty = !showQwerty;
     qwertyLabelsBtn.setAttribute("aria-pressed", String(showQwerty));
-    qwertyLabelsBtn.textContent = showQwerty ? "Mostrar teclas QWERTY" : "Ocultar teclas QWERTY";
+    qwertyLabelsBtn.textContent = showQwerty ? "Teclas QWERTY" : "Ocultar QWERTY";
     refreshQwertyLabels();
   });
+  document.addEventListener("fullscreenchange", updateFsButton);
+  window.matchMedia("(pointer: coarse)").addEventListener?.("change", updateFsButton);
 
   function handleKeyDown(e: KeyboardEvent): void {
     if (e.code === "Escape" && practiceMode) {
       e.preventDefault();
       e.stopImmediatePropagation();
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
       setPracticeMode(false);
       return;
     }
@@ -260,9 +404,8 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
 
     const isControl = e.code === "Space" || e.code === "Equal" || e.code === "NumpadAdd" || e.code === "Minus" || e.code === "NumpadSubtract";
     const midi = midiForCode(e.code);
-    if (!isControl && midi == null) return; // teclas no mapeadas: dejar pasar
+    if (!isControl && midi == null) return;
 
-    // Captura en modo concentración para reducir interferencia de atajos/extensiones
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation?.();
@@ -270,7 +413,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     if (e.code === "Space") {
       if (e.repeat) return;
       setSustainPedal(true);
-      pedalEl.textContent = "Sustain: ON (Espacio)";
+      pedalEl.textContent = "Sustain: ON";
       pedalEl.classList.add("on");
       return;
     }
@@ -291,7 +434,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
       e.stopPropagation();
       e.stopImmediatePropagation?.();
       setSustainPedal(false);
-      pedalEl.textContent = "Sustain: OFF (Espacio)";
+      pedalEl.textContent = "Sustain: OFF";
       pedalEl.classList.remove("on");
       $$(".lk-key.is-user", keysEl).forEach((key) => {
         const m = Number(key.dataset.midi);
@@ -309,7 +452,6 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     userNoteOff(midi);
   }
 
-  // Captura en fase de captura para priorizar el modo concentración sobre atajos/extensiones cuando sea posible
   window.addEventListener("keydown", handleKeyDown, true);
   window.addEventListener("keyup", handleKeyUp, true);
   root.addEventListener("keydown", handleKeyDown);
@@ -320,7 +462,9 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
   });
 
   octaveEl.textContent = String(baseOctave);
+  refreshScaleVisuals();
   refreshQwertyLabels();
+  updateFsButton();
 </script>
 
 <style>
@@ -332,16 +476,23 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     background: var(--card);
   }
   .lk-head { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: flex-end; justify-content: space-between; margin-bottom: 12px; }
+  .lk-head-copy { min-width: 240px; }
   .lk-kicker { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--acc); }
   .lk h2 { margin: 4px 0; font: 700 1.25rem/1.2 Georgia, "Times New Roman", serif; }
   .lk-sub { margin: 0; color: var(--mut); font-size: .9rem; max-width: 60ch; }
   .lk-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .lk-scale-row { display: inline-flex; align-items: center; gap: 6px; padding: 4px; border: 1px solid var(--bd); border-radius: 12px; background: var(--bg); }
+  .lk-scale-badge { min-width: 8.5ch; text-align: center; font-size: .82rem; font-weight: 800; color: var(--fg); padding: 0 4px; }
+  .lk-select-wrap { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; color: var(--mut); font-weight: 700; }
+  .lk-select { min-height: 36px; padding: 6px 10px; border: 1px solid var(--bd); border-radius: 10px; background: var(--bg); color: var(--fg); font: inherit; font-size: .8rem; }
   .lk-chip, .lk-pedal { font-size: .78rem; color: var(--mut); padding: 6px 10px; border-radius: 10px; background: var(--bg); border: 1px solid var(--bd); }
   .lk-pedal.on { color: #fff; background: #16a34a; border-color: #16a34a; font-weight: 700; }
   .lk-btn { min-height: 36px; padding: 6px 12px; border: 1px solid var(--bd); border-radius: 10px; background: var(--bg); color: var(--fg); font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
   .lk-btn:hover { border-color: var(--acc); }
   .lk-toggle[aria-pressed="true"] { background: var(--card); box-shadow: 0 1px 2px rgb(0 0 0 / .12); }
   .lk-focus[aria-pressed="true"] { background: var(--acc); color: #fff; border-color: var(--acc); }
+  .lk-fs { background: var(--card); }
+  .lk-fs[aria-pressed="true"] { background: #111827; color: #fff; border-color: #111827; }
   .lk.is-focused { outline: 2px solid color-mix(in srgb, var(--acc) 55%, transparent); outline-offset: 2px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 18%, transparent); }
   .lk:focus { outline: none; }
   .lk:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
@@ -360,7 +511,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     background: #111827;
     box-shadow: inset 0 -4px 0 rgba(0,0,0,.25), 0 6px 18px rgba(0,0,0,.18);
   }
-  .lk-key { position: relative; padding: 0; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font: inherit; }
+  .lk-key { position: relative; padding: 0; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; font: inherit; transition: filter .12s ease, opacity .12s ease; }
   .lk-key--white {
     flex: 1 1 0;
     z-index: 1;
@@ -399,26 +550,57 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
   .lk-key.has-qwerty .lk-key-qwerty { display: block; }
   .lk-key--black .lk-key-qwerty { color: #fff; font-size: .58rem; text-shadow: 0 1px 2px #000; }
 
+  .lk-key.out-scale { opacity: .38; filter: saturate(.55); }
+
   .lk-key--white.is-active, .lk-key--white:active {
     background: linear-gradient(180deg, color-mix(in srgb, var(--acc) 65%, #fff), color-mix(in srgb, var(--acc) 85%, #fff));
     border-bottom-color: color-mix(in srgb, var(--acc) 55%, #000);
     transform: translateY(1px);
+    opacity: 1;
+    filter: none;
   }
   .lk-key--white.is-active .lk-key-note { color: #fff; }
   .lk-key--black.is-active, .lk-key--black:active {
     background: linear-gradient(180deg, color-mix(in srgb, var(--acc) 70%, #111), var(--acc));
     box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
+    opacity: 1;
+    filter: none;
   }
-  .lk-key--white.is-user { background: linear-gradient(180deg, #fde68a, #f59e0b) !important; border-bottom-color: #b45309; transform: translateY(1px); }
+  .lk-key--white.is-user { background: linear-gradient(180deg, #fde68a, #f59e0b) !important; border-bottom-color: #b45309; transform: translateY(1px); opacity: 1; filter: none; }
   .lk-key--white.is-user .lk-key-note, .lk-key--white.is-user .lk-key-qwerty { color: #111; }
-  .lk-key--black.is-user { background: linear-gradient(180deg, #fbbf24, #b45309) !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); }
+  .lk-key--black.is-user { background: linear-gradient(180deg, #fbbf24, #b45309) !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); opacity: 1; filter: none; }
 
   .lk-key:focus-visible { outline: 2px solid var(--acc); outline-offset: -2px; z-index: 4; }
   .lk-hint { margin: 10px 0 0; color: var(--mut); font-size: .8rem; text-align: center; }
 
+  /* Pantalla completa móvil (modo concentración) */
+  .lk:fullscreen, .lk:-webkit-full-screen {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    box-sizing: border-box;
+  }
+  .lk:fullscreen .lk-head-copy, .lk:-webkit-full-screen .lk-head-copy,
+  .lk:fullscreen .lk-hint, .lk:-webkit-full-screen .lk-hint { display: none; }
+  .lk:fullscreen .lk-head, .lk:-webkit-full-screen .lk-head { margin-bottom: 8px; }
+  .lk:fullscreen .lk-live, .lk:-webkit-full-screen .lk-live { margin: 0 0 8px; font-size: .8rem; gap: 8px 12px; }
+  .lk:fullscreen .lk-keys-scroll, .lk:-webkit-full-screen .lk-keys-scroll { flex: 1; min-height: 0; overflow: auto; }
+  .lk:fullscreen .lk-keys, .lk:-webkit-full-screen .lk-keys { min-width: 100%; height: 100%; min-height: 220px; }
+  .lk.is-immersive .lk-scale-row, .lk.is-immersive .lk-select-wrap { order: 2; }
+
   @media (max-width: 520px) {
     .lk { padding: 12px; }
     .lk-head { align-items: flex-start; flex-direction: column; }
+    .lk-scale-row { width: 100%; justify-content: space-between; }
+    .lk-scale-badge { flex: 1; }
+  }
+  @media (orientation: landscape) and (pointer: coarse) {
+    .lk.is-focused .lk-keys { height: clamp(180px, 52vh, 360px); }
   }
   @media (prefers-reduced-motion: reduce) { .lk-key, .lk-btn { transition: none; } }
 </style>

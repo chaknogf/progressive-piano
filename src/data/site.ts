@@ -1,5 +1,5 @@
 export const SITE_NAME = 'Progressive Music';
-export const SITE_SUBTITLE = 'Manual de Progresiones Armónicas y Ritmo para el Músico Principiante y Amateur';
+export const SITE_SUBTITLE = 'Entiende por qué la música suena bien: una guía visual para principiantes y curiosos.';
 export const SITE_TITLE = `${SITE_NAME}`;
 export const SITE_DESCRIPTION =
   'Aprende progresiones, acordes y trastes; explora síntesis y sonido, además de ritmo y percusión para piano y guitarra.';
