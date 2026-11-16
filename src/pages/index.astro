@@ -19,6 +19,7 @@ import Logo from "../components/Logo.astro";
 import Afinador from "../components/Afinador.astro";
 import QuickListen from "../components/QuickListen.astro";
 import MelodyKeyboard from "../components/MelodyKeyboard.astro";
+import LabPracticeKeyboard from "../components/LabPracticeKeyboard.astro";
 import SoundPropertiesExplorer from "../components/SoundPropertiesExplorer.astro";
 import IntervalExplorer from "../components/IntervalExplorer.astro";
 import InteractiveIntervalTable from "../components/InteractiveIntervalTable.astro";
@@ -88,11 +89,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
    <li><b>Recuerda:</b> explica con tus palabras qué cambió y por qué.</li>
   </ol>
  </aside>
- <div class="keyboard-showcase keyboard-showcase--cta">
-  <div class="showcase-label"><span>PRUEBA EL SONIDO</span><span>Teclado interactivo y práctica QWERTY</span></div>
-  <p style="margin:0 0 14px;color:var(--mut)">Toca con el ratón o con tu teclado (QWERTY), usa sustain y visualiza notas y acordes en el laboratorio.</p>
-  <a class="hero-cta" href="#laboratorio-musical-descargas" style="margin-top:0">Ir al Laboratorio musical y descargas <span aria-hidden="true">→</span></a>
- </div>
+ <div class="keyboard-showcase"><div class="showcase-label"><span>PRUEBA EL SONIDO</span><span>Una nota basta para empezar</span></div><MelodyKeyboard /></div>
 
  <section id="progress-panel" class="box" aria-labelledby="progress-panel-title">
   <h3 id="progress-panel-title">Mi progreso</h3>
@@ -413,10 +410,36 @@ const extraNotes = extraSymbols.map((sym, i) => {
  </section>
 
  <section class="module reveal" id="laboratorio-musical-descargas">
-  <h2>Laboratorio musical y descargas <span class="lesson-level">Herramientas</span></h2>
+  <h2 class="lab-title">
+    <svg class="lab-icon" viewBox="0 0 48 48" role="img" aria-hidden="true" width="40" height="40">
+      <defs>
+        <linearGradient id="labg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#f97316"/>
+          <stop offset=".5" stop-color="#ec4899"/>
+          <stop offset="1" stop-color="#8b5cf6"/>
+        </linearGradient>
+      </defs>
+      <rect width="48" height="48" rx="12" fill="url(#labg)"/>
+      <g fill="#fff" opacity=".35">
+        <rect x="7" y="14" width="7" height="22" rx="2"/>
+        <rect x="16" y="14" width="7" height="22" rx="2"/>
+        <rect x="25" y="14" width="7" height="22" rx="2"/>
+        <rect x="34" y="14" width="7" height="22" rx="2"/>
+      </g>
+      <g fill="#17130f" opacity=".85">
+        <rect x="11" y="14" width="4" height="13" rx="1"/>
+        <rect x="20" y="14" width="4" height="13" rx="1"/>
+        <rect x="33" y="14" width="4" height="13" rx="1"/>
+      </g>
+      <path d="M8 36h32" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".9"/>
+      <circle cx="38" cy="10" r="4.5" fill="#fff"/>
+      <path d="M38 7.5v5M35.5 10h5" stroke="#ec4899" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <span>Laboratorio musical y descargas <span class="lesson-level">Herramientas</span></span>
+  </h2>
   <p class="lesson-goal"><b>Objetivo:</b> practicar con herramientas interactivas y acceder a recursos descargables para crear y estudiar música.</p>
-  <p><b>Teclado de práctica (Fase 1.1):</b> toca con el mouse o con tu teclado de computadora. Mapeo de dos octavas simultáneas (<b>Z–M</b> octava baja, <b>Q–P</b> octava alta), cambio de octavas con <b>+ / -</b> y pedal de sustain con <b>Espacio</b>. Incluye indicador de notas activas y acorde detectado.</p>
-  <MelodyKeyboard />
+  <p><b>Teclado de práctica (Fase 1.1):</b> herramienta nueva para practicar con el mouse o con tu teclado de computadora. Mapeo de dos octavas simultáneas (<b>Z–M</b> octava baja, <b>Q–P</b> octava alta), cambio de octavas con <b>+ / -</b> y pedal de sustain con <b>Espacio</b>. Incluye indicador de notas activas y acorde detectado.</p>
+  <LabPracticeKeyboard />
   <div class="box">
    <b>Próximamente en el Laboratorio</b>
    <ul>
@@ -444,6 +467,8 @@ const extraNotes = extraSymbols.map((sym, i) => {
  </div>
 
  <style>
+  .lab-title { display: flex; align-items: center; gap: 12px; }
+  .lab-icon { flex-shrink: 0; border-radius: 12px; }
   .module-index { margin: 24px 0; padding: 16px; border: 1px solid var(--bd); border-radius: 18px; background: var(--card); }
   .module-index a.is-active { color: var(--acc); font-weight: 800; }
   .module-index ol { columns: 2; column-gap: 24px; }

@@ -43,11 +43,6 @@ function keyLabel(midi: number): string {
 function fullLabel(midi: number): string {
   return `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`;
 }
-// Mapeo QWERTY (letras mostradas sobre teclas cuando baseOctave coincide)
-const QWERTY_LOW: Record<string, number> = { KeyZ:0, KeyS:1, KeyX:2, KeyD:3, KeyC:4, KeyV:5, KeyG:6, KeyB:7, KeyH:8, KeyN:9, KeyJ:10, KeyM:11 };
-const QWERTY_HIGH: Record<string, number> = { KeyQ:0, Digit2:1, KeyW:2, Digit3:3, KeyE:4, KeyR:5, Digit5:6, KeyT:7, Digit6:8, KeyY:9, Digit7:10, KeyU:11, KeyI:12, Digit9:13, KeyO:14, Digit0:15, KeyP:16 };
-const QWERTY_LABELS: Record<number, string> = {};
-// etiquetas calculadas en runtime, pero preparamos helper
 ---
 
 <section class="mk" aria-labelledby="mk-title">
@@ -70,24 +65,46 @@ const QWERTY_LABELS: Record<number, string> = {};
         </select>
       </label>
       <div class="mk-view" role="group" aria-label="Qué ver y escuchar">
-        <button type="button" class="mk-view-btn" data-view="melody" aria-pressed="false">Melodía</button>
-        <button type="button" class="mk-view-btn" data-view="chords" aria-pressed="false">Acordes</button>
-        <button type="button" class="mk-view-btn" data-view="both" aria-pressed="true">Ambos</button>
+        <button
+          type="button"
+          class="mk-view-btn"
+          data-view="melody"
+          aria-pressed="false">Melodía</button
+        >
+        <button
+          type="button"
+          class="mk-view-btn"
+          data-view="chords"
+          aria-pressed="false">Acordes</button
+        >
+        <button
+          type="button"
+          class="mk-view-btn"
+          data-view="both"
+          aria-pressed="true">Ambos</button
+        >
       </div>
-      <button type="button" class="mk-play" id="mk-play" aria-pressed="false">▶ Reproducir</button>
-      <button type="button" class="mk-iconbtn" id="mk-restart" aria-label="Reiniciar melodía">↺</button>
+      <button type="button" class="mk-play" id="mk-play" aria-pressed="false"
+        >▶ Reproducir</button
+      >
+      <button
+        type="button"
+        class="mk-iconbtn"
+        id="mk-restart"
+        aria-label="Reiniciar melodía">↺</button
+      >
       <label class="mk-tempo">
         Tempo
-        <input type="range" id="mk-bpm" min="60" max="180" step="1" value="106" />
+        <input
+          type="range"
+          id="mk-bpm"
+          min="60"
+          max="180"
+          step="1"
+          value="106"
+        />
         <span id="mk-bpm-value">106</span>
       </label>
-      <div class="mk-practice" role="group" aria-label="Práctica con teclado de computadora">
-        <span class="mk-practice-label">Octava QWERTY: <b id="mk-octave">4–5</b></span>
-        <button type="button" class="mk-iconbtn mk-mini" id="mk-oct-down" aria-label="Bajar octava (tecla -)">−</button>
-        <button type="button" class="mk-iconbtn mk-mini" id="mk-oct-up" aria-label="Subir octava (tecla +)">+</button>
-        <button type="button" class="mk-view-btn mk-mini" id="mk-qwerty-labels" aria-pressed="true">Teclas QWERTY</button>
-        <span class="mk-pedal" id="mk-pedal" aria-live="polite">Sustain: OFF (Espacio)</span>
-      </div>
     </div>
   </header>
 
@@ -99,10 +116,6 @@ const QWERTY_LABELS: Record<number, string> = {};
     <span class="mk-status-item">Nota: <b id="mk-note">—</b></span>
     <span class="mk-status-item">Acorde: <b id="mk-chord">—</b></span>
     <span class="mk-status-item" id="mk-beat">Compás 1</span>
-  </div>
-  <div class="mk-live" aria-live="polite">
-    <span class="mk-status-item">Notas activas: <b id="mk-live-notes">—</b></span>
-    <span class="mk-status-item">Acorde detectado: <b id="mk-live-chord">—</b></span>
   </div>
 
   <div class="mk-keys-scroll">
@@ -122,7 +135,6 @@ const QWERTY_LABELS: Record<number, string> = {};
             aria-label={fullLabel(midi)}
           >
             <span class="mk-key-label">{keyLabel(midi)}</span>
-            <span class="mk-key-qwerty" aria-hidden="true"></span>
           </button>
         ))
       }
@@ -136,14 +148,13 @@ const QWERTY_LABELS: Record<number, string> = {};
             aria-label={fullLabel(key.midi)}
           >
             <span class="mk-key-label">{keyLabel(key.midi)}</span>
-            <span class="mk-key-qwerty" aria-hidden="true"></span>
           </button>
         ))
       }
     </div>
   </div>
 
-  <p class="mk-hint" id="mk-hint"><span class="mk-leg mk-leg-mel">● Melodía</span> <span class="mk-leg mk-leg-ch">■ Acordes</span> · Toca con el mouse o con tu teclado: <b>Z–M</b> (octava baja), <b>Q–P</b> (octava alta), <b>+/-</b> cambia octavas, <b>Espacio</b> = sustain.</p>
+  <p class="mk-hint" id="mk-hint"><span class="mk-leg mk-leg-mel">● Melodía</span> <span class="mk-leg mk-leg-ch">■ Acordes</span></p>
 </section>
 
 <script>
@@ -151,9 +162,6 @@ const QWERTY_LABELS: Record<number, string> = {};
   import {
     playPiano,
     playNote,
-    noteOn,
-    noteOff,
-    setSustainPedal,
     START_DELAY,
     type PianoEvent,
   } from "../lib/piano-engine";
@@ -939,14 +947,7 @@ const QWERTY_LABELS: Record<number, string> = {};
     document.querySelector<HTMLElement>("#mk-hint"),
     "#mk-hint",
   );
-  const viewButtons = $$<HTMLButtonElement>(".mk-view-btn[data-view]", root);
-  const octaveEl = must(document.querySelector<HTMLElement>("#mk-octave"), "#mk-octave");
-  const octDownBtn = must(document.querySelector<HTMLButtonElement>("#mk-oct-down"), "#mk-oct-down");
-  const octUpBtn = must(document.querySelector<HTMLButtonElement>("#mk-oct-up"), "#mk-oct-up");
-  const qwertyLabelsBtn = must(document.querySelector<HTMLButtonElement>("#mk-qwerty-labels"), "#mk-qwerty-labels");
-  const pedalEl = must(document.querySelector<HTMLElement>("#mk-pedal"), "#mk-pedal");
-  const liveNotesEl = must(document.querySelector<HTMLElement>("#mk-live-notes"), "#mk-live-notes");
-  const liveChordEl = must(document.querySelector<HTMLElement>("#mk-live-chord"), "#mk-live-chord");
+  const viewButtons = $$<HTMLButtonElement>(".mk-view-btn", root);
 
   const midiOf = (tonic: number, sd: string, octave: number): number =>
     tonic +
@@ -1288,165 +1289,6 @@ const QWERTY_LABELS: Record<number, string> = {};
     if (document.hidden && playing) stop();
   });
 
-  // --- Práctica QWERTY (2 octavas), sustain y indicador de notas/acordes ---
-  const LOW_MAP: Record<string, number> = { KeyZ:0, KeyS:1, KeyX:2, KeyD:3, KeyC:4, KeyV:5, KeyG:6, KeyB:7, KeyH:8, KeyN:9, KeyJ:10, KeyM:11 };
-  const HIGH_MAP: Record<string, number> = { KeyQ:0, Digit2:1, KeyW:2, Digit3:3, KeyE:4, KeyR:5, Digit5:6, KeyT:7, Digit6:8, KeyY:9, Digit7:10, KeyU:11, KeyI:12, Digit9:13, KeyO:14, Digit0:15, KeyP:16 };
-  const CODE_LABEL: Record<string, string> = { KeyZ:'Z',KeyS:'S',KeyX:'X',KeyD:'D',KeyC:'C',KeyV:'V',KeyG:'G',KeyB:'B',KeyH:'H',KeyN:'N',KeyJ:'J',KeyM:'M', KeyQ:'Q',Digit2:'2',KeyW:'W',Digit3:'3',KeyE:'E',KeyR:'R',Digit5:'5',KeyT:'T',Digit6:'6',KeyY:'Y',Digit7:'7',KeyU:'U',KeyI:'I',Digit9:'9',KeyO:'O',Digit0:'0',KeyP:'P' };
-  let baseOctave = 4; // Do4 base para octava baja (Z-M), alta = baseOctave+1
-  let showQwerty = true;
-  let sustainDown = false;
-  const pressedCodes = new Set<string>(); // evita autorepetición
-  const userActiveMidis = new Set<number>(); // notas activas por usuario
-
-  function midiForCode(code: string): number | null {
-    if (code in LOW_MAP) return (baseOctave + 1) * 12 + LOW_MAP[code];
-    if (code in HIGH_MAP) return (baseOctave + 2) * 12 + HIGH_MAP[code];
-    return null;
-  }
-  function isTypingTarget(el: EventTarget | null): boolean {
-    const t = el as HTMLElement | null;
-    if (!t) return false;
-    const tag = t.tagName;
-    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || t.isContentEditable;
-  }
-  function updateOctaveUi(): void {
-    octaveEl.textContent = `${baseOctave}–${baseOctave + 1}`;
-    refreshQwertyLabels();
-  }
-  function refreshQwertyLabels(): void {
-    const byMidi = new Map<number, string[]>();
-    if (showQwerty) {
-      for (const [code, semi] of Object.entries(LOW_MAP)) {
-        const m = (baseOctave + 1) * 12 + semi;
-        const arr = byMidi.get(m) ?? []; arr.push(CODE_LABEL[code]); byMidi.set(m, arr);
-      }
-      for (const [code, semi] of Object.entries(HIGH_MAP)) {
-        const m = (baseOctave + 2) * 12 + semi;
-        const arr = byMidi.get(m) ?? []; arr.push(CODE_LABEL[code]); byMidi.set(m, arr);
-      }
-    }
-    $$('.mk-key', keysEl).forEach((key) => {
-      const midi = Number(key.dataset.midi);
-      const lbl = key.querySelector<HTMLElement>('.mk-key-qwerty');
-      const labels = byMidi.get(midi);
-      if (lbl) lbl.textContent = labels ? labels.join('/') : '';
-      key.classList.toggle('has-qwerty', Boolean(labels && labels.length));
-    });
-  }
-  function setUserKeyVisual(midi: number, on: boolean): void {
-    $$('.mk-key', keysEl).forEach((key) => {
-      if (Number(key.dataset.midi) === midi) key.classList.toggle('is-user', on);
-    });
-  }
-  function notePcName(midi: number): string { return fullLabel(midi); }
-  function detectChordName(midis: number[]): string {
-    if (midis.length < 2) return '—';
-    const pcs = [...new Set(midis.map(m => ((m % 12) + 12) % 12))].sort((a,b)=>a-b);
-    const names = ["Do","Do♯","Re","Re♯","Mi","Fa","Fa♯","Sol","Sol♯","La","La♯","Si"];
-    const patterns: Array<[string, number[]]> = [
-      ['maj7',[0,4,7,11]],['7',[0,4,7,10]],['m7',[0,3,7,10]],['mMaj7',[0,3,7,11]],['m7b5',[0,3,6,10]],['dim7',[0,3,6,9]],
-      ['m',[0,3,7]],['',[0,4,7]],['dim',[0,3,6]],['aug',[0,4,8]],['sus4',[0,5,7]],['sus2',[0,2,7]],['5',[0,7]]
-    ];
-    const bassPc = ((Math.min(...midis) % 12) + 12) % 12;
-    const roots = [bassPc, ...pcs.filter(p=>p!==bassPc)];
-    for (const root of roots) {
-      const rel = pcs.map(p => (p - root + 12) % 12).sort((a,b)=>a-b).join(',');
-      for (const [qual, ints] of patterns) {
-        if (ints.slice().sort((a,b)=>a-b).join(',') === rel) {
-          const slash = root !== bassPc ? `/${names[bassPc]}` : '';
-          return `${names[root]}${qual}${slash}`;
-        }
-      }
-    }
-    return '—';
-  }
-  function updateLiveIndicator(): void {
-    const midis = [...userActiveMidis].sort((a,b)=>a-b);
-    liveNotesEl.textContent = midis.length ? midis.map(notePcName).join(', ') : '—';
-    liveChordEl.textContent = detectChordName(midis);
-  }
-  function userNoteOn(midi: number): void {
-    if (midi < 36 || midi > 88) return;
-    if (userActiveMidis.has(midi)) { noteOff(midi); }
-    userActiveMidis.add(midi);
-    noteOn(midi, 0.85);
-    setUserKeyVisual(midi, true);
-    setNote(midi);
-    window.dispatchEvent(new CustomEvent('note-played', { detail: { midi, source: 'qwerty' } }));
-    updateLiveIndicator();
-  }
-  function userNoteOff(midi: number): void {
-    if (!userActiveMidis.has(midi)) return;
-    userActiveMidis.delete(midi);
-    noteOff(midi);
-    // si el pedal está abajo mantenemos visual mientras suene? simplificamos: quitamos visual al soltar tecla física salvo que queramos sostener; mejor quitar is-user al soltar tecla y dejar sonido al pedal
-    setUserKeyVisual(midi, false);
-    if (userActiveMidis.size === 0) setNote(null);
-    else setNote([...userActiveMidis].sort((a,b)=>a-b).at(-1) ?? null);
-    updateLiveIndicator();
-  }
-  function changeOctave(delta: number): void {
-    baseOctave = Math.max(1, Math.min(6, baseOctave + delta));
-    updateOctaveUi();
-  }
-
-  octDownBtn.addEventListener('click', () => changeOctave(-1));
-  octUpBtn.addEventListener('click', () => changeOctave(1));
-  qwertyLabelsBtn.addEventListener('click', () => {
-    showQwerty = !showQwerty;
-    qwertyLabelsBtn.setAttribute('aria-pressed', String(showQwerty));
-    refreshQwertyLabels();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (isTypingTarget(e.target)) return;
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.code === 'Space') {
-      e.preventDefault();
-      if (e.repeat) return;
-      sustainDown = true; setSustainPedal(true);
-      pedalEl.textContent = 'Sustain: ON (Espacio)';
-      pedalEl.classList.add('on');
-      return;
-    }
-    if (e.code === 'Equal' || e.code === 'NumpadAdd') { e.preventDefault(); if (!e.repeat) changeOctave(1); return; }
-    if (e.code === 'Minus' || e.code === 'NumpadSubtract') { e.preventDefault(); if (!e.repeat) changeOctave(-1); return; }
-    const midi = midiForCode(e.code);
-    if (midi == null) return;
-    e.preventDefault();
-    if (pressedCodes.has(e.code) || e.repeat) return;
-    pressedCodes.add(e.code);
-    userNoteOn(midi);
-  });
-  document.addEventListener('keyup', (e) => {
-    if (e.code === 'Space') {
-      sustainDown = false; setSustainPedal(false);
-      pedalEl.textContent = 'Sustain: OFF (Espacio)';
-      pedalEl.classList.remove('on');
-      // al soltar pedal, notas ya no pulsadas deben perder visual
-      $$('.mk-key.is-user', keysEl).forEach((key) => {
-        const m = Number(key.dataset.midi);
-        if (!userActiveMidis.has(m)) key.classList.remove('is-user');
-      });
-      return;
-    }
-    const midi = midiForCode(e.code);
-    if (midi == null) return;
-    if (!pressedCodes.has(e.code)) return;
-    pressedCodes.delete(e.code);
-    userNoteOff(midi);
-  });
-  window.addEventListener('blur', () => {
-    // soltar todo al perder foco
-    [...userActiveMidis].forEach(m => { userActiveMidis.delete(m); noteOff(m); setUserKeyVisual(m,false); });
-    pressedCodes.clear();
-    setSustainPedal(false); sustainDown = false;
-    pedalEl.textContent = 'Sustain: OFF (Espacio)'; pedalEl.classList.remove('on');
-    updateLiveIndicator(); setNote(null);
-  });
-
-  updateOctaveUi();
-  refreshQwertyLabels();
-
   syncTempoUi();
   buildTrack();
 </script>
@@ -1736,19 +1578,6 @@ const QWERTY_LABELS: Record<number, string> = {};
     font-size: 0.8rem;
     text-align: center;
   }
-  .mk-live { display:flex; flex-wrap:wrap; gap:6px 16px; margin: 4px 0 10px; color: var(--mut); font-size: .85rem; }
-  .mk-practice { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:6px 8px; border:1px dashed var(--bd); border-radius:12px; }
-  .mk-practice-label { font-size:.78rem; color:var(--mut); }
-  .mk-mini { min-height:34px; height:34px; padding:4px 10px; font-size:.78rem; }
-  .mk-pedal { font-size:.78rem; color:var(--mut); padding:4px 8px; border-radius:8px; background:var(--bg); }
-  .mk-pedal.on { color:#fff; background:#16a34a; font-weight:700; }
-  .mk-key { position: relative; }
-  .mk-key-qwerty { position:absolute; left:50%; transform:translateX(-50%); bottom:22px; font:700 .55rem/1 system-ui,sans-serif; color:var(--acc); pointer-events:none; display:none; }
-  .mk-key.has-qwerty .mk-key-qwerty { display:block; }
-  .mk-key--black .mk-key-qwerty { bottom:4px; color:#fff; font-size:.5rem; }
-  .mk-key.is-user.mk-key--white { background: linear-gradient(180deg, #f59e0b, #fbbf24) !important; box-shadow: inset 0 -5px 0 #b45309; transform: translateY(2px); }
-  .mk-key.is-user.mk-key--white .mk-key-label, .mk-key.is-user.mk-key--white .mk-key-qwerty { color:#111; }
-  .mk-key.is-user.mk-key--black { background: linear-gradient(180deg, #f59e0b, #b45309) !important; box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.6); }
   @media (max-width: 520px) {
     .mk {
       padding: 16px;
