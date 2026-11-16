@@ -19,7 +19,7 @@ function keyLabel(midi: number): string { return NOTE_NAMES[midi % 12]; }
 function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Math.floor(midi / 12) - 1}`; }
 ---
 
-<section class="lk" id="lk-root" aria-labelledby="lk-title">
+<section class="lk" id="lk-root" aria-labelledby="lk-title" tabindex="-1">
   <header class="lk-head">
     <div>
       <span class="lk-kicker">Herramienta de práctica</span>
@@ -211,7 +211,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     focusBtn.setAttribute("aria-pressed", String(on));
     focusBtn.textContent = on ? "Salir del modo concentración" : "Activar modo concentración";
     if (on) {
-      (root as HTMLElement).focus?.();
+      root.focus({ preventScroll: true });
     } else {
       releaseAll();
     }
@@ -234,6 +234,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     triggerPointer(e);
   });
   keysEl.addEventListener("click", (e) => { if (Date.now() - lastPointerDown < 500) return; triggerPointer(e); });
+  root.addEventListener("pointerdown", () => { if (!practiceMode) setPracticeMode(true); });
 
   // Controls
   focusBtn.addEventListener("click", () => setPracticeMode(!practiceMode));
@@ -246,36 +247,49 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     refreshQwertyLabels();
   });
 
-  document.addEventListener("keydown", (e) => {
+  function handleKeyDown(e: KeyboardEvent): void {
     if (e.code === "Escape" && practiceMode) {
       e.preventDefault();
+      e.stopImmediatePropagation();
       setPracticeMode(false);
       return;
     }
     if (!practiceMode) return;
     if (isTypingTarget(e.target)) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    const isControl = e.code === "Space" || e.code === "Equal" || e.code === "NumpadAdd" || e.code === "Minus" || e.code === "NumpadSubtract";
+    const midi = midiForCode(e.code);
+    if (!isControl && midi == null) return; // teclas no mapeadas: dejar pasar
+
+    // Captura en modo concentración para reducir interferencia de atajos/extensiones
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation?.();
+
     if (e.code === "Space") {
-      e.preventDefault();
       if (e.repeat) return;
       setSustainPedal(true);
       pedalEl.textContent = "Sustain: ON (Espacio)";
       pedalEl.classList.add("on");
       return;
     }
-    if (e.code === "Equal" || e.code === "NumpadAdd") { e.preventDefault(); if (!e.repeat) changeOctave(1); return; }
-    if (e.code === "Minus" || e.code === "NumpadSubtract") { e.preventDefault(); if (!e.repeat) changeOctave(-1); return; }
-    const midi = midiForCode(e.code);
-    if (midi == null) return; // teclas no mapeadas no se bloquean
-    e.preventDefault();
+    if (e.code === "Equal" || e.code === "NumpadAdd") { if (!e.repeat) changeOctave(1); return; }
+    if (e.code === "Minus" || e.code === "NumpadSubtract") { if (!e.repeat) changeOctave(-1); return; }
+    if (midi == null) return;
     if (pressedCodes.has(e.code) || e.repeat) return;
     pressedCodes.add(e.code);
     userNoteOn(midi);
-  });
+  }
 
-  document.addEventListener("keyup", (e) => {
+  function handleKeyUp(e: KeyboardEvent): void {
     if (!practiceMode) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
     if (e.code === "Space") {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation?.();
       setSustainPedal(false);
       pedalEl.textContent = "Sustain: OFF (Espacio)";
       pedalEl.classList.remove("on");
@@ -287,10 +301,19 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     }
     const midi = midiForCode(e.code);
     if (midi == null) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation?.();
     if (!pressedCodes.has(e.code)) return;
     pressedCodes.delete(e.code);
     userNoteOff(midi);
-  });
+  }
+
+  // Captura en fase de captura para priorizar el modo concentración sobre atajos/extensiones cuando sea posible
+  window.addEventListener("keydown", handleKeyDown, true);
+  window.addEventListener("keyup", handleKeyUp, true);
+  root.addEventListener("keydown", handleKeyDown);
+  root.addEventListener("keyup", handleKeyUp);
 
   window.addEventListener("blur", () => {
     releaseAll();
@@ -320,6 +343,8 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
   .lk-toggle[aria-pressed="true"] { background: var(--card); box-shadow: 0 1px 2px rgb(0 0 0 / .12); }
   .lk-focus[aria-pressed="true"] { background: var(--acc); color: #fff; border-color: var(--acc); }
   .lk.is-focused { outline: 2px solid color-mix(in srgb, var(--acc) 55%, transparent); outline-offset: 2px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 18%, transparent); }
+  .lk:focus { outline: none; }
+  .lk:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
   .lk-live { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 4px 0 10px; color: var(--mut); font-size: .85rem; }
   .lk-live b { color: var(--fg); font-variant-numeric: tabular-nums; }
 
