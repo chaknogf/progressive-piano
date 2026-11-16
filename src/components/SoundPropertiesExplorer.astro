@@ -1,0 +1,165 @@
+---
+// Explorador de propiedades del sonido: Altura, Duración, Intensidad, Timbre.
+// Cada modo reproduce sonido y muestra una visualización simple.
+---
+<section class="box" aria-labelledby="spe-title">
+  <h3 id="spe-title">Explorador de propiedades del sonido</h3>
+  <p class="mut">Elige una propiedad y pulsa los botones: oirás la diferencia y verás cómo cambia.</p>
+  <div class="seg" id="spe-tabs" style="margin:8px 0;">
+    <button type="button" data-mode="altura" class="on">Altura</button>
+    <button type="button" data-mode="duracion">Duración</button>
+    <button type="button" data-mode="intensidad">Intensidad</button>
+    <button type="button" data-mode="timbre">Timbre</button>
+  </div>
+
+  <!-- Altura -->
+  <div id="spe-altura" class="spe-panel">
+    <p>Pulsa una tecla: la aguda vibra más rápido (más Hz) y suena más arriba.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0;">
+      <button type="button" id="spe-low" style="padding:10px 16px;">Grave (Do3)</button>
+      <button type="button" id="spe-high" style="padding:10px 16px;">Agudo (Do5)</button>
+    </div>
+    <canvas id="spe-wave" width="320" height="80" style="width:100%;max-width:360px;height:80px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);"></canvas>
+    <p class="mut" id="spe-altura-info">—</p>
+  </div>
+
+  <!-- Duración -->
+  <div id="spe-duracion" class="spe-panel" hidden>
+    <p>Pulsa una figura: la blanca dura el doble que la negra.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0;">
+      <button type="button" id="spe-semi" style="padding:10px 16px;">Semicorchea (¼)</button>
+      <button type="button" id="spe-negra" style="padding:10px 16px;">Negra (1)</button>
+      <button type="button" id="spe-blanca" style="padding:10px 16px;">Blanca (2)</button>
+    </div>
+    <p class="mut" id="spe-dur-info">—</p>
+  </div>
+
+  <!-- Intensidad -->
+  <div id="spe-intensidad" class="spe-panel" hidden>
+    <p>Pulsa f o p: la misma nota a distinto volumen.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0;">
+      <button type="button" id="spe-forte" style="padding:10px 16px;">f (fuerte)</button>
+      <button type="button" id="spe-piano" style="padding:10px 16px;">p (suave)</button>
+    </div>
+    <p class="mut" id="spe-int-info">—</p>
+  </div>
+
+  <!-- Timbre -->
+  <div id="spe-timbre" class="spe-panel" hidden>
+    <p>El mismo gesto con distinto color: cada onda suena diferente.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0;">
+      <button type="button" id="spe-sine" style="padding:10px 16px;">Seno (puro)</button>
+      <button type="button" id="spe-saw" style="padding:10px 16px;">Sierra (brillante)</button>
+      <button type="button" id="spe-square" style="padding:10px 16px;">Cuadrada (hueca)</button>
+      <button type="button" id="spe-tri" style="padding:10px 16px;">Triangular (cálida)</button>
+    </div>
+    <p class="mut" id="spe-tim-info">—</p>
+  </div>
+</section>
+
+<script>
+  import { playNote as pianoNote } from "../lib/piano-engine";
+  let ctx: AudioContext | null = null;
+  function ac() { if (!ctx) ctx = new (window.AudioContext || (window as any).webkitAudioContext)(); return ctx; }
+
+  // Tabs
+  const tabs = document.querySelectorAll<HTMLButtonElement>("#spe-tabs button");
+  const panels = document.querySelectorAll<HTMLElement>(".spe-panel");
+  tabs.forEach((t) => t.addEventListener("click", () => {
+    tabs.forEach((x) => x.classList.remove("on"));
+    t.classList.add("on");
+    panels.forEach((p) => { p.hidden = true; });
+    const el = document.getElementById("spe-" + t.dataset.mode);
+    if (el) el.hidden = false;
+  }));
+
+  // Waveform helper
+  let waveAnim: number | null = null;
+  function drawWave(midi: number, color: string) {
+    const c = document.getElementById("spe-wave") as HTMLCanvasElement;
+    const ctx2 = c.getContext("2d")!;
+    const w = c.width, h = c.height;
+    const f = 440 * Math.pow(2, (midi - 69) / 12);
+    const period = 4 / f; // seconds for ~4 cycles visible
+    let phase = 0;
+    if (waveAnim) cancelAnimationFrame(waveAnim);
+    function frame() {
+      ctx2.clearRect(0, 0, w, h);
+      ctx2.strokeStyle = color;
+      ctx2.lineWidth = 2;
+      ctx2.beginPath();
+      for (let x = 0; x < w; x++) {
+        const t = (x / w) * period + phase;
+        const y = h / 2 - Math.sin(2 * Math.PI * f * t) * (h / 3);
+        if (x === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+      }
+      ctx2.stroke();
+      ctx2.strokeStyle = "rgba(128,128,128,0.3)";
+      ctx2.lineWidth = 1;
+      ctx2.beginPath(); ctx2.moveTo(0, h/2); ctx2.lineTo(w, h/2); ctx2.stroke();
+      phase += 0.02;
+      waveAnim = requestAnimationFrame(frame);
+    }
+    frame();
+    // stop after 1.5s
+    setTimeout(() => { if (waveAnim) { cancelAnimationFrame(waveAnim); waveAnim = null; } }, 1500);
+  }
+
+  // Altura
+  document.getElementById("spe-low")?.addEventListener("click", () => {
+    pianoNote(48, 0.8);
+    drawWave(48, "#2563eb");
+    (document.getElementById("spe-altura-info") as HTMLElement).textContent = "Do3 ≈ 130.8 Hz · grave";
+  });
+  document.getElementById("spe-high")?.addEventListener("click", () => {
+    pianoNote(72, 0.8);
+    drawWave(72, "#dc2626");
+    (document.getElementById("spe-altura-info") as HTMLElement).textContent = "Do5 ≈ 523.3 Hz · agudo";
+  });
+
+  function playTimbre(midi: number, dur: number, type: OscillatorType, gainVal = 0.25) {
+    const c = ac();
+    const f = 440 * Math.pow(2, (midi - 69) / 12);
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(gainVal, c.currentTime + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + dur);
+    osc.connect(g).connect(c.destination);
+    osc.start();
+    osc.stop(c.currentTime + dur + 0.05);
+  }
+
+  // Duración
+  document.getElementById("spe-semi")?.addEventListener("click", () => {
+    pianoNote(60, 0.12);
+    (document.getElementById("spe-dur-info") as HTMLElement).textContent = "Semicorchea: ¼ de pulso";
+  });
+  document.getElementById("spe-negra")?.addEventListener("click", () => {
+    pianoNote(60, 0.45);
+    (document.getElementById("spe-dur-info") as HTMLElement).textContent = "Negra: 1 pulso";
+  });
+  document.getElementById("spe-blanca")?.addEventListener("click", () => {
+    pianoNote(60, 0.9);
+    (document.getElementById("spe-dur-info") as HTMLElement).textContent = "Blanca: 2 pulsos";
+  });
+
+  // Intensidad
+  document.getElementById("spe-forte")?.addEventListener("click", () => {
+    pianoNote(60, 0.6, 0.9);
+    (document.getElementById("spe-int-info") as HTMLElement).textContent = "f — fuerte (mayor amplitud)";
+  });
+  document.getElementById("spe-piano")?.addEventListener("click", () => {
+    pianoNote(60, 0.6, 0.15);
+    (document.getElementById("spe-int-info") as HTMLElement).textContent = "p — suave (menor amplitud)";
+  });
+
+  // Timbre
+  document.getElementById("spe-sine")?.addEventListener("click", () => { playTimbre(60, 0.7, "sine"); (document.getElementById("spe-tim-info") as HTMLElement).textContent = "Seno: onda pura, sin armónicos (sonido redondo)."; });
+  document.getElementById("spe-saw")?.addEventListener("click", () => { playTimbre(60, 0.7, "sawtooth"); (document.getElementById("spe-tim-info") as HTMLElement).textContent = "Sierra: todos los armónicos (brillante, afilado)."; });
+  document.getElementById("spe-square")?.addEventListener("click", () => { playTimbre(60, 0.7, "square"); (document.getElementById("spe-tim-info") as HTMLElement).textContent = "Cuadrada: solo impares (hueca, nasal)."; });
+  document.getElementById("spe-tri")?.addEventListener("click", () => { playTimbre(60, 0.7, "triangle"); (document.getElementById("spe-tim-info") as HTMLElement).textContent = "Triangular: pocos armónicos (cálida)."; });
+</script>
+---

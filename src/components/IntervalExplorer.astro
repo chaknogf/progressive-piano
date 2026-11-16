@@ -1,0 +1,56 @@
+---
+// Explorador de intervalos: elige dos notas y escucha la distancia entre ellas.
+---
+<section class="box" aria-labelledby="iv-title">
+  <h3 id="iv-title">Explorador de intervalos</h3>
+  <p class="mut">Elige dos notas y pulsa Reproducir: oirás la distancia entre ellas y verás cuántos semitonos hay.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0;">
+    <label>Nota A <select id="iv-a"></select></label>
+    <label>Nota B <select id="iv-b"></select></label>
+    <button id="iv-play" type="button">▶ Reproducir</button>
+  </div>
+  <p id="iv-result" style="font-weight:700;margin:8px 0;">—</p>
+  <p class="mut" id="iv-hint"></p>
+</section>
+
+<script>
+  import { playNote as pianoNote } from "../lib/piano-engine";
+  let ctx: AudioContext | null = null;
+  const NAMES = ["Do","Do♯","Re","Re♯","Mi","Fa","Fa♯","Sol","Sol♯","La","La♯","Si"];
+  const INTERVALS = [
+    "Unísono","Segunda menor","Segunda mayor","Tercera menor","Tercera mayor",
+    "Cuarta justa","Tritono","Quinta justa","Sexta menor","Sexta mayor",
+    "Séptima menor","Séptima mayor","Octava justa",
+  ];
+  const selA = document.getElementById("iv-a") as HTMLSelectElement;
+  const selB = document.getElementById("iv-b") as HTMLSelectElement;
+  const res = document.getElementById("iv-result") as HTMLElement;
+  const hint = document.getElementById("iv-hint") as HTMLElement;
+  for (let i = 0; i < 12; i++) {
+    const oA = new Option(`${NAMES[i]} (octava 4)`, String(i + 60));
+    const oB = new Option(`${NAMES[i]} (octava 4)`, String(i + 60));
+    selA.add(oA);
+    selB.add(oB);
+  }
+  selA.value = "60"; // Do4
+  selB.value = "67"; // Sol4
+  function updateResult() {
+    const a = parseInt(selA.value, 10);
+    const b = parseInt(selB.value, 10);
+    const diff = Math.abs(b - a);
+    const semis = diff % 12;
+    const octs = Math.floor(diff / 12);
+    res.textContent = `${INTERVALS[semis]} · ${diff} semitono${diff === 1 ? "" : "s"} (${octs} octava${octs === 1 ? "" : "s"} aparte si aplica)`.replace(" (0 octavas aparte si aplica)", "");
+    hint.textContent = `Desde ${NAMES[a % 12]} hasta ${NAMES[b % 12]}.`;
+  }
+  selA.addEventListener("change", updateResult);
+  selB.addEventListener("change", updateResult);
+  updateResult();
+  document.getElementById("iv-play")?.addEventListener("click", () => {
+    const a = parseInt(selA.value, 10);
+    const b = parseInt(selB.value, 10);
+    pianoNote(a, 0.9);
+    setTimeout(() => pianoNote(b, 0.9), 500);
+  });
+</script>
+---

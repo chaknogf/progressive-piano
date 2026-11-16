@@ -1,0 +1,103 @@
+---
+// Tabla interactiva de escalas: al pulsar una fila se reproduce la escala en Do
+// y se iluminan sus notas sobre el teclado.
+---
+<section class="box" aria-labelledby="sct-title">
+  <h3 id="sct-title">Tabla interactiva de escalas</h3>
+  <p class="mut">Pulsa una fila: oirás la escala en Do y verás sus notas iluminadas en el teclado.</p>
+
+  <div style="margin:10px 0;">
+    <div id="sct-kb" style="position:relative;height:70px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;overflow:hidden;"></div>
+  </div>
+  <p id="sct-info" style="font-weight:700;margin:6px 0;">Pulsa una fila para empezar.</p>
+
+  <div class="scroll" style="margin-top:8px;">
+    <table id="sct-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Escala</th>
+          <th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Fórmula</th>
+          <th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Notas en Do</th>
+        </tr>
+      </thead>
+      <tbody id="sct-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+  import { playNote as pianoNote } from "../lib/piano-engine";
+  const NAMES = ["Do","Do♯","Re","Re♯","Mi","Fa","Fa♯","Sol","Sol♯","La","La♯","Si"];
+  const SCALES: { name: string; formula: string; semis: number[] }[] = [
+    { name: "Mayor", formula: "T T S T T T S", semis: [0,2,4,5,7,9,11] },
+    { name: "Menor natural", formula: "T S T T S T T", semis: [0,2,3,5,7,8,10] },
+    { name: "Menor armónica", formula: "T S T T S T½ S", semis: [0,2,3,5,7,8,11] },
+    { name: "Menor melódica", formula: "T S T T T T S", semis: [0,2,3,5,7,9,11] },
+    { name: "Pentatónica mayor", formula: "1 2 3 5 6", semis: [0,2,4,7,9] },
+    { name: "Pentatónica menor", formula: "1 ♭3 4 5 ♭7", semis: [0,3,5,7,10] },
+    { name: "Blues", formula: "1 ♭3 4 ♭5 5 ♭7", semis: [0,3,5,6,7,10] },
+    { name: "Dórico", formula: "1 2 ♭3 4 5 6 ♭7", semis: [0,2,3,5,7,9,10] },
+    { name: "Frigio", formula: "1 ♭2 ♭3 4 5 ♭6 ♭7", semis: [0,1,3,5,7,8,10] },
+    { name: "Lidio", formula: "1 2 3 ♯4 5 6 7", semis: [0,2,4,6,7,9,11] },
+    { name: "Mixolidio", formula: "1 2 3 4 5 6 ♭7", semis: [0,2,4,5,7,9,10] },
+    { name: "Cromática", formula: "12 semitonos", semis: [0,1,2,3,4,5,6,7,8,9,10,11] },
+  ];
+  const whiteIdx = [0,2,4,5,7,9,11];
+  const blackIdx = [1,3,6,8,10];
+  const kb = document.getElementById("sct-kb") as HTMLElement;
+  const info = document.getElementById("sct-info") as HTMLElement;
+  const tbody = document.getElementById("sct-body") as HTMLElement;
+  const keyEls: { el: HTMLElement; pc: number }[] = [];
+  // Build keyboard (one octave)
+  whiteIdx.forEach((pc, i) => {
+    const el = document.createElement("div");
+    el.style.cssText = `position:absolute;bottom:0;left:${(i/7)*100}%;width:${100/7}%;height:100%;background:#fff;border:1px solid #999;border-radius:0 0 4px 4px;box-sizing:border-box;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:0.7rem;color:#333;`;
+    el.textContent = NAMES[pc];
+    kb.appendChild(el);
+    keyEls.push({ el, pc });
+  });
+  blackIdx.forEach((pc) => {
+    const whitesBefore = whiteIdx.filter((w) => w < pc).length;
+    const el = document.createElement("div");
+    el.style.cssText = `position:absolute;bottom:35%;left:${(whitesBefore/7)*100 - 1.8}%;width:3.6%;height:65%;background:#222;border-radius:0 0 3px 3px;z-index:2;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:0.6rem;color:#fff;`;
+    el.textContent = NAMES[pc];
+    kb.appendChild(el);
+    keyEls.push({ el, pc });
+  });
+
+  function playScale(semis: number[]) {
+    semis.forEach((s, i) => {
+      setTimeout(() => pianoNote(60 + s, 0.3), i * 350);
+    });
+  }
+  function highlight(semis: number[]) {
+    const set = new Set(semis);
+    keyEls.forEach(({ el, pc }) => {
+      if (set.has(pc)) {
+        el.style.background = "#4ade80";
+        el.style.color = "#000";
+        el.style.fontWeight = "700";
+      } else {
+        el.style.background = blackIdx.includes(pc) ? "#222" : "#fff";
+        el.style.color = blackIdx.includes(pc) ? "#fff" : "#333";
+        el.style.fontWeight = "400";
+      }
+    });
+  }
+
+  SCALES.forEach((sc) => {
+    const tr = document.createElement("tr");
+    tr.style.cursor = "pointer";
+    const notes = sc.semis.map((s) => NAMES[s]).join(" ");
+    tr.innerHTML = `<td style="padding:4px 6px;font-weight:600;">${sc.name}</td><td style="padding:4px 6px;font-family:monospace;font-size:0.8rem;">${sc.formula}</td><td style="padding:4px 6px;">${notes}</td>`;
+    tr.addEventListener("click", () => {
+      highlight(sc.semis);
+      playScale(sc.semis);
+      info.textContent = `${sc.name}: ${notes}`;
+    });
+    tr.addEventListener("mouseenter", () => { tr.style.background = "color-mix(in srgb, var(--acc) 12%, transparent)"; });
+    tr.addEventListener("mouseleave", () => { tr.style.background = ""; });
+    tbody.appendChild(tr);
+  });
+</script>
+---
