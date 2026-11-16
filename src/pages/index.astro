@@ -45,6 +45,11 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     </div>
     <div class="hero-art" aria-hidden="true"><span class="hero-orbit orbit-one"></span><span class="hero-orbit orbit-two"></span><div class="hero-note note-one">♪</div><div class="hero-note note-two">♫</div><div class="hero-note note-three">♩</div><div class="hero-glow"></div></div>
   </section>
+  <fieldset class="theme-picker" aria-label="Elegir tema">
+    <legend>Elegir tema</legend>
+    <label><input type="radio" name="theme" value="dark" checked /> Oscuro</label>
+    <label><input type="radio" name="theme" value="light" /> Claro</label>
+  </fieldset>
   <label class="glossary-switch">
     <input type="checkbox" id="glossary-toggle" />
     Mostrar glosario emergente al pulsar términos
@@ -987,6 +992,14 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     const GLOSSARY = glossaryData.entries as any[];
     import { readProgress, setModuleProgress } from '../lib/progress';
     import { readRewardState, writeRewardState, getLevel, resetRewardState } from '../lib/rewards';
+
+    const themeInputs = Array.from(document.querySelectorAll<HTMLInputElement>('input[name="theme"]'));
+    themeInputs.forEach((input) => {
+      input.checked = input.value === document.documentElement.dataset.theme;
+      input.addEventListener('change', () => {
+        if (input.checked) document.documentElement.dataset.theme = input.value;
+      });
+    });
 
     // Tooltips accesibles por teclado
     document.querySelectorAll<HTMLElement>('.term').forEach((el) => {

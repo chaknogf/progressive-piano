@@ -643,6 +643,28 @@ details.box > summary:hover { color: var(--acc); }
 /* === Apple-inspired editorial product system ===
    Claro, táctil y centrado en el aprendizaje; conserva los controles del manual. */
 :root {
+  --bg: #0a0a0c;
+  --bg-2: #0f0f14;
+  --fg: #f8fafc;
+  --mut: #a1a1aa;
+  --card: rgba(255, 255, 255, 0.045);
+  --card-strong: rgba(255, 255, 255, 0.075);
+  --bd: rgba(255, 255, 255, 0.1);
+  --bd-strong: rgba(255, 255, 255, 0.18);
+  --acc: #f59e0b;
+  --acc2: rgba(245, 158, 11, 0.14);
+  --tool: #22d3ee;
+  --tool2: rgba(34, 211, 238, 0.14);
+  --ok: #34d399;
+  --ok2: rgba(52, 211, 153, 0.14);
+  --wk: #f1f5f9;
+  --bk: #0b0b0d;
+  --shadow: 0 16px 42px rgba(0, 0, 0, 0.28);
+  --glass-blur: 22px;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
   --bg: #f5f5f7;
   --bg-2: #ffffff;
   --fg: #1d1d1f;
@@ -660,7 +682,6 @@ details.box > summary:hover { color: var(--acc); }
   --wk: #fff;
   --bk: #1d1d1f;
   --shadow: 0 12px 36px rgba(29, 29, 31, 0.06);
-  --glass-blur: 22px;
   color-scheme: light;
 }
 
@@ -758,10 +779,92 @@ code { color: #075da8; }
 }
 
 /* === Dark glassmorphism overrides for inline styles === */
+html { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
 body {
   background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(99, 102, 241, 0.18), transparent 60%),
-    radial-gradient(1000px 700px at 90% 10%, rgba(168, 85, 247, 0.14), transparent 60%),
-    radial-gradient(900px 600px at 50% 110%, rgba(34, 211, 238, 0.10), transparent 60%),
+    radial-gradient(1100px 620px at 8% -12%, rgba(99, 102, 241, 0.16), transparent 62%),
+    radial-gradient(900px 620px at 92% 8%, rgba(168, 85, 247, 0.12), transparent 62%),
+    radial-gradient(880px 600px at 50% 110%, rgba(34, 211, 238, 0.08), transparent 62%),
     var(--bg);
+  color: var(--fg);
+}
+:root[data-theme="light"] body {
+  background: linear-gradient(180deg, #fff 0, #f5f5f7 38rem, #f5f5f7 100%);
+}
+:root[data-theme="dark"] h1 { color: #f8fafc; -webkit-text-fill-color: currentColor; }
+:root[data-theme="dark"] .subtitle { color: #d4d4d8; }
+:root[data-theme="dark"] .product-hero {
+  background: radial-gradient(ellipse at 78% 46%, rgba(38, 96, 163, .3), transparent 46%), linear-gradient(135deg, #0b0b0e 36%, #121722 100%);
+}
+:root[data-theme="dark"] .hero-glow {
+  background: radial-gradient(circle at 35% 30%, #d8edff 0, #7ab8f2 34%, #246db6 74%, #174c88 100%);
+}
+:root[data-theme="dark"] .hero-orbit { border-color: rgba(89, 172, 255, .19); }
+:root[data-theme="dark"] .hero-orbit.orbit-two { border-color: rgba(154, 124, 255, .14); }
+:root[data-theme="dark"] .hero-note { color: #77c5ff; }
+.theme-picker {
+  display: flex; align-items: center; gap: 8px;
+  width: fit-content; margin: 22px 0 4px; padding: 7px;
+  border: 1px solid var(--bd); border-radius: 999px; background: var(--card);
+}
+.theme-picker legend { float: none; margin-right: 10px; padding: 0; color: var(--mut); font-size: .82rem; font-weight: 600; }
+.theme-picker label {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 34px;
+  padding: 5px 12px; border-radius: 999px; color: var(--mut); cursor: pointer;
+  transition: background .2s ease, color .2s ease;
+}
+.theme-picker input { width: 14px; height: 14px; margin: 0; accent-color: var(--acc); }
+.theme-picker label:has(input:checked) { color: var(--fg); background: var(--acc2); }
+:root[data-theme="dark"] .learning-route,
+:root[data-theme="dark"] .module-index,
+:root[data-theme="dark"] #progress-panel { background: var(--card) !important; }
+:root[data-theme="dark"] .keyboard-showcase {
+  background: linear-gradient(135deg, rgba(33, 58, 85, .78), rgba(18, 21, 29, .96) 58%, rgba(38, 31, 58, .76));
+  box-shadow: inset 0 0 0 1px rgba(130, 180, 235, .1);
+}
+:root[data-theme="dark"] #progress-panel::after {
+  background: radial-gradient(circle, rgba(38, 117, 204, .28), transparent 68%);
+}
+:root[data-theme="dark"] nav#nav { background: rgba(20, 20, 24, .86); }
+:root[data-theme="dark"] .nav-scroller button { background: rgba(255,255,255,.06); }
+:root[data-theme="dark"] .nav-scroller button.is-active { color: #101014; }
+:root[data-theme="dark"] button,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] summary { background-color: rgba(255,255,255,.06); }
+:root[data-theme="dark"] .nav-scroller button.is-active,
+:root[data-theme="dark"] button.on,
+:root[data-theme="dark"] .ch.on { background-color: var(--acc); }
+:root[data-theme="dark"] .module-index a { color: var(--fg); }
+:root[data-theme="light"] .module-index a { color: #1d1d1f; }
+:root[data-theme="light"] .product-hero { background: radial-gradient(ellipse at 76% 46%, #e4f1ff 0, rgba(232,244,255,.68) 23%, transparent 57%), linear-gradient(135deg, #fff 38%, #f7faff 100%); }
+:root[data-theme="light"] h1 { color: #1d1d1f; }
+:root[data-theme="light"] .subtitle { color: #424245; }
+:root[data-theme="light"] .learning-route,
+:root[data-theme="light"] .module-index { background: #fff !important; }
+:root[data-theme="light"] .keyboard-showcase { background: linear-gradient(135deg,#eaf4ff,#fff 55%,#f1f7ff); }
+:root[data-theme="light"] #progress-panel { background: linear-gradient(135deg,#fff,#f0f7ff); }
+:root[data-theme="light"] nav#nav { background: rgba(255,255,255,.84); }
+:root[data-theme="light"] .nav-scroller button { background: #f5f5f7; }
+.module {
+  margin-block: 22px;
+  width: 94%;
+  transition: transform .45s cubic-bezier(.2,.75,.25,1), box-shadow .35s ease, border-color .25s ease;
+}
+.module:nth-of-type(3n + 2) { width: 92%; margin-left: 8%; margin-right: 0; }
+.module:nth-of-type(3n) { width: 92%; margin-left: 0; margin-right: 8%; }
+.module:nth-of-type(3n + 1) { width: 96%; margin-inline: auto; }
+.module:hover { transform: translateY(-5px) rotate(-.15deg); box-shadow: 0 24px 60px rgba(0,0,0,.24); }
+.module.reveal { opacity: 1; transform: none; }
+.module.reveal:hover { transform: translateY(-5px) rotate(-.15deg); }
+.module + .module { margin-top: 14px; }
+:root[data-theme="light"] .module:hover { box-shadow: 0 24px 60px rgba(29,29,31,.1); }
+@media (max-width: 760px) {
+  .theme-picker { margin-inline: auto; }
+  .module:nth-of-type(3n + 2), .module:nth-of-type(3n), .module:nth-of-type(3n + 1) { width: 100%; margin-inline: 0; }
+  .module + .module { margin-top: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .module.reveal:hover { transform: none; }
 }
