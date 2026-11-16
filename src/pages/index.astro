@@ -72,7 +72,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <button type="button" id="reset-progress">Reiniciar progreso</button>
   </section>
 
-  <nav class="module-index" aria-label="Índice de módulos">
+  <nav class="module-index" id="module-nav" aria-label="Índice de módulos">
     <h2>Índice de módulos</h2>
     <p id="progress-summary" class="progress-summary" aria-live="polite">Progreso: 0/0 módulos completados</p>
     <ol>
@@ -98,7 +98,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
 
   <Nav />
 
-  <!-- <section class="module" id="m0" data-module="m0">
+  <!-- <section class="module reveal" id="m0" data-module="m0">
     <h2>M0: Cómo usar el manual + prueba de nivel <span class="lesson-level">Inicial</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> conocer la metodología del manual y descubrir por dónde comenzar según tus conocimientos previos, </p>
     <p><b>Explicación:</b> la música es un lenguaje. Este manual está diseñado para llevarte desde las bases absolutas hasta la producción musical avanzada de forma práctica,  Realiza la prueba inicial para saber si debes empezar desde M1 (Bases) o saltar directamente a módulos más avanzados, </p>
@@ -117,7 +117,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m0" /> Marcar módulo como completado</label>
   </section> -->
 
-  <section class="module" id="m1" data-module="m1">
+  <section class="module reveal" id="m1" data-module="m1">
     <h2>M1: Sonido y pulso <span class="lesson-level">Inicial</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> comprender las cuatro propiedades del sonido, el pulso, el tempo, los compases y las figuras rítmicas, </p>
     <p><b>Explicación:</b> <span class="term" data-tip="Qué tan grave o agudo, largo, fuerte y de qué color suena">Propiedades del sonido</span>: altura (grave/agudo), duración (tiempo), intensidad (volumen) y timbre (color). Piensa en describir un juguete: qué tan agudo suena, cuánto dura, qué tan fuerte es y de qué color es. El pulso es el latido constante, ; el tempo se mide en <span class="term" data-tip="Golpes por minuto: qué tan rápido va la canción">BPM</span>. Compases: 2/4, 3/4, 4/4 y 6/8, . Figuras y silencios: redonda, blanca, negra, corchea, semicorchea, puntillo y ligadura, .</p>
@@ -129,7 +129,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m1" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m2" data-module="m2">
+  <section class="module reveal" id="m2" data-module="m2">
     <h2>M2: Notas, teclado y cifrado <span class="lesson-level">Inicial</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> dominar los nombres de las notas naturales y alteradas, la distribución del teclado y el cifrado americano, </p>
     <p><b>Explicación:</b> las notas naturales son 7: Do, Re, Mi, Fa, Sol, La, Si, . Las teclas negras son sostenidos (♯) y bemoles (♭), . Cifrado americano: C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si, . <span class="term" data-tip="Dos nombres distintos para la misma nota">Enarmonía</span> explica nombres distintos para la misma altura, .</p>
@@ -157,7 +157,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m2" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m3" data-module="m3">
+  <section class="module reveal" id="m3" data-module="m3">
     <h2>M3: Tonos, semitonos, escala mayor e intervalos <span class="lesson-level">Inicial</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> entender la distancia mínima musical, construir la escala mayor universal y medir intervalos, </p>
     <p><b>Explicación:</b> semitono = distancia más pequeña (tecla adyacente), ; tono = dos semitonos. Escala mayor: fórmula T–T–S–T–T–T–S, . <span class="term" data-tip="Qué tan lejos están dos notas y cómo suenan juntas">Intervalos</span>: número (tamaño) y cualidad (mayor, menor, justa…), .</p>
@@ -192,7 +192,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m3" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m4" data-module="m4">
+  <section class="module reveal" id="m4" data-module="m4">
     <h2>M4: Tríadas y primeros acordes (Piano y Guitarra) <span class="lesson-level">Inicial</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> construir tríadas básicas y aplicarlas al piano y la guitarra, </p>
     <p><b>Explicación:</b> tríada mayor 1–3–5; menor 1–♭3–5; disminuida 1–♭3–♭5; aumentada 1–3–♯5. En guitarra se usan formas abiertas y formas con cejilla. Integra el <a href="#afinador">afinador</a> y el <a href="#s9">mástil</a> existentes.</p>
@@ -206,7 +206,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m4" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m5" data-module="m5">
+  <section class="module reveal" id="m5" data-module="m5">
     <h2>M5: Los acordes de la escala (Grados y funciones) <span class="lesson-level">Inicial</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> armonizar la escala mayor para descubrir los acordes de una tonalidad y sus funciones tonales, </p>
     <p><b>Explicación:</b> los grados se numeran con romanos (I, ii, iii, IV, V, vi, vii°). I, IV y V son mayores; ii, iii y vi son menores; vii° es disminuido. El V es una tríada mayor; la séptima se introduce en el módulo 7.</p>
@@ -217,7 +217,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m5" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m6" data-module="m6">
+  <section class="module reveal" id="m6" data-module="m6">
     <h2>M6: Primeras progresiones <span class="lesson-level">Inicial</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> tocar progresiones de nivel inicial y escuchar su recorrido.</p>
     <p><b>Explicación:</b> una progresión es una sucesión de acordes. Las progresiones iniciales usan secuencias frecuentes en la música popular, como I–V–vi–IV o ii–V–I.</p>
@@ -228,7 +228,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m6" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m7" data-module="m7">
+  <section class="module reveal" id="m7" data-module="m7">
     <h2>M7: Séptimas y cifrado ampliado <span class="lesson-level">Intermedio</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> introducir armonías de cuatro notas y cifrados complejos (maj7, 7, m7, m7b5, dim7, slash chords, add9, sus), </p>
     <p><b>Explicación:</b> maj7 séptima mayor (color jazzístico, ); 7 dominante (tensión); m7 menor (melancolía); slash chords (ej. G/B) inversiones con bajo específico, ; sus y add9 aportan modernidad.</p>
@@ -238,7 +238,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m7" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m8" data-module="m8">
+  <section class="module reveal" id="m8" data-module="m8">
     <h2>M8: Cadencias, forma de canción y melodía sobre acordes <span class="lesson-level">Intermedio</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> entender cómo cierran las frases, estructurar una canción y componer melodías cohesivas sobre los acordes, </p>
     <p><b>Explicación:</b> cadencias: auténtica (V→I), plagal (IV→I), semicadencia (reposo en V), rota (V→vi), . Forma: estrofa, pre-coro, coro y puente, . Melodía: notas del acorde, notas de paso y motivos, .</p>
@@ -248,7 +248,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m8" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m9" data-module="m9">
+  <section class="module reveal" id="m9" data-module="m9">
     <h2>M9: Inversiones y arpegios <span class="lesson-level">Intermedio</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> dominar la disposición de las notas de un acorde y su ejecución lineal (arpegios), </p>
     <p><b>Explicación:</b> mantiene las secciones 5 y 6 actuales. Primera y segunda inversión de tríadas y séptimas, .</p>
@@ -259,7 +259,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m9" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m10" data-module="m10">
+  <section class="module reveal" id="m10" data-module="m10">
     <h2>M10: Menor, modos, intercambio modal y sus <span class="lesson-level">Intermedio</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> explorar la escala menor natural, menor armónica, menor melódica, los modos griegos, el intercambio modal y acordes suspendidos, </p>
     <p><b>Explicación:</b> mantiene la sección 7. Menor armónica eleva el VII; menor melódica eleva VI y VII al ascender; modos: Dórico, Frigio, Lidio, Mixolidio, Eolio, Locrio; intercambio modal toma prestados acordes del modo paralelo, . Las variantes menores pintan el mismo paisaje con distintos colores.</p>
@@ -269,7 +269,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m10" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m11" data-module="m11">
+  <section class="module reveal" id="m11" data-module="m11">
     <h2>M11: Círculo de quintas y tonalidades vecinas <span class="lesson-level">Intermedio</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> dominar el "mapa secreto" de la armonía para entender armaduras, modulaciones y relaciones tonales, </p>
     <p><b>Explicación:</b> el círculo de quintas organiza las 12 tonalidades en disposición circular según sus alteraciones en armadura, .</p>
@@ -279,7 +279,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m11" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m12" data-module="m12">
+  <section class="module reveal" id="m12" data-module="m12">
     <h2>M12: Dominantes secundarias y catálogo avanzado <span class="lesson-level">Avanzado</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> analizar y componer con dominantes secundarias y géneros complejos.</p>
     <p><b>Explicación:</b> acordes de séptima dominante que apuntan temporalmente a un grado que no es la tónica (ej. V7/ii), .</p>
@@ -289,7 +289,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m12" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="m13" data-module="m13">
+  <section class="module reveal" id="m13" data-module="m13">
     <h2>M13: Ritmo por género (Síncopa, swing y dembow) <span class="lesson-level">Intermedio</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> estudiar micro-ritmos y patrones característicos de géneros urbanos, latinos y jazzísticos, </p>
     <p><b>Explicación:</b> mantiene la sección 10. Síncopa, contratiempo, swing y el ritmo de dembow, .</p>
@@ -299,7 +299,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="m13" /> Marcar módulo como completado</label>
   </section>
 
-  <section class="module" id="proyecto-final" data-module="proyecto-final">
+  <section class="module reveal" id="proyecto-final" data-module="proyecto-final">
     <h2>Proyecto Final: Compón tu primera canción <span class="lesson-level">Avanzado</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> aplicar toda la teoría aprendida componiendo una obra original desde cero, .</p>
     <p><b>Explicación:</b> selecciona tonalidad, una progresión limpia del catálogo, un patrón rítmico y diseña una melodía de 8 compases, .</p>
@@ -308,12 +308,12 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <label class="progress-toggle"><input type="checkbox" data-module-toggle="proyecto-final" /> Marcar proyecto como completado</label>
   </section>
 
-  <section id="glosario" class="module">
+  <section id="glosario" class="module reveal">
     <h2>Glosario</h2>
     <p>Consulta el glosario completo en <a href="/glosario">/glosario</a>.</p>
   </section>
 
-  <section class="module" id="pista-b" data-module="pista-b">
+  <section class="module reveal" id="pista-b" data-module="pista-b">
     <h2>Pista B (Separada): Producción musical y DAW <span class="lesson-level">Avanzado</span></h2>
     <p class="lesson-goal"><b>Objetivo:</b> entender el procesamiento de audio, mezcla básica y el flujo de trabajo en un DAW, </p>
     <p><b>Explicación:</b> procesamiento: compresión, delay, distorsión, LFO, panorama y volumen relativo. Mezcla y síntesis: EQ, efectos de tiempo, síntesis básica, MIDI y enrutamiento.</p>
@@ -937,7 +937,6 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
 
   <style>
     .module-index { margin: 24px 0; padding: 16px; border: 1px solid var(--bd); border-radius: 18px; background: var(--card); }
-    .progress-summary { margin: 0 0 10px; color: var(--mut); font-weight: 700; font-size: 0.85rem; }
     .module-index a.is-active { color: var(--acc); font-weight: 800; }
     .module-index ol { columns: 2; column-gap: 24px; }
     @media (max-width: 640px) { .module-index ol { columns: 1; } }
@@ -1008,7 +1007,6 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     });
     updateProgressSummary();
 
-    // Panel de progreso y recompensas
     const levelEl = document.getElementById('progress-level');
     const barFill = document.getElementById('progress-bar-fill');
     const xpEl = document.getElementById('progress-xp');
@@ -1058,6 +1056,18 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
       { rootMargin: '-20% 0px -70% 0px', threshold: [0.1, 0.4] },
     );
     moduleSections.forEach((s) => modObserver.observe(s));
+
+    // Scroll reveal
+    const revealEls = Array.from(document.querySelectorAll<HTMLElement>('.reveal'));
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          revealObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    revealEls.forEach((el) => revealObserver.observe(el));
 
     // Glosario emergente (modal) con interruptor
     const GLOSSARY_KEY = 'progressive-music:glossary-modals';
