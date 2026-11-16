@@ -88,7 +88,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     <h2>Índice de módulos</h2>
     <p id="progress-summary" class="progress-summary" aria-live="polite">Progreso: 0/0 módulos completados</p>
     <ol>
-      <li><a href="#m0">M0 · Cómo usar el manual + prueba de nivel</a></li>
+      
       <li><a href="#m1">M1 · Sonido y pulso</a></li>
       <li><a href="#m2">M2 · Notas, teclado y cifrado</a></li>
       <li><a href="#m3">M3 · Tonos, semitonos, escala mayor e intervalos</a></li>
@@ -952,7 +952,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
     .module-index a.is-active { color: var(--acc); font-weight: 800; }
     .module-index ol { columns: 2; column-gap: 24px; }
     @media (max-width: 640px) { .module-index ol { columns: 1; } }
-    .module { margin: 28px 0; padding: 20px; border: 1px solid var(--bd); border-radius: 20px; background: var(--card); }
+    .module { margin: 28px 0; padding: 20px; border: 1px solid var(--bd); border-radius: 20px; border: none; }
     .module h2 { margin-top: 0; }
     .lesson-summary { color: var(--mut); }
     .progress-toggle { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font-weight: 700; }
@@ -1079,6 +1079,10 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
 
     // Scroll reveal
     const revealEls = Array.from(document.querySelectorAll<HTMLElement>('.reveal'));
+    function isInView(el: HTMLElement) {
+      const r = el.getBoundingClientRect();
+      return r.top < window.innerHeight && r.bottom > 0;
+    }
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) {
@@ -1086,8 +1090,17 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
           revealObserver.unobserve(e.target);
         }
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
-    revealEls.forEach((el) => revealObserver.observe(el));
+    }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach((el) => {
+      if (isInView(el)) el.classList.add('is-visible');
+      else revealObserver.observe(el);
+    });
+    // Fallback: make all reveals visible after 1s (safety net)
+    setTimeout(() => {
+      revealEls.forEach((el) => {
+        if (!el.classList.contains('is-visible')) el.classList.add('is-visible');
+      });
+    }, 1000);
 
     // Glosario emergente (modal) con interruptor
     const GLOSSARY_KEY = 'progressive-music:glossary-modals';
