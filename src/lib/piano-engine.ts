@@ -23,7 +23,11 @@ export type PianoCallbacks = {
 export const START_DELAY = 0.12;
 
 type Engine = { ctx: AudioContext; input: GainNode; noise: AudioBuffer };
-type Voice = { stop: (when: number) => void };
+type Voice = {
+  stop: (when: number) => void;
+  release: (when?: number) => void;
+  midi: number;
+};
 
 let engine: Engine | null = null;
 
@@ -136,20 +140,26 @@ function startVoice(
   when: number,
   dur: number,
   vel: number,
+  opts: { hold?: boolean } = {},
 ): Voice {
   const { ctx } = e;
   const f0 = 440 * 2 ** ((midi - 69) / 12);
   const noteLen = Math.max(0.08, dur);
+  const hold = opts.hold === true;
   // Con el pedal pisado, la nota se apaga lentamente al soltar la tecla.
   const releaseTau = midi < 60 ? 0.42 : 0.28;
   // Las notas graves resuenan mucho más tiempo que las agudas.
   const slowTau = clamp(3.4 * 2 ** (-(midi - 60) / 20), 0.9, 8);
-  const stopAt = when + Math.min(noteLen + releaseTau * 8, 16);
+  const stopAt = when + (hold ? 30 : Math.min(noteLen + releaseTau * 8, 16));
   const level = vel * 0.13;
 
-  const release = ctx.createGain();
-  release.gain.setValueAtTime(1, when + noteLen);
-  release.gain.setTargetAtTime(0, when + noteLen, releaseTau);
+  const releaseGain = ctx.createGain();
+  if (hold) {
+    releaseGain.gain.setValueAtTime(1, when);
+  } else {
+    releaseGain.gain.setValueAtTime(1, when + noteLen);
+    releaseGain.gain.setTargetAtTime(0, when + noteLen, releaseTau);
+  }
 
   const lowpass = ctx.createBiquadFilter();
   lowpass.type = "lowpass";
@@ -159,8 +169,8 @@ function startVoice(
   const pan = ctx.createStereoPanner();
   pan.pan.value = clamp((midi - 66) / 40, -0.7, 0.7);
 
-  lowpass.connect(release);
-  release.connect(pan);
+  lowpass.connect(releaseGain);
+  releaseGain.connect(pan);
   pan.connect(dest);
 
   const oscillators: AudioScheduledSourceNode[] = [];
@@ -212,12 +222,14 @@ function startVoice(
   const first = oscillators[0];
   if (first) {
     first.onended = () => {
-      release.disconnect();
-      pan.disconnect();
+      try { releaseGain.disconnect(); } catch {}
+      try { pan.disconnect(); } catch {}
     };
   }
 
+  let released = false;
   return {
+    midi,
     stop(time: number) {
       for (const osc of oscillators) {
         try {
@@ -225,6 +237,18 @@ function startVoice(
         } catch {
           /* ya detenido */
         }
+      }
+    },
+    release(time?: number) {
+      if (released) return;
+      released = true;
+      const t = Math.max(time ?? ctx.currentTime, ctx.currentTime);
+      releaseGain.gain.cancelScheduledValues(t);
+      try { releaseGain.gain.setValueAtTime(1, t); } catch { releaseGain.gain.setValueAtTime(releaseGain.gain.value || 1, t); }
+      releaseGain.gain.setTargetAtTime(0, t, releaseTau);
+      const end = t + releaseTau * 8;
+      for (const osc of oscillators) {
+        try { osc.stop(end); } catch { /* ya detenido */ }
       }
     },
   };
@@ -325,4 +349,46 @@ export function playNote(midi: number, seconds = 1.1, vel = 0.8): void {
   const e = getEngine();
   void e.ctx.resume();
   startVoice(e, e.input, midi, e.ctx.currentTime + 0.005, seconds, vel);
+}
+
+// --- Soporte interactivo (QWERTY/MIDI) con sustain ---
+let sustainPedal = false;
+const heldVoices = new Map<number, Voice>(); // teclas actualmente pulsadas
+const sustainedVoices = new Map<number, Voice[]>(); // soltadas con pedal abajo
+
+export function setSustainPedal(down: boolean): void {
+  sustainPedal = down;
+  if (!down) {
+    sustainedVoices.forEach((voices) => voices.forEach((v) => v.release()));
+    sustainedVoices.clear();
+  }
+}
+
+export function isSustainPedalDown(): boolean {
+  return sustainPedal;
+}
+
+export function noteOn(midi: number, vel = 0.8): void {
+  const e = getEngine();
+  void e.ctx.resume();
+  // re-disparo de misma nota: liberar anterior para evitar acumulación
+  const prev = heldVoices.get(midi);
+  if (prev) prev.release();
+  const pending = sustainedVoices.get(midi);
+  if (pending) { pending.forEach((v) => v.release()); sustainedVoices.delete(midi); }
+  const voice = startVoice(e, e.input, midi, e.ctx.currentTime + 0.003, 30, vel, { hold: true });
+  heldVoices.set(midi, voice);
+}
+
+export function noteOff(midi: number): void {
+  const voice = heldVoices.get(midi);
+  if (!voice) return;
+  heldVoices.delete(midi);
+  if (sustainPedal) {
+    const arr = sustainedVoices.get(midi) ?? [];
+    arr.push(voice);
+    sustainedVoices.set(midi, arr);
+  } else {
+    voice.release();
+  }
 }

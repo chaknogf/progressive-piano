@@ -88,7 +88,11 @@ const extraNotes = extraSymbols.map((sym, i) => {
    <li><b>Recuerda:</b> explica con tus palabras qué cambió y por qué.</li>
   </ol>
  </aside>
- <div class="keyboard-showcase"><div class="showcase-label"><span>PRUEBA EL SONIDO</span><span>Una nota basta para empezar</span></div><MelodyKeyboard /></div>
+ <div class="keyboard-showcase keyboard-showcase--cta">
+  <div class="showcase-label"><span>PRUEBA EL SONIDO</span><span>Teclado interactivo y práctica QWERTY</span></div>
+  <p style="margin:0 0 14px;color:var(--mut)">Toca con el ratón o con tu teclado (QWERTY), usa sustain y visualiza notas y acordes en el laboratorio.</p>
+  <a class="hero-cta" href="#laboratorio-musical-descargas" style="margin-top:0">Ir al Laboratorio musical y descargas <span aria-hidden="true">→</span></a>
+ </div>
 
  <section id="progress-panel" class="box" aria-labelledby="progress-panel-title">
   <h3 id="progress-panel-title">Mi progreso</h3>
@@ -124,7 +128,8 @@ const extraNotes = extraSymbols.map((sym, i) => {
    <li><a href="#m12">M12 · Dominantes secundarias y catálogo avanzado</a></li>
    <li><a href="#m13">M13 · Ritmo por género</a></li>
    <li><a href="#proyecto-final">Proyecto Final · Compón tu canción</a></li>
-<li><a href="#pista-b">Pista B · Producción musical y DAW</a></li>
+    <li><a href="#pista-b">Pista B · Producción musical y DAW</a></li>
+    <li><a href="#laboratorio-musical-descargas">Laboratorio musical y descargas</a></li>
 
   </ol>
  </nav>
@@ -407,9 +412,21 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <label class="progress-toggle"><input type="checkbox" data-module-toggle="pista-b" /> Marcar pista como completada</label>
  </section>
 
-
-
-
+ <section class="module reveal" id="laboratorio-musical-descargas">
+  <h2>Laboratorio musical y descargas <span class="lesson-level">Herramientas</span></h2>
+  <p class="lesson-goal"><b>Objetivo:</b> practicar con herramientas interactivas y acceder a recursos descargables para crear y estudiar música.</p>
+  <p><b>Teclado de práctica (Fase 1.1):</b> toca con el mouse o con tu teclado de computadora. Mapeo de dos octavas simultáneas (<b>Z–M</b> octava baja, <b>Q–P</b> octava alta), cambio de octavas con <b>+ / -</b> y pedal de sustain con <b>Espacio</b>. Incluye indicador de notas activas y acorde detectado.</p>
+  <MelodyKeyboard />
+  <div class="box">
+   <b>Próximamente en el Laboratorio</b>
+   <ul>
+    <li>Modo Smart Chords, WebMIDI y mejoras de teclado (Fase 1).</li>
+    <li>Exportación MIDI, cheat sheets y samples/SFZ descargables (Fase 2).</li>
+    <li>Harmonic Sketchpad de 3 pistas y exportación multipista (Fase 3).</li>
+    <li>Guía comparativa de DAWs y especificación de plugin nativo (Fase 4).</li>
+   </ul>
+  </div>
+ </section>
 
  <!-- ============================================================
     NUEVA RUTA DE CONTENIDOS (M0–M13, Pista B, Glosario)

@@ -729,8 +729,8 @@ h2 { border-top-color: var(--bd); }
 .hero-art { position: relative; display: grid; place-items: center; min-height: 390px; isolation: isolate; }
 .hero-glow { width: min(34vw, 390px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0, #d6eaff 30%, #83bbf5 68%, #4c91e1 100%); filter: drop-shadow(0 34px 46px rgba(27,91,160,.18)); animation: float-note 7s ease-in-out infinite; }
 .hero-glow::before { content: ""; position: absolute; inset: 17% 13% 25%; border-radius: 48% 48% 16% 16%; background: repeating-linear-gradient(90deg, transparent 0 9.4%, rgba(20,45,76,.58) 9.5% 10%, transparent 10.1% 19.8%), linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.22)); box-shadow: inset 0 0 30px rgba(255,255,255,.6); transform: perspective(520px) rotateY(-18deg) rotateZ(-8deg); }
-.hero-orbit { position: absolute; width: 112%; aspect-ratio: 1; border: 1px solid rgba(0,113,227,.14); border-radius: 50%; transform: rotate(-28deg) scaleY(.62); }
-.orbit-two { width: 126%; transform: rotate(36deg) scaleY(.45); border-color: rgba(0,113,227,.09); }
+.hero-orbit { position: absolute; top: 50%; left: 50%; width: 112%; aspect-ratio: 1; border: 1px solid rgba(0,113,227,.14); border-radius: 50%; transform: translate(-50%, -50%) rotate(-28deg) scaleY(.62); }
+.orbit-two { width: 126%; transform: translate(-50%, -50%) rotate(36deg) scaleY(.45); border-color: rgba(0,113,227,.09); }
 .hero-note { position: absolute; z-index: 2; color: #2479d2; text-shadow: 0 8px 22px rgba(22,89,157,.2); animation: float-note 5s ease-in-out infinite; pointer-events: none; }
 .note-one { top: 12%; left: 20%; font-size: 3rem; }.note-two { right: 12%; top: 29%; font-size: 2.4rem; animation-delay: -1.8s; }.note-three { bottom: 12%; left: 27%; font-size: 2.6rem; animation-delay: -3.2s; }
 .note-one, .note-two, .note-three { color: #eb26b9; text-shadow: 0 8px 22px rgba(235, 38, 185, .28); }
