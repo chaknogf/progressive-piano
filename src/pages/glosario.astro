@@ -5,7 +5,7 @@ const entries = glossary.entries;
 const categories = [...new Set(entries.flatMap((e) => e.categoria || []))].sort();
 const levels = [...new Set(entries.map((e) => e.nivel).filter(Boolean))].sort();
 ---
-<Layout title="Glosario · Progressive Music">
+<Layout title="Glosario · Progressive Music" description="Glosario musical en español neutro con definiciones de teoría, armonía, ritmo, instrumentos y producción para aprender paso a paso.">
   <h1>Glosario musical</h1>
   <p class="lead">Definiciones técnicas en español neutro. {entries.length} entradas.</p>
   <p class="mut">Nota: en las entradas de armonía se emplea cifrado americano (C, D, G…); en el resto del manual se usan nombres de nota en español (Do, Re, Sol…).</p>

@@ -12,7 +12,31 @@ const {
   title = SITE_TITLE,
   description = SITE_DESCRIPTION,
 } = Astro.props;
-const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? SITE_URL).href;
+const siteBase = Astro.site ?? SITE_URL;
+const canonicalUrl = new URL(Astro.url.pathname, siteBase).href;
+const ogImageUrl = new URL('/og-image.png', siteBase).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': new URL('/#website', siteBase).href,
+      url: new URL('/', siteBase).href,
+      name: SITE_NAME,
+      description: SITE_DESCRIPTION,
+      inLanguage: 'es',
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${canonicalUrl}#webpage`,
+      url: canonicalUrl,
+      name: title,
+      description,
+      isPartOf: { '@id': new URL('/#website', siteBase).href },
+      inLanguage: 'es',
+    },
+  ],
+};
 ---
 <!DOCTYPE html>
 <html lang="es" data-theme="dark">
@@ -36,12 +60,17 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? SITE_URL).href;
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_ES" />
+    <meta property="og:site_name" content={SITE_NAME} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:alt" content={`${SITE_NAME} - portada`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
     <SpeedInsights />
