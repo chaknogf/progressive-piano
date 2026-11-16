@@ -54,11 +54,20 @@ function makeImpulse(ctx: AudioContext, seconds: number): AudioBuffer {
 }
 
 function getEngine(): Engine {
-  if (engine) return engine;
+  if (engine) {
+    if (engine.ctx.state === "suspended") void engine.ctx.resume().catch(() => {});
+    return engine;
+  }
   const AC =
     window.AudioContext ??
     (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
   const ctx = new AC({ latencyHint: "interactive" });
+  const g = globalThis as unknown as { __pmResumeAudio?: () => void };
+  const prev = g.__pmResumeAudio;
+  g.__pmResumeAudio = () => {
+    prev?.();
+    if (engine?.ctx?.state === "suspended") void engine.ctx.resume().catch(() => {});
+  };
 
   const input = ctx.createGain();
   const mix = ctx.createGain();

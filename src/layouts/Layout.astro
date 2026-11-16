@@ -77,6 +77,26 @@ const jsonLd = {
     <main>
       <slot />
     </main>
+    <script is:inline>
+      (() => {
+        let unlocked = false;
+        const unlock = () => {
+          if (unlocked) return;
+          unlocked = true;
+          try {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (Ctx) {
+              const ctx = window.__pmUnlockCtx || new Ctx();
+              window.__pmUnlockCtx = ctx;
+              if (ctx.state === 'suspended') void ctx.resume().catch(() => {});
+            }
+          } catch {}
+          try { window.__pmResumeAudio?.(); } catch {}
+        };
+        window.addEventListener('touchstart', unlock, { passive: true, capture: true });
+        window.addEventListener('pointerdown', unlock, { passive: true, capture: true });
+      })();
+    </script>
     <script>
       import { $, $$ } from '../lib/dom';
       import { chordNotes as notes } from '../lib/theory';

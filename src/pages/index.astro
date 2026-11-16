@@ -156,6 +156,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <NoteNameKeyboard />
   <details class="box">
    <summary><b>Figuras rítmicas (duración de cada una)</b></summary>
+   <div class="details-content"><div>
    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:8px;">
     <thead><tr><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Figura</th><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Duración</th><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Pulsos (4/4)</th></tr></thead>
     <tbody>
@@ -166,9 +167,11 @@ const extraNotes = extraSymbols.map((sym, i) => {
      <tr><td style="padding:3px 6px;">Semicorchea</td><td style="padding:3px 6px;">¼ de tiempo</td><td style="padding:3px 6px;">¼</td></tr>
     </tbody>
    </table>
+   </div></div>
   </details>
   <details class="box">
    <summary><b>Silencios (duración de cada uno)</b></summary>
+   <div class="details-content"><div>
    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:8px;">
     <thead><tr><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Silencio</th><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Duración</th><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Equivale a</th></tr></thead>
     <tbody>
@@ -180,6 +183,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
      <tr><td style="padding:3px 6px;">Silencio de fusa</td><td style="padding:3px 6px;">⅛ de pulso</td><td style="padding:3px 6px;">fusa</td></tr>
     </tbody>
    </table>
+   </div></div>
   </details>
   <div class="box">Explora el teclado de la cabecera: pulsa notas para escuchar su nombre, octava y enarmonía.</div>
   <p class="lesson-summary"><b>Resumen:</b> el teclado se organiza en octavas; el cifrado americano es el estándar global; la enarmonía explica nombres múltiples.</p>
@@ -193,6 +197,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <p style="font-style:italic;">Ejemplos: en el teclado, la distancia en tonos y semitonos entre cada par de teclas; cada escala mayor sobre el pentagrama y el teclado, reproducible al pasar el cursor; cada escala menor (natural, armónica y melódica) sobre el pentagrama y el teclado, reproducible al pasar el cursor.</p>
   <details class="box">
    <summary><b>Tabla de intervalos (0 a 12 semitonos)</b></summary>
+   <div class="details-content"><div>
    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:8px;">
     <thead><tr><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Semitonos</th><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Intervalo</th><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Abrev.</th><th style="text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);">Ejemplo desde Do</th></tr></thead>
     <tbody>
@@ -211,6 +216,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
      <tr><td style="padding:3px 6px;">12</td><td style="padding:3px 6px;">Octava justa</td><td style="padding:3px 6px;">8.ª J</td><td style="padding:3px 6px;">Do–Do</td></tr>
     </tbody>
    </table>
+   </div></div>
   </details>
   <IntervalExplorer />
   <InteractiveIntervalTable />
@@ -593,6 +599,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   .contact-lead { margin: 0; color: var(--mut); font-size: 1rem; max-width: 62ch; }
   .contact-art { display: grid; place-items: center; min-height: 220px; }
   .coffee-svg { width: min(100%, 280px); height: auto; overflow: visible; filter: drop-shadow(0 18px 30px rgba(0,0,0,.18)); }
+  .coffee-svg * { transform-box: fill-box; transform-origin: center; }
   .art-glow { fill: color-mix(in srgb, var(--acc) 18%, transparent); }
   .saucer { fill: color-mix(in srgb, var(--bd) 70%, #fff 30%); opacity: .9; }
   .mug { stroke: #f59e0b33; stroke-width: 2; }

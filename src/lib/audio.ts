@@ -118,7 +118,14 @@ export function audioContext(): AudioContext {
       (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctor) throw new Error('Web Audio no soportado');
     context = new Ctor();
+    const g = globalThis as unknown as { __pmResumeAudio?: () => void };
+    const prev = g.__pmResumeAudio;
+    g.__pmResumeAudio = () => {
+      prev?.();
+      if (context?.state === 'suspended') void context.resume().catch(() => {});
+    };
   }
+  if (context.state === 'suspended') void context.resume().catch(() => {});
   return context;
 }
 
