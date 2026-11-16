@@ -9,7 +9,7 @@ function qualityLabel(quality: string): string {
 }
 
 function functionLabel(index: number): string {
-  const labels = ['Casa', 'Te alejas', 'Tensión', 'Color'];
+  const labels = ['Casa', 'Te alejas', 'Suave, ambiguo', 'Movimiento', 'Tensión', 'Casa', 'Tensión'];
   return labels[index] || '';
 }
 
@@ -149,7 +149,7 @@ const INITIAL_LABELS: Record<number, string> = Object.fromEntries(
   }
 
   function functionLabel(index: number): string {
-    const labels = ['Casa', 'Te alejas', 'Tensión', 'Color'];
+    const labels = ['Casa', 'Te alejas', 'Suave, ambiguo', 'Movimiento', 'Tensión', 'Casa', 'Tensión'];
     return labels[index] || '';
   }
 

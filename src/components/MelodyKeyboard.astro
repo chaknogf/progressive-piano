@@ -154,7 +154,7 @@ function fullLabel(midi: number): string {
     </div>
   </div>
 
-  <p class="mk-hint" id="mk-hint">Naranja = melodía, azul = acordes.</p>
+  <p class="mk-hint" id="mk-hint"><span class="mk-leg mk-leg-mel">● Melodía</span> <span class="mk-leg mk-leg-ch">■ Acordes</span></p>
 </section>
 
 <script>
@@ -1127,7 +1127,7 @@ function fullLabel(midi: number): string {
         : view === "chords"
           ? [...chordEvents]
           : [...melodyEvents, ...chordEvents];
-    hintEl.textContent = `${activeMelody.name} · ${activeMelody.meter}/4 · ${totalBeats} pulsos. Naranja = melodía, azul = acordes.`;
+    hintEl.textContent = `${activeMelody.name} · ${activeMelody.meter}/4 · ${totalBeats} pulsos. ● Melodía, ■ Acordes.`;
     progressBar.style.width = "0%";
     chordEl.textContent = "—";
     setNote(null);

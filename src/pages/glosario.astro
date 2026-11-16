@@ -8,6 +8,7 @@ const levels = [...new Set(entries.map((e) => e.nivel).filter(Boolean))].sort();
 <Layout title="Glosario · Progressive Music">
   <h1>Glosario musical</h1>
   <p class="lead">Definiciones técnicas en español neutro. {entries.length} entradas.</p>
+  <p class="mut">Nota: en las entradas de armonía se emplea cifrado americano (C, D, G…); en el resto del manual se usan nombres de nota en español (Do, Re, Sol…).</p>
   <div class="glossary-controls">
     <input type="search" id="glossary-search" placeholder="Buscar término o definición" aria-label="Buscar en el glosario" />
     <select id="glossary-category" aria-label="Filtrar por categoría">

@@ -2,9 +2,10 @@
 import { CATEGORIES, PROGRESSIONS } from "../data/progressions";
 import DegreeLine from "./DegreeLine.astro";
 import { displayNote } from "../lib/theory";
+const { level = "", titles = [] } = Astro.props;
 ---
 
-<div class="row" id="flt">
+<div class="row" id="flt" data-initial-level={level}>
   <button class="f on" type="button" data-c="" aria-pressed="true">Todas</button
   >
   {
@@ -27,13 +28,13 @@ import { displayNote } from "../lib/theory";
 </div>
 <div class="grid" id="cat">
   {
-    PROGRESSIONS.map((item) => {
+    PROGRESSIONS.filter((item) => titles.length === 0 || titles.includes(item.title)).map((item) => {
       const levelLabel =
         item.level === "inicial"
-          ? "Inicial⭐️"
+          ? "Inicial"
           : item.level === "intermedio"
-            ? "Intermedio ⭐️⭐️"
-            : "Avanzado ⭐️⭐️⭐️";
+            ? "Intermedio"
+            : "Avanzado";
       return (
         <article class="cd" data-c={item.category} data-nivel={item.level}>
           <span class="tg">{CATEGORIES[item.category]}</span>
@@ -49,7 +50,7 @@ import { displayNote } from "../lib/theory";
             ))}
           </div>
           <p>{item.description}</p>
-          {item.songs && <p class="sg">♪ {item.songs}</p>}
+          {item.songs && <p class="sg">{item.songs}</p>}
           {item.sources?.length && (
             <p class="sg">
               Fuentes:{" "}
@@ -81,7 +82,7 @@ import { displayNote } from "../lib/theory";
   const cards = Array.from(document.querySelectorAll<HTMLElement>("#cat .cd"));
   const status = must(document.getElementById("catalog-status"), "#catalog-status");
   let activeCategory = "";
-  let activeLevel = "";
+  let activeLevel = filterRow.dataset.initialLevel ?? "";
 
   function applyFilters(): void {
     let visibleCount = 0;
@@ -109,5 +110,10 @@ import { displayNote } from "../lib/theory";
     applyFilters();
   });
 
+  filterRow.querySelectorAll<HTMLButtonElement>('.nivel').forEach((btn) => {
+    const selected = (btn.dataset.nivel ?? '') === activeLevel;
+    btn.classList.toggle('on', selected);
+    btn.setAttribute('aria-pressed', String(selected));
+  });
   applyFilters();
 </script>
