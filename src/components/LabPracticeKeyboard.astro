@@ -24,9 +24,10 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     <div>
       <span class="lk-kicker">Herramienta de práctica</span>
       <h2 id="lk-title">Teclado de práctica interactivo</h2>
-      <p class="lk-sub">Toca con el mouse o con el teclado de la computadora. Usa <b>+ / -</b> para cambiar de octava y <b>Espacio</b> como pedal de sustain.</p>
+      <p class="lk-sub">Toca con el mouse o activa el <b>modo concentración</b> para usar el teclado de la computadora. <b>+ / -</b> cambia la octava y <b>Espacio</b> es sustain. <b>Esc</b> sale del modo.</p>
     </div>
     <div class="lk-controls" role="group" aria-label="Controles de práctica">
+      <button type="button" class="lk-btn lk-focus" id="lk-focus" aria-pressed="false">Activar modo concentración</button>
       <span class="lk-chip">Octava base: <b id="lk-octave">4</b></span>
       <button type="button" class="lk-btn" id="lk-oct-down" aria-label="Bajar octava">−</button>
       <button type="button" class="lk-btn" id="lk-oct-up" aria-label="Subir octava">+</button>
@@ -58,7 +59,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
   </div>
 
   <p class="lk-hint" id="lk-hint">
-    Mapeo: <b>A</b>=Do, <b>W</b>=Do♯, <b>S</b>=Re, <b>E</b>=Re♯, <b>D</b>=Mi, <b>F</b>=Fa, <b>T</b>=Fa♯, <b>G</b>=Sol, <b>Y</b>=Sol♯, <b>H</b>=La, <b>U</b>=La♯, <b>J</b>=Si, <b>K</b>=Do, <b>I</b>=Do♯, <b>L</b>=Re, <b>P</b>=Re♯.
+    Mapeo (en modo concentración): <b>A</b>=Do, <b>W</b>=Do♯, <b>S</b>=Re, <b>E</b>=Re♯, <b>D</b>=Mi, <b>F</b>=Fa, <b>T</b>=Fa♯, <b>G</b>=Sol, <b>Y</b>=Sol♯, <b>H</b>=La, <b>U</b>=La♯, <b>J</b>=Si, <b>K</b>=Do, <b>I</b>=Do♯, <b>L</b>=Re, <b>P</b>=Re♯.
   </p>
 </section>
 
@@ -73,6 +74,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
   const octDownBtn = must(document.querySelector<HTMLButtonElement>("#lk-oct-down"), "#lk-oct-down");
   const octUpBtn = must(document.querySelector<HTMLButtonElement>("#lk-oct-up"), "#lk-oct-up");
   const qwertyLabelsBtn = must(document.querySelector<HTMLButtonElement>("#lk-qwerty-labels"), "#lk-qwerty-labels");
+  const focusBtn = must(document.querySelector<HTMLButtonElement>("#lk-focus"), "#lk-focus");
   const pedalEl = must(document.querySelector<HTMLElement>("#lk-pedal"), "#lk-pedal");
   const liveNotesEl = must(document.querySelector<HTMLElement>("#lk-live-notes"), "#lk-live-notes");
   const liveChordEl = must(document.querySelector<HTMLElement>("#lk-live-chord"), "#lk-live-chord");
@@ -91,6 +93,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
 
   let baseOctave = 4; // Do base = C4 (MIDI 60)
   let showQwerty = true;
+  let practiceMode = false;
   const pressedCodes = new Set<string>();
   const userActiveMidis = new Set<number>();
 
@@ -192,6 +195,28 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     refreshQwertyLabels();
   }
 
+  function releaseAll(): void {
+    [...userActiveMidis].forEach((m) => { userActiveMidis.delete(m); noteOff(m); setKeyVisual(m, "is-user", false); });
+    pressedCodes.clear();
+    setSustainPedal(false);
+    pedalEl.textContent = "Sustain: OFF (Espacio)";
+    pedalEl.classList.remove("on");
+    updateLiveIndicator();
+    setCurrentNote(null);
+  }
+
+  function setPracticeMode(on: boolean): void {
+    practiceMode = on;
+    root.classList.toggle("is-focused", on);
+    focusBtn.setAttribute("aria-pressed", String(on));
+    focusBtn.textContent = on ? "Salir del modo concentración" : "Activar modo concentración";
+    if (on) {
+      (root as HTMLElement).focus?.();
+    } else {
+      releaseAll();
+    }
+  }
+
   // Mouse / touch
   function triggerPointer(event: Event): void {
     const key = (event.target as HTMLElement).closest<HTMLButtonElement>(".lk-key");
@@ -203,10 +228,15 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     window.dispatchEvent(new CustomEvent("note-played", { detail: { midi, source: "keyboard" } }));
   }
   let lastPointerDown = 0;
-  keysEl.addEventListener("pointerdown", (e) => { lastPointerDown = Date.now(); triggerPointer(e); });
+  keysEl.addEventListener("pointerdown", (e) => {
+    if (!practiceMode) setPracticeMode(true);
+    lastPointerDown = Date.now();
+    triggerPointer(e);
+  });
   keysEl.addEventListener("click", (e) => { if (Date.now() - lastPointerDown < 500) return; triggerPointer(e); });
 
   // Controls
+  focusBtn.addEventListener("click", () => setPracticeMode(!practiceMode));
   octDownBtn.addEventListener("click", () => changeOctave(-1));
   octUpBtn.addEventListener("click", () => changeOctave(1));
   qwertyLabelsBtn.addEventListener("click", () => {
@@ -217,6 +247,12 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
   });
 
   document.addEventListener("keydown", (e) => {
+    if (e.code === "Escape" && practiceMode) {
+      e.preventDefault();
+      setPracticeMode(false);
+      return;
+    }
+    if (!practiceMode) return;
     if (isTypingTarget(e.target)) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.code === "Space") {
@@ -230,7 +266,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
     if (e.code === "Equal" || e.code === "NumpadAdd") { e.preventDefault(); if (!e.repeat) changeOctave(1); return; }
     if (e.code === "Minus" || e.code === "NumpadSubtract") { e.preventDefault(); if (!e.repeat) changeOctave(-1); return; }
     const midi = midiForCode(e.code);
-    if (midi == null) return;
+    if (midi == null) return; // teclas no mapeadas no se bloquean
     e.preventDefault();
     if (pressedCodes.has(e.code) || e.repeat) return;
     pressedCodes.add(e.code);
@@ -238,6 +274,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
   });
 
   document.addEventListener("keyup", (e) => {
+    if (!practiceMode) return;
     if (e.code === "Space") {
       setSustainPedal(false);
       pedalEl.textContent = "Sustain: OFF (Espacio)";
@@ -256,13 +293,7 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
   });
 
   window.addEventListener("blur", () => {
-    [...userActiveMidis].forEach((m) => { userActiveMidis.delete(m); noteOff(m); setKeyVisual(m, "is-user", false); });
-    pressedCodes.clear();
-    setSustainPedal(false);
-    pedalEl.textContent = "Sustain: OFF (Espacio)";
-    pedalEl.classList.remove("on");
-    updateLiveIndicator();
-    setCurrentNote(null);
+    releaseAll();
   });
 
   octaveEl.textContent = String(baseOctave);
@@ -287,6 +318,8 @@ function fullLabel(midi: number): string { return `${NOTE_NAMES[midi % 12]}${Mat
   .lk-btn { min-height: 36px; padding: 6px 12px; border: 1px solid var(--bd); border-radius: 10px; background: var(--bg); color: var(--fg); font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
   .lk-btn:hover { border-color: var(--acc); }
   .lk-toggle[aria-pressed="true"] { background: var(--card); box-shadow: 0 1px 2px rgb(0 0 0 / .12); }
+  .lk-focus[aria-pressed="true"] { background: var(--acc); color: #fff; border-color: var(--acc); }
+  .lk.is-focused { outline: 2px solid color-mix(in srgb, var(--acc) 55%, transparent); outline-offset: 2px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 18%, transparent); }
   .lk-live { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 4px 0 10px; color: var(--mut); font-size: .85rem; }
   .lk-live b { color: var(--fg); font-variant-numeric: tabular-nums; }
 
