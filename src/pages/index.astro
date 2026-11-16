@@ -28,16 +28,23 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
 ---
 
 <Layout>
-  <h1>
+  <section class="product-hero" aria-labelledby="product-title">
+    <div class="hero-copy">
+      <span class="hero-eyebrow">PROGRESSIVE MUSIC · APRENDE A TU RITMO</span>
+      <h1 id="product-title">
     {SITE_NAME}
     <Logo class="h1-logo" />
-  </h1>
-  <h2 class="subtitle">{SITE_SUBTITLE}</h2>
-  <p class="lead">
+      </h1>
+      <h2 class="subtitle">{SITE_SUBTITLE}</h2>
+      <p class="lead">
     No necesitas saber teoría ni haber tocado antes: empieza por escuchar, mira
     qué notas forman cada sonido y prueba a tocarlas. Avanza a tu ritmo en piano
     y guitarra, desde los primeros acordes hasta crear tus propias ideas.
-  </p>
+      </p>
+      <a class="hero-cta" href="#m1">Empieza a explorar <span aria-hidden="true">↓</span></a>
+    </div>
+    <div class="hero-art" aria-hidden="true"><span class="hero-orbit orbit-one"></span><span class="hero-orbit orbit-two"></span><div class="hero-note note-one">♪</div><div class="hero-note note-two">♫</div><div class="hero-note note-three">♩</div><div class="hero-glow"></div></div>
+  </section>
   <label class="glossary-switch">
     <input type="checkbox" id="glossary-toggle" />
     Mostrar glosario emergente al pulsar términos
@@ -55,7 +62,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
       <li><b>Recuerda:</b> explica con tus palabras qué cambió y por qué.</li>
     </ol>
   </aside>
-  <MelodyKeyboard />
+  <div class="keyboard-showcase"><div class="showcase-label"><span>PRUEBA EL SONIDO</span><span>Una nota basta para empezar</span></div><MelodyKeyboard /></div>
 
   <section id="progress-panel" class="box" aria-labelledby="progress-panel-title">
     <h3 id="progress-panel-title">Mi progreso</h3>
