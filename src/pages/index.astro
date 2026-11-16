@@ -25,8 +25,18 @@ import InteractiveIntervalTable from "../components/InteractiveIntervalTable.ast
 import EmptyStaff from "../components/EmptyStaff.astro";
 import ScaleTable from "../components/ScaleTable.astro";
 import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
----
 
+const extraSymbols = ["♬", "♭", "♯", "𝄞", "♪"];
+const extraNotes = extraSymbols.map((sym, i) => {
+  const r = Math.random();
+  const color = r < 0.5 ? "note-red" : "note-green";
+  const angle = Math.round((360 / extraSymbols.length) * i);
+  const duration = 14 + (i % 5) * 4;
+  const delay = -(i * 1.7).toFixed(1);
+  const size = (1.3 + (i % 3) * 0.35).toFixed(2);
+  return { sym, color, angle, duration, delay, size, i };
+});
+---
 <Layout>
  <section class="product-hero" aria-labelledby="product-title">
   <div class="hero-copy">
@@ -43,7 +53,18 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
    </p>
    <a class="hero-cta" href="#m1">Empieza a explorar <span aria-hidden="true">↓</span></a>
   </div>
-  <div class="hero-art" aria-hidden="true"><span class="hero-orbit orbit-one"></span><span class="hero-orbit orbit-two"></span><div class="hero-glow"></div></div>
+  <div class="hero-art" aria-hidden="true">
+    <span class="hero-orbit orbit-one"></span><span class="hero-orbit orbit-two"></span>
+    <div class="hero-glow"></div>
+    <div class="hero-note note-one">♪</div><div class="hero-note note-two">♫</div><div class="hero-note note-three">♩</div>
+    {extraNotes.map((n) => (
+      <div class="hero-note-orbit">
+        <div class="hero-note-runner" style={`--angle:${n.angle}deg;--duration:${n.duration}s;--delay:${n.delay}s;`}>
+          <span class:list={["hero-note", "hero-note-margin", n.color]} style={`--size:${n.size}rem;--angle:${n.angle}deg;--duration:${n.duration}s;--delay:${n.delay}s;`}>{n.sym}</span>
+        </div>
+      </div>
+    ))}
+  </div>
  </section>
  <fieldset class="theme-picker" aria-label="Elegir tema">
   <legend>Elegir tema</legend>
@@ -86,7 +107,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
 
  <nav class="module-index" id="module-nav" aria-label="Índice de módulos">
   <h2>Índice de módulos</h2>
-  <p id="progress-summary" class="progress-summary" aria-live="polite">Progreso: 0/14 módulos completados</p>
+  <p id="progress-summary" class="progress-summary" aria-live="polite">Progreso: 0/15 módulos completados</p>
   <ol>
    
    <li><a href="#m1">M1 · Sonido y pulso</a></li>
@@ -102,7 +123,8 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
    <li><a href="#m11">M11 · Círculo de quintas</a></li>
    <li><a href="#m12">M12 · Dominantes secundarias y catálogo avanzado</a></li>
    <li><a href="#m13">M13 · Ritmo por género</a></li>
-   <li><a href="#pista-b">Pista B · Producción musical y DAW</a></li>
+   <li><a href="#proyecto-final">Proyecto Final · Compón tu canción</a></li>
+<li><a href="#pista-b">Pista B · Producción musical y DAW</a></li>
 
   </ol>
  </nav>
@@ -236,7 +258,7 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
  <section class="module reveal" id="m7" data-module="m7">
   <h2>M7: Séptimas y cifrado ampliado <span class="lesson-level">Intermedio</span></h2>
   <p class="lesson-goal"><b>Objetivo:</b> introducir armonías de cuatro notas y cifrados complejos (maj7, 7, m7, m7b5, dim7, slash chords, add9, sus)</p>
-  <p><b>Explicación:</b> maj7 séptima mayor (color jazzístico, ); 7 dominante (tensión); m7 menor (melancolía); slash chords (ej. G/B) inversiones con bajo específico; sus y add9 aportan modernidad.</p>
+  <p><b>Explicación:</b> maj7 séptima mayor (color jazzístico); 7 dominante (tensión); m7 menor (melancolía); slash chords (ej. G/B) inversiones con bajo específico; sus y add9 aportan modernidad.</p>
   <p><b>Cómo se forma una séptima:</b> a una tríada se le añade una cuarta nota, una tercera más arriba de la quinta; si esa nota es la séptima mayor el acorde suena luminoso (Cmaj7) y si es la séptima menor crea tensión que pide resolver (C7).</p>
   <div class="box">Toca C, Cmaj7, C7 y Cm7 en el teclado y compara su sonido.</div>
   <div class="grid"><div class="cd"><h3>Jazz y baladas</h3><ul><li>Estilo Sinatra: cambia tríadas por acordes de 4 notas (Cmaj7, Dm7, G7, Am7); voicings sin quinta; arpegios sutiles.</li><li>Baladas 80s/90s: acordes add9 (Cadd9, Fadd9) para brillo cristalino.</li></ul></div></div>
@@ -305,6 +327,14 @@ import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
   <label class="progress-toggle"><input type="checkbox" data-module-toggle="m13" /> Marcar módulo como completado</label>
  </section>
 
+ <section class="module reveal" id="proyecto-final" data-module="proyecto-final">
+  <h2>Proyecto Final · Compón tu canción <span class="lesson-level">Proyecto</span></h2>
+  <p class="lesson-goal"><b>Objetivo:</b> aplicar lo aprendido en los módulos para crear una idea musical propia.</p>
+  <p><b>Explicación:</b> combina una progresión de acordes, un patrón rítmico y una melodía sencilla. Usa las herramientas del manual para probar, escuchar y ajustar tu propuesta.</p>
+  <div class="box">Elige una tonalidad, selecciona una progresión (M6 o M12), define un ritmo (M13) y crea una melodía con notas de los acordes (M8). Graba o anota tu resultado.</div>
+  <p class="lesson-summary"><b>Resumen:</b> el proyecto final integra ritmo, armonía y melodía en una pequeña composición personal.</p>
+  <label class="progress-toggle"><input type="checkbox" data-module-toggle="proyecto-final" /> Marcar proyecto como completado</label>
+ </section>
 
  <section id="glosario" class="module reveal">
   <h2>Glosario</h2>
