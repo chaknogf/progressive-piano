@@ -1,0 +1,1835 @@
+---
+// src/components/ChallengeSession.astro
+// Etapa 1 · Motor de retos gamificados. Isla Astro con TS vanilla (sin React),
+// reutilizando rewards.ts, progress.ts, piano-engine.ts y tuner.ts.
+import type { Challenge } from "../lib/challenges";
+
+interface Props {
+  challenges: Challenge[];
+}
+const { challenges } = Astro.props;
+
+// Cada módulo tiene su propio número de retos: la barra se ajusta al abrirlo.
+const stepsByModule = challenges.reduce<Record<string, number>>((counts, challenge) => {
+  counts[challenge.modulo] = (counts[challenge.modulo] ?? 0) + 1;
+  return counts;
+}, {});
+const largestModule = Math.max(0, ...Object.values(stepsByModule));
+const steps = Math.min(8, Math.max(5, largestModule));
+const NOTE_NAMES = ["Do", "Do♯", "Re", "Re♯", "Mi", "Fa", "Fa♯", "Sol", "Sol♯", "La", "La♯", "Si"];
+const WHITE_PCS = [0, 2, 4, 5, 7, 9, 11];
+const BLACK_KEYS = [
+  { pc: 1, after: 0 },
+  { pc: 3, after: 1 },
+  { pc: 6, after: 3 },
+  { pc: 8, after: 4 },
+  { pc: 10, after: 5 },
+];
+const whiteWidth = 100 / WHITE_PCS.length;
+---
+
+<div
+  class="challenge-session"
+  id="challenge-session"
+  data-challenges={JSON.stringify(challenges)}
+  data-steps={String(steps)}
+  data-steps-by-module={JSON.stringify(stepsByModule)}
+  hidden
+>
+  <div class="ch-backdrop" data-ch-backdrop></div>
+
+  <section
+    class="ch-shell"
+    id="ch-shell"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="ch-title"
+    tabindex="-1"
+  >
+    <header class="ch-header">
+      <div class="ch-identity">
+        <span class="ch-logo" aria-hidden="true">♫</span>
+        <div class="ch-identity-text">
+          <span class="ch-kicker" id="ch-module">RETOS</span>
+          <strong id="ch-step-label">Reto 1</strong>
+        </div>
+      </div>
+
+      <div
+        class="ch-progress"
+        id="ch-progress"
+        role="progressbar"
+        aria-label="Progreso de la sesión"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+      >
+        {Array.from({ length: steps }, () => <span class="ch-seg"></span>)}
+      </div>
+
+      <div class="ch-header-actions">
+        <button
+          type="button"
+          class="ch-icon-btn"
+          id="ch-focus"
+          aria-pressed="false"
+          aria-label="Activar modo enfoque"
+          title="Modo enfoque">◎</button
+        >
+        <button
+          type="button"
+          class="ch-icon-btn"
+          id="ch-settings-btn"
+          aria-expanded="false"
+          aria-controls="ch-settings"
+          aria-label="Ajustes rápidos"
+          title="Ajustes rápidos">⚙</button
+        >
+        <button type="button" class="ch-exit" id="ch-finish">Terminar por hoy</button>
+      </div>
+    </header>
+
+    <div class="ch-settings" id="ch-settings" hidden>
+      <label class="ch-setting">
+        <input type="checkbox" id="ch-sound" />
+        <span>Sonido de acierto</span>
+      </label>
+      <label class="ch-setting">
+        <input type="checkbox" id="ch-motion" />
+        <span>Reducir movimiento</span>
+      </label>
+      <label class="ch-setting ch-setting-select">
+        <span>Entrada preferida</span>
+        <select id="ch-input">
+          <option value="pantalla">Pantalla</option>
+          <option value="microfono">Micrófono</option>
+          <option value="midi">MIDI</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="ch-stage" id="ch-stage">
+      <p class="ch-kind" id="ch-kind">ESCUCHA Y ELIGE</p>
+      <h2 class="ch-question" id="ch-title">Preparando tu reto…</h2>
+      <p class="ch-sub" id="ch-sub">Elige la respuesta que suene bien.</p>
+
+      <button type="button" class="ch-replay" id="ch-replay" hidden aria-label="Volver a reproducir el sonido del reto">
+        <span aria-hidden="true">🔊</span>
+        <span id="ch-replay-label">Volver a escuchar</span>
+      </button>
+
+      <div
+        class="ch-pulse"
+        id="ch-pulse"
+        hidden
+        data-expected="[]"
+        data-start="0"
+        data-tolerance="0"
+      >
+        <div class="ch-pulse-dots" id="ch-pulse-dots" aria-hidden="true"></div>
+        <p class="ch-pulse-status" id="ch-pulse-status" aria-live="polite">
+          Preparando el metrónomo…
+        </p>
+        <button type="button" class="ch-pulse-tap" id="ch-pulse-tap">
+          🥁 Tocar pulso
+          <small>Espacio</small>
+        </button>
+      </div>
+
+      <div class="ch-options" id="ch-options" role="group" aria-label="Opciones de respuesta"></div>
+
+      <div class="ch-play" id="ch-play" hidden>
+        <p class="ch-target" id="ch-target"></p>
+        <div class="ch-keys-scroll">
+          <div class="ch-keys" id="ch-keys" role="group" aria-label="Teclado para responder">
+            {
+              WHITE_PCS.map(
+                (pc, i) => (
+                  <button
+                    type="button"
+                    class="ch-key ch-key-white"
+                    data-midi={60 + pc}
+                    style={`left:${i * whiteWidth}%;width:${whiteWidth}%`}
+                    aria-label={`Tocar ${NOTE_NAMES[pc]}${4}`}
+                  >
+                    <span>{NOTE_NAMES[pc]}</span>
+                    <small>{["Z", "X", "C", "V", "B", "N", "M"][i]}</small>
+                  </button>
+                ),
+              )
+            }
+            {
+              BLACK_KEYS.map((key, i) => (
+                <button
+                  type="button"
+                  class="ch-key ch-key-black"
+                  data-midi={60 + key.pc}
+                  style={`left:${(key.after + 1) * whiteWidth - 4}%;width:8%`}
+                  aria-label={`Tocar ${NOTE_NAMES[key.pc]}${4} (tecla ${["S", "D", "G", "H", "J"][i]})`}
+                >
+                  <small>{["S", "D", "G", "H", "J"][i]}</small>
+                </button>
+              ))
+            }
+          </div>
+        </div>
+        <p class="ch-detected" id="ch-detected" aria-live="polite"></p>
+
+        <div class="ch-mic-box" id="ch-mic-box" hidden>
+          <button type="button" class="ch-mic-btn" id="ch-mic-btn">🎤 Activar micrófono</button>
+          <div class="ch-signal" aria-hidden="true"><i id="ch-signal-bar"></i></div>
+          <p class="ch-confidence" id="ch-confidence">Señal: —</p>
+          <p class="ch-privacy">
+            🔒 El audio se analiza en tu dispositivo: no se graba ni sale del navegador.
+          </p>
+        </div>
+        <button type="button" class="ch-midi-btn" id="ch-midi-btn" hidden>
+          🎹 Conectar MIDI
+        </button>
+      </div>
+
+      <div class="ch-feedback" id="ch-feedback" role="status" aria-live="polite" hidden></div>
+
+      <div class="ch-footer">
+        <button type="button" class="ch-hint-btn" id="ch-hint" hidden>💡 Ver pista</button>
+        <button type="button" class="ch-next-btn" id="ch-next" hidden>
+          Siguiente reto <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="ch-summary" id="ch-summary" hidden>
+      <div class="ch-summary-icon" aria-hidden="true">✨</div>
+      <h2 id="ch-summary-title">¡Sesión terminada!</h2>
+      <p id="ch-summary-text"></p>
+      <button type="button" class="ch-next-btn" id="ch-close">Seguir explorando</button>
+    </div>
+  </section>
+</div>
+
+<style is:global>
+  .challenge-session[hidden],
+  .challenge-session [hidden] {
+    display: none !important;
+  }
+
+  .challenge-session {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
+      max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    overflow: hidden;
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  .challenge-session .ch-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgb(4 4 9 / 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .challenge-session .ch-shell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: min(760px, 100%);
+    max-height: 100%;
+    padding: clamp(14px, 2.4vw, 22px);
+    overflow: hidden;
+    border: 1px solid var(--bd-strong);
+    border-radius: 26px;
+    background: color-mix(in srgb, var(--card-strong) 78%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--shadow);
+  }
+
+  .challenge-session .ch-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .challenge-session .ch-identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .challenge-session .ch-logo {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    background: linear-gradient(135deg, var(--acc), #ec4899);
+    color: #fff;
+    font-size: 1.2rem;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25);
+  }
+
+  .challenge-session .ch-identity-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.15;
+  }
+
+  .challenge-session .ch-kicker {
+    color: var(--acc);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  .challenge-session #ch-step-label {
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .challenge-session .ch-progress {
+    display: flex;
+    flex: 1 1 auto;
+    gap: 5px;
+    min-width: 90px;
+  }
+
+  .challenge-session .ch-seg {
+    flex: 1 1 0;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--bd);
+    transition: background 0.35s ease, transform 0.35s ease;
+  }
+
+  .challenge-session .ch-seg.is-done {
+    background: linear-gradient(90deg, var(--acc), #fb7185);
+  }
+
+  .challenge-session .ch-seg.is-current {
+    background: var(--tool);
+    transform: scaleY(1.45);
+  }
+
+  .challenge-session .ch-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+
+  .challenge-session .ch-icon-btn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--bd);
+    border-radius: 13px;
+    background: var(--card);
+    color: var(--mut);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.2s, color 0.2s;
+  }
+
+  .challenge-session .ch-icon-btn:hover,
+  .challenge-session .ch-icon-btn[aria-pressed="true"] {
+    border-color: var(--acc);
+    color: var(--acc);
+  }
+
+  .challenge-session .ch-icon-btn:active {
+    transform: scale(0.93);
+  }
+
+  .challenge-session .ch-exit {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--bd-strong);
+    border-radius: 13px;
+    background: var(--bg-2);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.12s;
+  }
+
+  .challenge-session .ch-exit:hover {
+    border-color: var(--acc);
+  }
+
+  .challenge-session .ch-exit:active {
+    transform: scale(0.97);
+  }
+
+  .challenge-session .ch-settings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 1px var(--bd);
+    background: var(--card);
+  }
+
+  .challenge-session .ch-setting {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--mut);
+    cursor: pointer;
+  }
+
+  .challenge-session .ch-setting input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--acc);
+  }
+
+  .challenge-session .ch-setting-select {
+    gap: 8px;
+  }
+
+  .challenge-session .ch-setting select {
+    min-height: 38px;
+    padding: 6px 10px;
+    border: 1px solid var(--bd);
+    border-radius: 10px;
+    background: var(--bg-2);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.82rem;
+  }
+
+  .challenge-session .ch-stage,
+  .challenge-session .ch-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-height: 0;
+    overflow-y: auto;
+    text-align: center;
+    padding: 4px 2px 2px;
+  }
+
+  .challenge-session .ch-kind {
+    margin: 0;
+    color: var(--tool);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+  }
+
+  .challenge-session .ch-question {
+    margin: 0;
+    font: 700 clamp(1.25rem, 3.6vw, 2rem) / 1.2 Georgia, "Times New Roman", serif;
+    text-wrap: balance;
+  }
+
+  .challenge-session .ch-sub {
+    margin: -4px 0 0;
+    color: var(--mut);
+    font-size: 0.85rem;
+  }
+
+  .challenge-session .ch-replay {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    margin-top: 2px;
+    padding: 10px 22px;
+    border: 1px solid color-mix(in srgb, var(--tool) 45%, var(--bd));
+    border-radius: 999px;
+    background: var(--tool2);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.2s, background 0.2s, color 0.2s;
+  }
+
+  .challenge-session .ch-replay:hover {
+    border-color: var(--tool);
+    background: color-mix(in srgb, var(--tool) 22%, var(--card));
+  }
+
+  .challenge-session .ch-replay:active {
+    transform: scale(0.97);
+  }
+
+  .challenge-session .ch-replay.is-playing {
+    border-color: var(--tool);
+    color: var(--tool);
+  }
+
+  .challenge-session .ch-replay:focus-visible {
+    outline: 2px solid var(--tool);
+    outline-offset: 3px;
+  }
+
+  .challenge-session .ch-pulse {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: auto;
+    padding: 12px;
+    border-radius: 18px;
+    box-shadow: inset 0 0 0 1px var(--bd);
+    background: var(--card);
+  }
+
+  .challenge-session .ch-pulse-dots {
+    display: flex;
+    gap: 10px;
+  }
+
+  .challenge-session .ch-pulse-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bg-2);
+    box-shadow: inset 0 0 0 2px var(--bd);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .challenge-session .ch-pulse-dot.is-next {
+    box-shadow: 0 0 0 3px var(--tool2), inset 0 0 0 2px var(--tool);
+    transform: scale(1.15);
+  }
+
+  .challenge-session .ch-pulse-dot.is-hit {
+    background: var(--ok);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--ok) 55%, transparent);
+  }
+
+  .challenge-session .ch-pulse-dot.is-miss {
+    background: var(--tool);
+    opacity: 0.6;
+  }
+
+  .challenge-session .ch-pulse-status {
+    margin: 0;
+    color: var(--mut);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .challenge-session .ch-pulse-tap {
+    width: min(100%, 340px);
+    min-height: 76px;
+    border: 0;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--tool), #38bdf8);
+    color: #04121a;
+    font: inherit;
+    font-size: 1.05rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--tool) 28%, transparent);
+    transition: transform 0.12s, filter 0.2s;
+  }
+
+  .challenge-session .ch-pulse-tap small {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.66rem;
+    opacity: 0.75;
+  }
+
+  .challenge-session .ch-pulse-tap:hover {
+    filter: brightness(1.08);
+  }
+
+  .challenge-session .ch-pulse-tap:active {
+    transform: scale(0.96);
+  }
+
+  .challenge-session .ch-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    margin-top: auto;
+  }
+
+  .challenge-session .ch-opt {
+    min-height: 68px;
+    padding: 14px 18px;
+    border: 1px solid var(--bd-strong);
+    border-radius: 18px;
+    background: var(--card);
+    color: var(--fg);
+    font: inherit;
+    font-size: 1.02rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+
+  .challenge-session .ch-opt:hover {
+    border-color: var(--acc);
+    background: var(--acc2);
+    transform: translateY(-2px);
+  }
+
+  .challenge-session .ch-opt:active {
+    transform: scale(0.97);
+  }
+
+  .challenge-session .ch-opt.is-picked {
+    border-color: var(--tool);
+    box-shadow: 0 0 0 3px var(--tool2);
+  }
+
+  .challenge-session .ch-play {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: auto;
+  }
+
+  .challenge-session .ch-target {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .challenge-session .ch-keys-scroll {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .challenge-session .ch-keys {
+    position: relative;
+    width: 100%;
+    min-width: 420px;
+    height: 132px;
+  }
+
+  .challenge-session .ch-key {
+    position: absolute;
+    top: 0;
+    cursor: pointer;
+    font: inherit;
+    transition: filter 0.1s, transform 0.1s;
+  }
+
+  .challenge-session .ch-key-white {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
+    padding-bottom: 12px;
+    border: 1px solid rgb(0 0 0 / 0.35);
+    border-radius: 0 0 10px 10px;
+    background: linear-gradient(180deg, #fff, #dbe3ec);
+    color: #0f172a;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+
+  .challenge-session .ch-key-white small {
+    color: #64748b;
+    font-size: 0.62rem;
+  }
+
+  .challenge-session .ch-key-black {
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 62%;
+    padding-bottom: 8px;
+    border: 1px solid rgb(0 0 0 / 0.7);
+    border-radius: 0 0 8px 8px;
+    background: linear-gradient(180deg, #26262e, #050507);
+  }
+
+  .challenge-session .ch-key-black small {
+    color: #cbd5e1;
+    font-size: 0.6rem;
+    font-weight: 800;
+  }
+
+  .challenge-session .ch-key.is-down {
+    filter: brightness(1.35) saturate(1.4);
+    transform: translateY(2px);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 55%, transparent);
+  }
+
+  .challenge-session .ch-detected {
+    min-height: 1.4em;
+    margin: 0;
+    color: var(--mut);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .challenge-session .ch-mic-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 16px;
+    box-shadow: inset 0 0 0 1px var(--bd);
+    background: var(--card);
+  }
+
+  .challenge-session .ch-mic-btn,
+  .challenge-session .ch-midi-btn {
+    min-height: 48px;
+    padding: 10px 22px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--tool);
+    color: #04121a;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.12s, filter 0.2s;
+  }
+
+  .challenge-session .ch-mic-btn:hover,
+  .challenge-session .ch-midi-btn:hover {
+    filter: brightness(1.08);
+  }
+
+  .challenge-session .ch-mic-btn:active,
+  .challenge-session .ch-midi-btn:active {
+    transform: scale(0.97);
+  }
+
+  .challenge-session .ch-signal {
+    width: min(100%, 320px);
+    height: 8px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--bd);
+  }
+
+  .challenge-session .ch-signal i {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--tool);
+    transition: width 0.08s linear;
+  }
+
+  .challenge-session .ch-confidence {
+    margin: 0;
+    color: var(--mut);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .challenge-session .ch-privacy {
+    margin: 0;
+    color: var(--mut);
+    font-size: 0.72rem;
+  }
+
+  .challenge-session .ch-feedback {
+    position: relative;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    animation: ch-pop 0.28s ease-out;
+  }
+
+  .challenge-session .ch-feedback strong {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 1rem;
+  }
+
+  .challenge-session .ch-feedback span {
+    color: var(--mut);
+  }
+
+  .challenge-session .ch-feedback.is-good {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ok) 55%, var(--bd));
+    background: var(--ok2);
+    color: var(--ok);
+  }
+
+  .challenge-session .ch-feedback.is-good::after {
+    content: "✦  ✧  ✦";
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    color: var(--acc);
+    letter-spacing: 0.4em;
+    animation: ch-spark 0.9s ease-out both;
+    pointer-events: none;
+  }
+
+  .challenge-session .ch-feedback.is-close {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tool) 45%, var(--bd));
+    background: var(--tool2);
+    color: var(--fg);
+  }
+
+  .challenge-session .ch-footer {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 56px;
+  }
+
+  .challenge-session .ch-hint-btn {
+    min-height: 56px;
+    padding: 10px 20px;
+    border: 1px solid var(--bd-strong);
+    border-radius: 16px;
+    background: var(--card);
+    color: var(--fg);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .challenge-session .ch-next-btn {
+    min-height: 56px;
+    padding: 12px 30px;
+    border: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--acc), #fb7185);
+    color: #160c04;
+    font: inherit;
+    font-size: 1.02rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--acc) 28%, transparent);
+    transition: transform 0.12s, filter 0.2s;
+  }
+
+  .challenge-session .ch-next-btn:hover {
+    filter: brightness(1.06);
+  }
+
+  .challenge-session .ch-next-btn:active {
+    transform: scale(0.97);
+  }
+
+  .challenge-session .ch-summary {
+    padding: 24px 0;
+  }
+
+  .challenge-session .ch-summary-icon {
+    font-size: 3rem;
+  }
+
+  .challenge-session .ch-summary h2 {
+    margin: 0;
+    font: 700 clamp(1.4rem, 4vw, 2rem) / 1.2 Georgia, "Times New Roman", serif;
+  }
+
+  .challenge-session .ch-summary p {
+    max-width: 46ch;
+    margin: 0 0 8px;
+    color: var(--mut);
+  }
+
+  .challenge-session :is(button, select, input, [tabindex]):focus-visible {
+    outline: 2px solid var(--tool);
+    outline-offset: 3px;
+  }
+
+  body.ch-open {
+    overflow: hidden;
+  }
+
+  body.ch-focus main {
+    visibility: hidden;
+  }
+
+  body.ch-focus .challenge-session .ch-backdrop {
+    background: var(--bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  body.ch-reduce-motion .challenge-session *,
+  body.ch-reduce-motion .challenge-session *::before,
+  body.ch-reduce-motion .challenge-session *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  @keyframes ch-pop {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes ch-spark {
+    from { opacity: 0; transform: translateY(6px); }
+    40% { opacity: 1; }
+    to { opacity: 0; transform: translateY(-10px); }
+  }
+
+  @media (max-width: 700px) {
+    .challenge-session .ch-header {
+      flex-wrap: wrap;
+    }
+    .challenge-session .ch-progress {
+      order: 3;
+      flex-basis: 100%;
+    }
+    .challenge-session .ch-exit {
+      margin-left: auto;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .challenge-session .ch-options {
+      grid-template-columns: 1fr;
+    }
+    .challenge-session .ch-shell {
+      border-radius: 20px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .challenge-session .ch-feedback,
+    .challenge-session .ch-feedback::after,
+    .challenge-session .ch-seg,
+    .challenge-session .ch-key {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { must } from "../lib/dom";
+  import {
+    createSession,
+    currentChallenge,
+    DEFAULT_PULSE_TOLERANCE_MS,
+    isPassed,
+    isPulseOnTime,
+    isPulsePassed,
+    MAX_ATTEMPTS,
+    pulseTimes,
+    pulseTolerance,
+    recordOutcome,
+    sessionProgress,
+    sessionStats,
+    type Challenge,
+    type ChallengeSession,
+  } from "../lib/challenges";
+  import {
+    awardModuleBonus,
+    awardQuestionXp,
+    breakStreak,
+    playSuccessSound,
+    readRewardState,
+    writeRewardState,
+  } from "../lib/rewards";
+  import { setModuleProgress } from "../lib/progress";
+  import { audioContext, scheduleTone } from "../lib/audio";
+  import { noteOff, noteOn, playNote } from "../lib/piano-engine";
+  import {
+    createPitchDetector,
+    foldToReference,
+    freqToMidi,
+    hz,
+    noteName,
+    pitchClassOf,
+  } from "../lib/tuner";
+
+  const SESSION_KEY = "progressive-music:challenge-session";
+  const INPUT_KEY = "progressive-music:challenge-input";
+  const MOTION_KEY = "progressive-music:reduced-motion";
+
+  type InputMode = "pantalla" | "microfono" | "midi";
+  type MidiInputLike = { onmidimessage: ((event: { data: Uint8Array }) => void) | null };
+  type MidiAccessLike = {
+    inputs: { forEach(fn: (input: MidiInputLike) => void): void };
+    onstatechange: ((event: Event) => void) | null;
+  };
+  type NavigatorWithMidi = Navigator & {
+    requestMIDIAccess?: (options?: { sysex?: boolean }) => Promise<MidiAccessLike>;
+  };
+
+  const QWERTY: Record<string, number> = {
+    z: 60, s: 61, x: 62, d: 63, c: 64, v: 65,
+    g: 66, b: 67, h: 68, n: 69, j: 70, m: 71,
+  };
+
+  const root = must(document.getElementById("challenge-session"), "#challenge-session");
+  const shell = must(root.querySelector<HTMLElement>("#ch-shell"), "#ch-shell");
+  const el = <T extends Element>(id: string): T =>
+    must(root.querySelector<T>(`#${id}`), `#${id}`);
+
+  let challenges: Challenge[] = [];
+  try {
+    challenges = JSON.parse(root.dataset.challenges ?? "[]") as Challenge[];
+  } catch {
+    challenges = [];
+  }
+  let steps = Number(root.dataset.steps ?? 5);
+  let stepsByModule: Record<string, number> = {};
+  try {
+    stepsByModule = JSON.parse(root.dataset.stepsByModule ?? "{}") as Record<string, number>;
+  } catch {
+    stepsByModule = {};
+  }
+
+  const progressEl = el<HTMLElement>("ch-progress");
+  progressEl.innerHTML = Array.from({ length: steps }, () => '<span class="ch-seg"></span>').join("");
+  let segments = Array.from(progressEl.querySelectorAll<HTMLElement>(".ch-seg"));
+
+  const stage = el<HTMLElement>("ch-stage");
+  const summary = el<HTMLElement>("ch-summary");
+  const settings = el<HTMLElement>("ch-settings");
+  const optionsEl = el<HTMLElement>("ch-options");
+  const playEl = el<HTMLElement>("ch-play");
+  const keysEl = el<HTMLElement>("ch-keys");
+  const feedback = el<HTMLElement>("ch-feedback");
+  const hintButton = el<HTMLButtonElement>("ch-hint");
+  const nextButton = el<HTMLButtonElement>("ch-next");
+  const micBox = el<HTMLElement>("ch-mic-box");
+  const micButton = el<HTMLButtonElement>("ch-mic-btn");
+  const signalBar = el<HTMLElement>("ch-signal-bar");
+  const confidence = el<HTMLElement>("ch-confidence");
+  const detected = el<HTMLElement>("ch-detected");
+  const midiButton = el<HTMLButtonElement>("ch-midi-btn");
+  const soundInput = el<HTMLInputElement>("ch-sound");
+  const motionInput = el<HTMLInputElement>("ch-motion");
+  const inputSelect = el<HTMLSelectElement>("ch-input");
+  const focusButton = el<HTMLButtonElement>("ch-focus");
+  const settingsButton = el<HTMLButtonElement>("ch-settings-btn");
+  const replayButton = el<HTMLButtonElement>("ch-replay");
+  const replayLabel = el<HTMLElement>("ch-replay-label");
+  const pulseEl = el<HTMLElement>("ch-pulse");
+  const pulseDots = el<HTMLElement>("ch-pulse-dots");
+  const pulseStatus = el<HTMLElement>("ch-pulse-status");
+  const pulseTapBtn = el<HTMLButtonElement>("ch-pulse-tap");
+
+  let session: ChallengeSession = createSession(challenges, "M1");
+  let active: Challenge | null = null;
+  let attempt = 0;
+  let locked = false;
+  let xpEarned = 0;
+  let lastWrongAt = 0;
+  let lastAnnounce = 0;
+  let lastFocus: HTMLElement | null = null;
+  let preferredInput: InputMode = readStored(INPUT_KEY, "pantalla") as InputMode;
+  let audioTimers: number[] = [];
+  let replayTimer = 0;
+  let replayNotes: number[] = [];
+  let replayDefaultLabel = "Volver a escuchar";
+  let qwertyDown = new Set<string>();
+
+  // Estado del metrónomo: tiempos en ms relativos a `pulseStart`.
+  let pulseExpected: number[] = [];
+  let pulseResults: ("pending" | "hit" | "miss")[] = [];
+  let pulseStart = 0;
+  let pulseIndex = 0;
+  let pulseHits = 0;
+  let pulseToleranceMs = DEFAULT_PULSE_TOLERANCE_MS;
+  let pulseTimers: number[] = [];
+  let pulseFinishTimer = 0;
+  let pulseRunning = false;
+
+  const detector = createPitchDetector({ minHz: 110, maxHz: 880, threshold: 0.15 });
+  let micCtx: AudioContext | null = null;
+  let micStream: MediaStream | null = null;
+  let micAnalyser: AnalyserNode | null = null;
+  let micBuf = new Float32Array(4096);
+  let micTimer = 0;
+  let micActive = false;
+  let midiAccess: MidiAccessLike | null = null;
+
+  function readStored(key: string, fallback: string): string {
+    try {
+      return window.localStorage.getItem(key) ?? fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function writeStored(key: string, value: string): void {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch {
+      /* modo privado o sin cuota */
+    }
+  }
+
+  function clearAudioTimers(): void {
+    audioTimers.forEach((id) => window.clearTimeout(id));
+    audioTimers = [];
+    window.clearTimeout(replayTimer);
+    replayTimer = 0;
+    replayButton.classList.remove("is-playing");
+    replayLabel.textContent = replayDefaultLabel;
+  }
+
+  function playChallengeAudio(notes: number[]): void {
+    clearAudioTimers();
+    notes.forEach((midi, i) => {
+      audioTimers.push(window.setTimeout(() => playNote(midi, 0.26, 0.72), 240 + i * 270));
+    });
+  }
+
+  /** Vuelve a reproducir el sonido del reto (o reinicia el metrónomo). */
+  function replayAudio(): void {
+    if (replayButton.hidden) return;
+    if (active?.tipo === "tocar_pulso") {
+      if (!active.pulso) return;
+      startPulse();
+      const last = pulseExpected[pulseExpected.length - 1] ?? 0;
+      const total = pulseStart - performance.now() + last + pulseToleranceMs + 400;
+      replayLabel.textContent = "Reproduciendo…";
+      replayButton.classList.add("is-playing");
+      window.clearTimeout(replayTimer);
+      replayTimer = window.setTimeout(() => {
+        replayButton.classList.remove("is-playing");
+        replayLabel.textContent = replayDefaultLabel;
+      }, Math.max(300, total));
+      return;
+    }
+    if (!replayNotes.length) return;
+    playChallengeAudio(replayNotes);
+    replayLabel.textContent = "Reproduciendo…";
+    replayButton.classList.add("is-playing");
+    window.clearTimeout(replayTimer);
+    replayTimer = window.setTimeout(() => {
+      replayButton.classList.remove("is-playing");
+      replayLabel.textContent = replayDefaultLabel;
+    }, 240 + replayNotes.length * 270 + 260);
+  }
+
+  // ── Metrónomo de `tocar_pulso` ───────────────────────────────────────
+  function stopPulse(): void {
+    pulseTimers.forEach((id) => window.clearTimeout(id));
+    pulseTimers = [];
+    window.clearTimeout(pulseFinishTimer);
+    pulseFinishTimer = 0;
+    pulseRunning = false;
+  }
+
+  function paintPulseDots(): void {
+    pulseDots.replaceChildren();
+    pulseResults.forEach((result, index) => {
+      const dot = document.createElement("i");
+      dot.className = "ch-pulse-dot";
+      if (index === pulseIndex) dot.classList.add("is-next");
+      if (result === "hit") dot.classList.add("is-hit");
+      if (result === "miss") dot.classList.add("is-miss");
+      pulseDots.appendChild(dot);
+    });
+  }
+
+  function startPulse(): void {
+    if (!active?.pulso) return;
+    stopPulse();
+    const pattern = active.pulso;
+    pulseExpected = pulseTimes(pattern);
+    pulseToleranceMs = pulseTolerance(pattern);
+    pulseIndex = 0;
+    pulseHits = 0;
+    pulseResults = pulseExpected.map(() => "pending");
+    const interval = pulseExpected[1] ?? 60000 / pattern.bpm;
+    // Un clic de cuenta atrás deja tiempo a preparar el primer golpe.
+    pulseStart = performance.now() + interval;
+    pulseEl.dataset.expected = JSON.stringify(pulseExpected);
+    pulseEl.dataset.start = String(pulseStart);
+    pulseEl.dataset.tolerance = String(pulseToleranceMs);
+    pulseStatus.textContent = "Escucha el clic… y pulsa con el siguiente.";
+    paintPulseDots();
+
+    try {
+      const ctx = audioContext();
+      void ctx.resume();
+      const base = ctx.currentTime + 0.02;
+      for (let index = 0; index <= pulseExpected.length; index += 1) {
+        scheduleTone(index === 0 ? 84 : 79, base + (index * interval) / 1000, 0.055);
+      }
+    } catch {
+      pulseStatus.textContent = "Sin audio: guíate por los puntos y la barra espaciadora.";
+    }
+
+    pulseRunning = true;
+    const last = pulseExpected[pulseExpected.length - 1] ?? 0;
+    const wait = pulseStart - performance.now() + last + pulseToleranceMs + 300;
+    pulseFinishTimer = window.setTimeout(() => {
+      if (!pulseRunning) return;
+      while (pulseIndex < pulseExpected.length) {
+        pulseResults[pulseIndex] = "miss";
+        pulseIndex += 1;
+      }
+      paintPulseDots();
+      stopPulse();
+      resolveAttempt(false);
+    }, Math.max(300, wait));
+  }
+
+  function pulseTap(atMs = performance.now()): void {
+    if (!pulseRunning || locked || !active?.pulso) return;
+    const offset = atMs - pulseStart;
+    const expected = pulseExpected[pulseIndex];
+    if (expected === undefined) return;
+
+    if (isPulseOnTime(offset, expected, pulseToleranceMs)) {
+      pulseResults[pulseIndex] = "hit";
+      pulseHits += 1;
+      pulseIndex += 1;
+      pulseStatus.textContent = `¡En hora! ${pulseHits}/${pulseExpected.length}`;
+      paintPulseDots();
+      if (pulseIndex >= pulseExpected.length) {
+        stopPulse();
+        resolveAttempt(true);
+      }
+      return;
+    }
+
+    if (offset < expected - pulseToleranceMs) {
+      pulseStatus.textContent =
+        pulseIndex === 0
+          ? "Ahora viene… espera al siguiente clic."
+          : "Un poco pronto: inténtalo en el próximo clic.";
+      return;
+    }
+
+    if (isPulsePassed(offset, expected, pulseToleranceMs)) {
+      pulseResults[pulseIndex] = "miss";
+      pulseIndex += 1;
+      pulseStatus.textContent = "Un pelín tarde: sigue con el siguiente pulso.";
+      paintPulseDots();
+      if (pulseIndex >= pulseExpected.length) {
+        stopPulse();
+        resolveAttempt(false);
+      }
+    }
+  }
+
+  function updateProgress(): void {
+    const ratio = sessionProgress(session, steps);
+    const done = session.answered.length;
+    progressEl.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
+    const currentIndex = session.queue.length > 0 ? Math.min(steps - 1, done) : -1;
+    segments.forEach((seg, i) => {
+      seg.classList.toggle("is-done", i < Math.min(steps, done));
+      seg.classList.toggle("is-current", i === currentIndex);
+    });
+    el("ch-step-label").textContent = `Reto ${done + 1}`;
+  }
+
+  function feedbackWith(title: string, detail: string, kind: "good" | "close"): void {
+    feedback.className = `ch-feedback is-${kind}`;
+    feedback.replaceChildren();
+    const strong = document.createElement("strong");
+    strong.textContent = title;
+    feedback.appendChild(strong);
+    if (detail) {
+      const span = document.createElement("span");
+      span.textContent = detail;
+      feedback.appendChild(span);
+    }
+    feedback.hidden = false;
+  }
+
+  function showNext(label = "Siguiente reto"): void {
+    nextButton.replaceChildren(document.createTextNode(`${label} `));
+    const arrow = document.createElement("span");
+    arrow.setAttribute("aria-hidden", "true");
+    arrow.textContent = "→";
+    nextButton.appendChild(arrow);
+    nextButton.hidden = false;
+    nextButton.focus();
+  }
+
+  function openSession(modulo: string): void {
+    const moduleId = modulo.toUpperCase();
+    stopPulse();
+    const moduleCount = stepsByModule[moduleId] ?? 0;
+    steps = Math.min(8, Math.max(5, moduleCount));
+    progressEl.innerHTML = Array.from({ length: steps }, () => '<span class="ch-seg"></span>').join("");
+    segments = Array.from(progressEl.querySelectorAll<HTMLElement>(".ch-seg"));
+    session = createSession(challenges, moduleId);
+    active = null;
+    attempt = 0;
+    locked = false;
+    xpEarned = 0;
+    lastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+    el("ch-module").textContent = `RETOS · ${moduleId}`;
+    summary.hidden = true;
+    settings.hidden = true;
+    settingsButton.setAttribute("aria-expanded", "false");
+    stage.hidden = false;
+    root.hidden = false;
+    document.body.classList.add("ch-open");
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keyup", onKeyUp);
+
+    updateProgress();
+    if (currentChallenge(session, challenges)) renderCurrent();
+    else showEmpty();
+    shell.focus();
+  }
+
+  function showEmpty(): void {
+    stopPulse();
+    clearAudioTimers();
+    pulseEl.hidden = true;
+    stage.dataset.challengeId = "";
+    replayNotes = [];
+    replayButton.hidden = true;
+    el("ch-kind").textContent = "PRÓXIMAMENTE";
+    el("ch-title").textContent = "Retos en camino 🎧";
+    el("ch-sub").textContent = "Este módulo todavía no tiene retos. Sigue explorando el manual mientras los preparamos.";
+    optionsEl.hidden = true;
+    playEl.hidden = true;
+    feedback.hidden = true;
+    hintButton.hidden = true;
+    showNext("Entendido");
+  }
+
+  function isNoteChallenge(): boolean {
+    return active?.tipo === "tocar_validar" || active?.tipo === "ver_tocar";
+  }
+
+  function renderCurrent(): void {
+    active = currentChallenge(session, challenges);
+    if (!active) {
+      finishSession();
+      return;
+    }
+    attempt = 0;
+    locked = false;
+    lastWrongAt = 0;
+    lastAnnounce = 0;
+    feedback.hidden = true;
+    hintButton.hidden = true;
+    hintButton.disabled = false;
+    hintButton.textContent = "💡 Ver pista";
+    nextButton.hidden = true;
+    stopPulse();
+    clearAudioTimers();
+    stage.dataset.challengeId = active.id;
+
+    // Botón para volver a escuchar el audio del reto (o reiniciar el metrónomo).
+    const isPulse = active.tipo === "tocar_pulso";
+    replayNotes = active.audio?.length
+      ? [...active.audio]
+      : active.midi != null
+        ? [active.midi]
+        : [];
+    replayDefaultLabel = isPulse || active.audio?.length
+      ? "Volver a escuchar"
+      : "Escuchar la nota";
+    replayButton.hidden = replayNotes.length === 0 && !isPulse;
+    replayButton.setAttribute("aria-label", replayDefaultLabel);
+    replayLabel.textContent = replayDefaultLabel;
+
+    const isChoice = active.tipo === "oir_elegir";
+    el("ch-kind").textContent = isChoice
+      ? "ESCUCHA Y ELIGE"
+      : isPulse
+        ? "SIGUE EL PULSO"
+        : active.tipo === "ver_tocar"
+          ? "TOCA EN EL TECLADO"
+          : "CANTA O TOCA";
+    el("ch-title").textContent = active.enunciado;
+    el("ch-sub").textContent = isChoice
+      ? "Elige la respuesta que suene bien. No hay prisa."
+      : isPulse
+        ? "Escucha el metrónomo y pulsa con cada clic: Espacio, botón o teclado."
+        : "Puedes usar el teclado, tu micrófono o un MIDI.";
+
+    optionsEl.hidden = !isChoice;
+    playEl.hidden = isChoice || isPulse;
+    pulseEl.hidden = !isPulse;
+    optionsEl.replaceChildren();
+
+    if (isChoice) {
+      active.opciones.forEach((option) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "ch-opt";
+        button.textContent = option;
+        button.addEventListener("click", () => {
+          optionsEl.querySelectorAll(".ch-opt").forEach((b) => b.classList.remove("is-picked"));
+          button.classList.add("is-picked");
+          resolveAttempt(option === active?.validacion);
+        });
+        optionsEl.appendChild(button);
+      });
+    } else if (isPulse) {
+      detected.textContent = "Espacio, botón o teclado: ¡a marcar el pulso!";
+      micBox.hidden = true;
+      midiButton.hidden = true;
+      setMicButton(false);
+    } else {
+      const target = active.midi != null ? noteName(active.midi) : active.validacion;
+      el("ch-target").textContent = `Busca ${target} · ${active.validacion}`;
+      detected.textContent = "Canta, toca el teclado o conecta MIDI…";
+      // En los retos de nota conviven micrófono del afinador y conexión MIDI.
+      micBox.hidden = false;
+      midiButton.hidden = false;
+      setMicButton(false);
+
+      if (preferredInput === "microfono") {
+        void startMic();
+      } else if (preferredInput === "midi" && !midiAccess) {
+        void enableMidi();
+      }
+    }
+
+    updateProgress();
+    if (isPulse) startPulse();
+    else if (active.audio?.length) playChallengeAudio(active.audio);
+  }
+
+  function resolveAttempt(correct: boolean): void {
+    if (locked || !active) return;
+
+    if (correct) {
+      if (active.tipo === "tocar_pulso") stopPulse();
+      attempt += 1;
+      locked = true;
+      const ranked: 1 | 2 = attempt === 1 ? 1 : 2;
+      const gained = awardQuestionXp(
+        active.id,
+        ranked,
+        active.tipo === "tocar_validar",
+        active.tipo !== "oir_elegir",
+      );
+      xpEarned += gained;
+      playSuccessSound();
+      session = recordOutcome(session, active.id, true);
+      feedbackWith(
+        `¡Perfecto! ✨ +${gained} XP`,
+        active.explicacion,
+        "good",
+      );
+      hintButton.hidden = true;
+      showNext();
+      updateProgress();
+      return;
+    }
+
+    const failedId = active.id;
+    const isPulse = active.tipo === "tocar_pulso";
+    attempt += 1;
+    breakStreak();
+    lastWrongAt = performance.now();
+    feedbackWith(`Casi 🎹 — ${active.validacion} + ${active.explicacion}`, "", "close");
+    if (attempt >= 2) hintButton.hidden = false;
+    if (attempt >= MAX_ATTEMPTS) {
+      locked = true;
+      session = recordOutcome(session, failedId, false);
+      showNext("Lo vemos al final 💫");
+      updateProgress();
+    } else if (isPulse) {
+      // El metrónomo vuelve a empezar para que el segundo intento sea limpio.
+      window.setTimeout(() => {
+        if (active?.id === failedId && !locked && !root.hidden) startPulse();
+      }, 900);
+    }
+  }
+
+  function goNext(): void {
+    stopPulse();
+    stopMic();
+    clearAudioTimers();
+    if (currentChallenge(session, challenges)) renderCurrent();
+    else finishSession();
+  }
+
+  function finishSession(): void {
+    stopPulse();
+    stopMic();
+    clearAudioTimers();
+    detachMidi();
+    document.removeEventListener("keydown", onKeyDown);
+    document.removeEventListener("keyup", onKeyUp);
+
+    const stats = sessionStats(session);
+    const passed = stats.total > 0 && isPassed(stats);
+    // Los retos usan IDs de módulo en mayúsculas (M1); el panel de progreso y
+    // `progress.ts` usan los IDs canónicos de sección en minúsculas (m1).
+    const progressId = session.modulo.toLowerCase();
+    if (passed) {
+      setModuleProgress(progressId, {
+        completed: true,
+        score: Math.round(stats.ratio * 100),
+      });
+      awardModuleBonus(progressId, stats.perfect);
+    }
+    writeStored(
+      SESSION_KEY,
+      JSON.stringify({
+        modulo: session.modulo,
+        ...stats,
+        xpEarned,
+        savedAt: Date.now(),
+      }),
+    );
+    window.dispatchEvent(new CustomEvent("progress:changed"));
+
+    stage.hidden = true;
+    settings.hidden = true;
+    summary.hidden = false;
+    el("ch-summary-title").textContent = passed
+      ? "¡Módulo conseguido! 🎉"
+      : "¡Buen trabajo! ✨";
+    el("ch-summary-text").textContent =
+      `Resolviste ${stats.correct} de ${stats.total} retos y ganaste ${xpEarned} XP. ` +
+      (passed
+        ? "Tu módulo ya está marcado como completado."
+        : "Cada intento cuenta: cuando quieras, lo volvemos a intentar.");
+    el("ch-close").focus();
+  }
+
+  function closeSession(): void {
+    root.hidden = true;
+    stopPulse();
+    document.body.classList.remove("ch-open", "ch-focus");
+    focusButton.setAttribute("aria-pressed", "false");
+    stopMic();
+    clearAudioTimers();
+    detachMidi();
+    document.removeEventListener("keydown", onKeyDown);
+    document.removeEventListener("keyup", onKeyUp);
+    if (lastFocus) lastFocus.focus();
+  }
+
+  // ── Teclado virtual / QWERTY / MIDI ─────────────────────────────────
+  function keyFor(midi: number): HTMLElement | null {
+    return keysEl.querySelector<HTMLElement>(`.ch-key[data-midi="${midi}"]`);
+  }
+
+  function pressNote(midi: number): void {
+    noteOn(midi, 0.8);
+    keyFor(midi)?.classList.add("is-down");
+    if (active?.tipo === "tocar_pulso") {
+      pulseTap();
+      return;
+    }
+    if (active?.midi != null && !locked) {
+      detected.textContent = `Detectado: ${noteName(midi)}`;
+      const correct = pitchClassOf(midi) === pitchClassOf(active.midi);
+      resolveAttempt(correct);
+    }
+  }
+
+  function releaseNote(midi: number): void {
+    noteOff(midi);
+    keyFor(midi)?.classList.remove("is-down");
+  }
+
+  function isTyping(target: EventTarget | null): boolean {
+    return (
+      target instanceof HTMLElement &&
+      (target.tagName === "INPUT" ||
+        target.tagName === "SELECT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable)
+    );
+  }
+
+  function onKeyDown(event: KeyboardEvent): void {
+    if (root.hidden) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      finishSession();
+      return;
+    }
+    if (active?.tipo === "tocar_pulso" && (event.key === " " || event.code === "Space")) {
+      event.preventDefault();
+      if (!event.repeat) pulseTap();
+      return;
+    }
+    if (isTyping(event.target) || event.repeat) return;
+    const key = event.key.toLowerCase();
+    if (!(key in QWERTY)) return;
+    event.preventDefault();
+    if (qwertyDown.has(key)) return;
+    qwertyDown.add(key);
+    pressNote(QWERTY[key]);
+  }
+
+  function onKeyUp(event: KeyboardEvent): void {
+    const key = event.key.toLowerCase();
+    if (!(key in QWERTY) || !qwertyDown.has(key)) return;
+    qwertyDown.delete(key);
+    releaseNote(QWERTY[key]);
+  }
+
+  keysEl.addEventListener("pointerdown", (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>(".ch-key");
+    if (!button) return;
+    event.preventDefault();
+    pressNote(Number(button.dataset.midi));
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach((type) => {
+    keysEl.addEventListener(type, (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>(".ch-key");
+      if (button) releaseNote(Number(button.dataset.midi));
+      else qwertyDown.forEach((key) => releaseNote(QWERTY[key]));
+    });
+  });
+
+  function onMidiMessage(event: { data: Uint8Array }): void {
+    const [status, note, velocity] = event.data;
+    if ((status & 0xf0) === 0x90 && velocity > 0) pressNote(note);
+    else if ((status & 0xf0) === 0x80 || ((status & 0xf0) === 0x90 && velocity === 0)) {
+      releaseNote(note);
+    }
+  }
+
+  async function enableMidi(): Promise<void> {
+    const request = (navigator as NavigatorWithMidi).requestMIDIAccess;
+    if (!request) {
+      detected.textContent = "Este navegador no admite MIDI: usa el teclado de pantalla 🎹";
+      return;
+    }
+    try {
+      const access = await request.call(navigator, { sysex: false });
+      midiAccess = access;
+      access.inputs.forEach((input) => {
+        input.onmidimessage = onMidiMessage;
+      });
+      access.onstatechange = () => {
+        access.inputs.forEach((input) => {
+          input.onmidimessage = onMidiMessage;
+        });
+      };
+      midiButton.textContent = "🎹 MIDI conectado";
+      detected.textContent = "MIDI listo: toca tu teclado.";
+    } catch {
+      detected.textContent = "No se pudo conectar MIDI: usa el teclado de pantalla 🎹";
+    }
+  }
+
+  function detachMidi(): void {
+    if (!midiAccess) return;
+    midiAccess.inputs.forEach((input) => {
+      input.onmidimessage = null;
+    });
+    midiAccess.onstatechange = null;
+    midiAccess = null;
+  }
+
+  midiButton.addEventListener("click", () => void enableMidi());
+
+  // ── Micrófono (afinador) ────────────────────────────────────────────
+  function setMicButton(active: boolean): void {
+    micButton.textContent = active ? "⏹ Detener micrófono" : "🎤 Activar micrófono";
+  }
+
+  function fallbackToKeyboard(): void {
+    micActive = false;
+    setMicButton(false);
+    signalBar.style.width = "0%";
+    confidence.textContent = "Señal: —";
+    detected.textContent = "Sin micrófono: usa el teclado de pantalla 🎹";
+  }
+
+  async function startMic(): Promise<void> {
+    if (micActive) {
+      stopMic();
+      return;
+    }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      fallbackToKeyboard();
+      return;
+    }
+    micButton.disabled = true;
+    micButton.textContent = "Solicitando permiso…";
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: true,
+          channelCount: 1,
+        },
+      });
+      const Ctor =
+        window.AudioContext ??
+        (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!Ctor) throw new Error("Web Audio no disponible");
+      micCtx = new Ctor();
+      await micCtx.resume();
+      const source = micCtx.createMediaStreamSource(stream);
+      const highpass = micCtx.createBiquadFilter();
+      highpass.type = "highpass";
+      highpass.frequency.value = 60;
+      micAnalyser = micCtx.createAnalyser();
+      micAnalyser.fftSize = 4096;
+      micAnalyser.smoothingTimeConstant = 0;
+      micBuf = new Float32Array(micAnalyser.fftSize);
+      source.connect(highpass);
+      highpass.connect(micAnalyser);
+      micStream = stream;
+      micActive = true;
+      micTimer = window.setInterval(micTick, 60);
+      setMicButton(true);
+      detected.textContent = "Escuchando… canta o toca la nota.";
+    } catch {
+      stopMic();
+      fallbackToKeyboard();
+    } finally {
+      micButton.disabled = false;
+    }
+  }
+
+  function stopMic(): void {
+    window.clearInterval(micTimer);
+    micTimer = 0;
+    micStream?.getTracks().forEach((track) => track.stop());
+    if (micCtx) void micCtx.close();
+    micStream = null;
+    micCtx = null;
+    micAnalyser = null;
+    micActive = false;
+    setMicButton(false);
+    signalBar.style.width = "0%";
+  }
+
+  function micTick(): void {
+    if (!micAnalyser || !micCtx || !active || locked) return;
+    micAnalyser.getFloatTimeDomainData(micBuf);
+    let energy = 0;
+    for (let i = 0; i < micBuf.length; i += 1) energy += micBuf[i] * micBuf[i];
+    const rms = Math.sqrt(energy / micBuf.length);
+    signalBar.style.width = `${Math.min(100, rms * 900)}%`;
+    if (rms < 0.004) {
+      confidence.textContent = "Señal: —";
+      return;
+    }
+    const reading = detector(micBuf, micCtx.sampleRate);
+    if (!reading) return;
+    confidence.textContent = `Confianza: ${Math.round(reading.clarity * 100)}%`;
+
+    const targetMidi = active.midi ?? 69;
+    const folded = foldToReference(reading.freq, hz(targetMidi));
+    const note = Math.round(freqToMidi(folded.freq));
+    const now = performance.now();
+    if (Math.abs(folded.cents) <= 30 && now - lastWrongAt > 700) {
+      detected.textContent = `Detectado: ${noteName(note)}`;
+      resolveAttempt(pitchClassOf(note) === pitchClassOf(targetMidi));
+    } else if (now - lastAnnounce > 1200) {
+      lastAnnounce = now;
+      detected.textContent = `${noteName(note)} · ${folded.cents > 0 ? "un poco alto" : "un poco bajo"}`;
+    }
+  }
+
+  micButton.addEventListener("click", () => void startMic());
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && micActive) stopMic();
+  });
+  window.addEventListener("pagehide", stopMic);
+
+  // ── Ajustes rápidos ─────────────────────────────────────────────────
+  soundInput.checked = readRewardState().soundEnabled;
+  soundInput.addEventListener("change", () => {
+    const state = readRewardState();
+    state.soundEnabled = soundInput.checked;
+    writeRewardState(state);
+  });
+
+  motionInput.checked =
+    readStored(MOTION_KEY, "0") === "1" ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function applyMotion(): void {
+    document.body.classList.toggle("ch-reduce-motion", motionInput.checked);
+    writeStored(MOTION_KEY, motionInput.checked ? "1" : "0");
+  }
+  applyMotion();
+  motionInput.addEventListener("change", applyMotion);
+
+  inputSelect.value = preferredInput;
+  inputSelect.addEventListener("change", () => {
+    preferredInput = inputSelect.value as InputMode;
+    writeStored(INPUT_KEY, preferredInput);
+    if (preferredInput === "midi" && !midiAccess && isNoteChallenge()) void enableMidi();
+    if (preferredInput === "microfono" && isNoteChallenge() && !micActive) {
+      void startMic();
+    }
+  });
+
+  settingsButton.addEventListener("click", () => {
+    settings.hidden = !settings.hidden;
+    settingsButton.setAttribute("aria-expanded", String(!settings.hidden));
+  });
+
+  focusButton.addEventListener("click", () => {
+    const on = document.body.classList.toggle("ch-focus");
+    focusButton.setAttribute("aria-pressed", String(on));
+    focusButton.setAttribute("aria-label", on ? "Desactivar modo enfoque" : "Activar modo enfoque");
+  });
+
+  // ── Acciones globales ───────────────────────────────────────────────
+  document.addEventListener("click", (event) => {
+    const launcher = (event.target as HTMLElement).closest<HTMLElement>("[data-challenge-module]");
+    if (!launcher || !launcher.dataset.challengeModule) return;
+    openSession(launcher.dataset.challengeModule);
+  });
+
+  el<HTMLButtonElement>("ch-finish").addEventListener("click", finishSession);
+  el<HTMLButtonElement>("ch-close").addEventListener("click", closeSession);
+  nextButton.addEventListener("click", goNext);
+  replayButton.addEventListener("click", replayAudio);
+  pulseTapBtn.addEventListener("click", () => pulseTap());
+  hintButton.addEventListener("click", () => {
+    if (!active) return;
+    hintButton.textContent = `💡 ${active.pista}`;
+    hintButton.disabled = true;
+  });
+  root.querySelector<HTMLElement>("[data-ch-backdrop]")?.addEventListener("click", finishSession);
+
+  shell.addEventListener("keydown", (event) => {
+    if (event.key !== "Tab" || root.hidden) return;
+    const focusables = Array.from(
+      shell.querySelectorAll<HTMLElement>(
+        'button:not([hidden]):not(:disabled), input:not([hidden]), select:not([hidden])',
+      ),
+    ).filter((node) => node.offsetParent !== null);
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+</script>

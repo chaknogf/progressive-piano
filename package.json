@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:browser": "node tests/chords-by-key.browser.mjs",
     "test:browser:tuner": "node tests/tuner.browser.mjs",
+    "test:browser:challenges": "node tests/challenges.browser.mjs",
     "test:watch": "vitest"
   },
   "dependencies": {

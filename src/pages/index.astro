@@ -26,6 +26,12 @@ import InteractiveIntervalTable from "../components/InteractiveIntervalTable.ast
 import EmptyStaff from "../components/EmptyStaff.astro";
 import ScaleTable from "../components/ScaleTable.astro";
 import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
+import ChallengeLaunch from "../components/ChallengeLaunch.astro";
+import ChallengeSession from "../components/ChallengeSession.astro";
+import challengesData from "../data/challenges.json";
+import type { Challenge } from "../lib/challenges";
+
+const challenges = (challengesData.challenges ?? []) as unknown as Challenge[];
 
 const extraSymbols = ["♬", "♭", "♯", "𝄞", "♪"];
 const extraNotes = extraSymbols.map((sym, i) => {
@@ -39,6 +45,8 @@ const extraNotes = extraSymbols.map((sym, i) => {
 });
 ---
 <Layout>
+ <ChallengeSession slot="overlay" challenges={challenges} />
+
  <section class="product-hero" aria-labelledby="product-title">
   <div class="hero-copy">
    <span class="hero-eyebrow">PROGRESSIVE MUSIC · APRENDE A TU RITMO</span>
@@ -138,11 +146,11 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <h2>M1: Sonido y pulso <span class="lesson-level">Inicial</span></h2>
   <p class="lesson-goal"><b>Objetivo:</b> comprender las cuatro propiedades del sonido, el pulso, el tempo, los compases y las figuras rítmicas</p>
   <p><b>Explicación:</b> <span class="term" data-tip="Qué tan grave o agudo, largo, fuerte y de qué color suena">Propiedades del sonido</span>: altura (grave/agudo), duración (tiempo), intensidad (volumen) y timbre (color). El pulso es el latido constante; el tempo se mide en <span class="term" data-tip="Golpes por minuto: qué tan rápido va la canción">BPM</span>. Compases: 2/4, 3/4, 4/4 y 6/8. Figuras y silencios: redonda, blanca, negra, corchea, semicorchea, puntillo y ligadura.</p>
-  <p class="lesson-summary" style="font-style:italic;">Ejemplos: una nota aguda y otra grave (onda y pentagrama); dos pentagramas, uno con semicorchea y otro con blanca; dos pentagramas con f y p; el mismo gesto sonando como piano, guitarra y percusión.</p>
+  <!-- <p class="lesson-summary" style="font-style:italic;">Ejemplos: una nota aguda y otra grave (onda y pentagrama); dos pentagramas, uno con semicorchea y otro con blanca; dos pentagramas con f y p; el mismo gesto sonando como piano, guitarra y percusión.</p> -->
   <p><b>Elementos de la música:</b> ritmo (patrones de sonidos y silencios), melodía (sucesión de sonidos que combina alturas y ritmos) y armonía (dos o más sonidos simultáneos).</p>
   <SoundPropertiesExplorer />
     <p class="lesson-summary"><b>Resumen:</b> el sonido se define por altura, duración, intensidad y timbre; el pulso y los compases organizan el tiempo; las figuras rítmicas determinan duraciones.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m1" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M1" />
  </section>
 
  <section class="module reveal" id="m2" data-module="m2">
@@ -151,7 +159,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <p><b>Explicación:</b> las notas naturales son 7: Do, Re, Mi, Fa, Sol, La, Si. Las teclas negras son sostenidos (♯) y bemoles (♭). Cifrado americano: C=Do, D=Re, E=Mi, F=Fa, G=Sol, A=La, B=Si. <span class="term" data-tip="Dos nombres distintos para la misma nota">Enarmonía</span> explica nombres distintos para la misma altura.</p>
   <p><b>Pentagrama y claves:</b> el pentagrama es la serie de 5 líneas donde se colocan las notas. Clave de Sol (instrumentos agudos), de Fa (graves) y de Do (viola). El Do central (Do4) es la referencia.</p>
   <p><b>Compás, puntillo y ligadura:</b> el compás agrupa un número fijo de pulsos (2/4, 3/4, 4/4, 6/8). El puntillo añade la mitad del valor de la nota. La ligadura une dos notas del mismo nombre sumando sus duraciones. Ambos alargan la duración: el puntillo suma siempre la mitad, la ligadura une notas escritas por separado.</p>
-  <p style="font-style:italic;">Ejemplos: un teclado con el nombre y la octava de cada nota, reproducible al pulsar; un pentagrama vacío como referencia; cada símbolo con su figura y un botón que lo reproduce con metrónomo; un pentagrama con el compás marcado y ejemplo auditivo al pasar el cursor.</p>
+  <!-- <p style="font-style:italic;">Ejemplos: un teclado con el nombre y la octava de cada nota, reproducible al pulsar; un pentagrama vacío como referencia; cada símbolo con su figura y un botón que lo reproduce con metrónomo; un pentagrama con el compás marcado y ejemplo auditivo al pasar el cursor.</p> -->
   <EmptyStaff />
   <NoteNameKeyboard />
   <details class="box">
@@ -187,14 +195,14 @@ const extraNotes = extraSymbols.map((sym, i) => {
   </details>
   <div class="box">Explora el teclado de la cabecera: pulsa notas para escuchar su nombre, octava y enarmonía.</div>
   <p class="lesson-summary"><b>Resumen:</b> el teclado se organiza en octavas; el cifrado americano es el estándar global; la enarmonía explica nombres múltiples.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m2" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M2" />
  </section>
 
  <section class="module reveal" id="m3" data-module="m3">
   <h2>M3: Tonos, semitonos, escala mayor e intervalos <span class="lesson-level">Inicial</span></h2>
   <p class="lesson-goal"><b>Objetivo:</b> entender la distancia mínima musical, construir la escala mayor universal y medir intervalos</p>
   <p><b>Explicación:</b> semitono = distancia más pequeña (tecla adyacente); tono = dos semitonos. Escala mayor: fórmula T–T–S–T–T–T–S. <span class="term" data-tip="Qué tan lejos están dos notas y cómo suenan juntas">Intervalos</span>: número (tamaño) y cualidad (mayor, menor, justa…).</p>
-  <p style="font-style:italic;">Ejemplos: en el teclado, la distancia en tonos y semitonos entre cada par de teclas; cada escala mayor sobre el pentagrama y el teclado, reproducible al pasar el cursor; cada escala menor (natural, armónica y melódica) sobre el pentagrama y el teclado, reproducible al pasar el cursor.</p>
+  <!-- <p style="font-style:italic;">Ejemplos: en el teclado, la distancia en tonos y semitonos entre cada par de teclas; cada escala mayor sobre el pentagrama y el teclado, reproducible al pasar el cursor; cada escala menor (natural, armónica y melódica) sobre el pentagrama y el teclado, reproducible al pasar el cursor.</p> -->
   <details class="box">
    <summary><b>Tabla de intervalos (0 a 12 semitonos)</b></summary>
    <div class="details-content"><div>
@@ -224,7 +232,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
     <ChordsByKey />
   <div class="box">Usa los intervalos y la tabla de escalas para construir y escuchar escalas e intervalos.</div>
   <p class="lesson-summary"><b>Resumen:</b> tonos y semitonos son los bloques de construcción; la fórmula mayor genera sonoridad alegre; los intervalos miden distancia y tensión.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m3" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M3" />
  </section>
 
  <section class="module reveal" id="m4" data-module="m4">
@@ -236,7 +244,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <Afinador />
   <Fretboard />
   <p class="lesson-summary"><b>Resumen:</b> las tríadas son acordes de tres notas que forman el esqueleto armónico; su calidad define la emoción; en el instrumento se ejecutan combinando dedos, cuerdas y trastes.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m4" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M4" />
  </section>
 
  <section class="module reveal" id="m5" data-module="m5">
@@ -247,7 +255,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <p style="font-style:italic;">Ejemplo: el constructor ilumina sobre el teclado las tres notas de cada grado y las dibuja en el pentagrama; al cambiar de grado cambian las notas y la calidad del acorde (mayor, menor o disminuido).</p>
     <BaseChords />
   <p class="lesson-summary"><b>Resumen:</b> cada nota de la escala mayor genera un acorde; los grados se clasifican en tónica, subdominante y dominante; conocerlos explica por qué suenan bien juntas las canciones.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m5" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M5" />
  </section>
 
  <section class="module reveal" id="m6" data-module="m6">
@@ -260,7 +268,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <ProgressionCatalog level="inicial" titles={["El bucle antémico","Épica menor","Bucle IV – I – vi – V","Piano-pop minimalista","Bucle menor ♭VI – ♭VII (pop urbano)","Cadencia ii – V – I"]} />
   <Tips />
   <p class="lesson-summary"><b>Resumen:</b> las progresiones son sucesiones de acordes; el catálogo inicial usa secuencias muy usadas; el secuenciador entrena el oído.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m6" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M6" />
  </section>
 
  <section class="module reveal" id="m7" data-module="m7">
@@ -271,7 +279,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <div class="box">Toca C, Cmaj7, C7 y Cm7 en el teclado y compara su sonido.</div>
   <div class="grid"><div class="cd"><h3>Jazz y baladas</h3><ul><li>Estilo Sinatra: cambia tríadas por acordes de 4 notas (Cmaj7, Dm7, G7, Am7); voicings sin quinta; arpegios sutiles.</li><li>Baladas 80s/90s: acordes add9 (Cadd9, Fadd9) para brillo cristalino.</li></ul></div></div>
   <p class="lesson-summary"><b>Resumen:</b> las séptimas añaden una cuarta nota; el cifrado ampliado comunica arreglos complejos; los slash chords suavizan líneas de bajo.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m7" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M7" />
  </section>
 
  <section class="module reveal" id="m8" data-module="m8">
@@ -281,7 +289,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <p><b>Cómo funcionan las cadencias:</b> son los signos de puntuación de la armonía: la auténtica (V→I) cierra con punto final, la plagal (IV→I) cierra con un "amén" más suave, la semicadencia se detiene en V como una coma y la rota (V→vi) desvía el final hacia el relativo menor.</p>
   <div class="box">Toca las cadencias en el teclado y escucha la diferencia de cierre.</div>
   <p class="lesson-summary"><b>Resumen:</b> las cadencias son signos de puntuación armónicos; una estructura equilibrada alterna tensión y clímax; la melodía cobra vida con la armonía.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m8" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M8" />
  </section>
 
  <section class="module reveal" id="m9" data-module="m9">
@@ -292,7 +300,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <Inversions />
   <Exercise />
   <p class="lesson-summary"><b>Resumen:</b> las inversiones reorganizan el orden vertical; los arpegios descomponen acordes en texturas; son clave para transiciones suaves.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m9" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M9" />
  </section>
 
  <section class="module reveal" id="m10" data-module="m10">
@@ -302,7 +310,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <div class="box">Recorre los modos sobre la misma tónica y compara su color armónico.</div>
   <Emotions />
   <p class="lesson-summary"><b>Resumen:</b> las variantes menores expanden posibilidades; los modos ofrecen colores únicos; el intercambio modal aporta frescura.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m10" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M10" />
  </section>
 
  <section class="module reveal" id="m11" data-module="m11">
@@ -312,7 +320,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <div class="box">Explora el círculo de quintas para ver armaduras y tonalidades vecinas.</div>
   <CircleOfFifths />
   <p class="lesson-summary"><b>Resumen:</b> el círculo es la brújula geométrica; facilita armaduras y modulaciones; conecta tonalidades por cercanía.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m11" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M11" />
  </section>
 
  <section class="module reveal" id="m12" data-module="m12">
@@ -322,7 +330,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <p><b>Cómo funciona una dominante secundaria:</b> cualquier acorde puede tener su propia dominante momentánea (V7/ii = A7 → Dm en Do mayor); su tensión hace que el oído espere el grado al que resuelve, creando un desvío breve.</p>
   <ProgressionCatalog level="avanzado" />
   <p class="lesson-summary"><b>Resumen:</b> las dominantes secundarias generan dinamismo; el catálogo avanzado incluye jazz y latino; elevan la sofisticación.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m12" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M12" />
  </section>
 
  <section class="module reveal" id="m13" data-module="m13">
@@ -332,7 +340,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <div class="box">Consulta la tabla de figuras y silencios en <a href="#m2">M2</a> y practica con el secuenciador por géneros.</div>
   <Beats />
   <p class="lesson-summary"><b>Resumen:</b> el ritmo da movimiento y personalidad; la síncopa juega con expectativas; las subdivisiones clavan el groove.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="m13" /> Marcar módulo como completado</label>
+  <ChallengeLaunch modulo="M13" />
  </section>
 
  <section class="module reveal" id="proyecto-final" data-module="proyecto-final">
@@ -341,7 +349,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <p><b>Explicación:</b> combina una progresión de acordes, un patrón rítmico y una melodía sencilla. Usa las herramientas del manual para probar, escuchar y ajustar tu propuesta.</p>
   <div class="box">Elige una tonalidad, selecciona una progresión (M6 o M12), define un ritmo (M13) y crea una melodía con notas de los acordes (M8). Graba o anota tu resultado.</div>
   <p class="lesson-summary"><b>Resumen:</b> el proyecto final integra ritmo, armonía y melodía en una pequeña composición personal.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="proyecto-final" /> Marcar proyecto como completado</label>
+  <ChallengeLaunch modulo="proyecto-final" />
  </section>
 
  <section id="glosario" class="module reveal">
@@ -412,7 +420,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   </div>
  </div>
   <p class="lesson-summary"><b>Resumen:</b> la producción transforma una composición cruda en obra pulida; efectos dan dimensión; el DAW centraliza grabación, edición y mezcla.</p>
-  <label class="progress-toggle"><input type="checkbox" data-module-toggle="pista-b" /> Marcar pista como completada</label>
+  <ChallengeLaunch modulo="pista-b" />
  </section>
 
  <section class="module reveal" id="laboratorio-musical-descargas">
@@ -559,7 +567,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   .module { margin: 28px 0; padding: 20px; border: 1px solid var(--bd); border-radius: 20px; border: none; }
   .module h2 { margin-top: 0; }
   .lesson-summary { color: var(--mut); }
-  .progress-toggle { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; font-weight: 700; }
+  .challenge-launch { margin-top: 12px; }
   .term {
    text-decoration: underline dotted;
    cursor: help;
@@ -664,7 +672,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
  <script>
   import glossaryData from '../data/glossary.json';
   const GLOSSARY = glossaryData.entries as any[];
-  import { readProgress, setModuleProgress } from '../lib/progress';
+  import { readProgress, writeProgress } from '../lib/progress';
   import { readRewardState, writeRewardState, getLevel, resetRewardState } from '../lib/rewards';
 
   const themeInputs = Array.from(document.querySelectorAll<HTMLInputElement>('input[name="theme"]'));
@@ -682,23 +690,20 @@ const extraNotes = extraSymbols.map((sym, i) => {
    el.setAttribute('aria-label', el.dataset.tip ?? '');
   });
 
-  // Persistencia de progreso por módulo
-  const toggles = Array.from(document.querySelectorAll<HTMLInputElement>('[data-module-toggle]'));
-  const progress = readProgress();
+  // Progreso derivado de localStorage: los módulos solo se completan al superar
+  // una sesión de retos con >= 70% de aciertos (ya no hay checkboxes manuales).
+  const MODULE_IDS = [
+   'm1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7',
+   'm8', 'm9', 'm10', 'm11', 'm12', 'm13',
+   'proyecto-final', 'pista-b',
+  ];
   const summary = document.getElementById('progress-summary');
-  function updateProgressSummary() {
+  function updateProgressSummary(): void {
    if (!summary) return;
-   const done = toggles.filter((t) => t.checked).length;
-   summary.textContent = `Progreso: ${done}/${toggles.length} módulos completados`;
+   const progress = readProgress();
+   const done = MODULE_IDS.filter((id) => progress[id]?.completed).length;
+   summary.textContent = `Progreso: ${done}/${MODULE_IDS.length} módulos completados`;
   }
-  toggles.forEach((toggle) => {
-   const id = toggle.dataset.moduleToggle ?? '';
-   toggle.checked = Boolean(progress[id]?.completed);
-   toggle.addEventListener('change', () => {
-    setModuleProgress(id, { completed: toggle.checked });
-    updateProgressSummary();
-   });
-  });
   updateProgressSummary();
 
   const levelEl = document.getElementById('progress-level');
@@ -727,14 +732,18 @@ const extraNotes = extraSymbols.map((sym, i) => {
     writeRewardState(state);
    });
   }
+  function refreshProgress(): void {
+   updateProgressPanel();
+   updateProgressSummary();
+  }
   resetButton?.addEventListener('click', () => {
    if (!window.confirm('¿Reiniciar todo el progreso y los puntos?')) return;
    resetRewardState();
-   updateProgressPanel();
-   updateProgressSummary();
+   writeProgress({});
+   refreshProgress();
   });
-  updateProgressPanel();
-  window.addEventListener('progress:changed', updateProgressPanel);
+  refreshProgress();
+  window.addEventListener('progress:changed', refreshProgress);
 
   // Resaltado del índice de módulos según scroll
   const moduleLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.module-index a'));

@@ -148,6 +148,16 @@ try {
   await send('Runtime.enable');
   await send('Page.enable');
   await new Promise((resolve) => setTimeout(resolve, 500));
+  // El script de Afinador.astro es un módulo ES y puede terminar de cargar
+  // después del primer paint (Vite compila dependencias en el primer arranque).
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    try {
+      if (await evaluate(`document.querySelectorAll('#af-strings .af-str').length === 6`)) break;
+    } catch {
+      // Página aún navegando.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
 
   const initial = await evaluate(`({
     mode: document.querySelector('#af-mode-guitar')?.getAttribute('aria-pressed'),

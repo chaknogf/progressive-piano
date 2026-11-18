@@ -1,0 +1,55 @@
+---
+// Botón de entrada al Motor de Retos desde cada módulo.
+interface Props {
+  modulo: string;
+  label?: string;
+}
+const { modulo, label = "Hacer los retos" } = Astro.props;
+---
+
+<button
+  type="button"
+  class="challenge-launch"
+  data-challenge-module={modulo}
+  aria-label={`Iniciar los retos del módulo ${modulo}`}
+>
+  <span aria-hidden="true">🎯</span>
+  {label}
+  <span aria-hidden="true">→</span>
+</button>
+
+<style is:global>
+  .challenge-launch {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    margin: 6px 0 2px;
+    padding: 10px 22px;
+    border: 1px solid color-mix(in srgb, var(--acc) 45%, var(--bd));
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--acc2), var(--card));
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.94rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--acc) 14%, transparent);
+    transition: transform 0.12s ease, border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .challenge-launch:hover {
+    border-color: var(--acc);
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--acc) 22%, transparent);
+    transform: translateY(-2px);
+  }
+
+  .challenge-launch:active {
+    transform: scale(0.97);
+  }
+
+  .challenge-launch:focus-visible {
+    outline: 2px solid var(--tool);
+    outline-offset: 3px;
+  }
+</style>
