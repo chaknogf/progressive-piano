@@ -192,23 +192,35 @@ try {
 
   function answerChoice(id) {
     const correct = challenge(id).validacion;
-    return evaluate(`(() => {
-      const button = [...document.querySelectorAll('#ch-options .ch-opt')]
-        .find((b) => b.textContent === ${JSON.stringify(correct)});
-      if (!button) throw new Error('No aparece la opción ${correct}');
-      button.click();
+    return evaluate(`(async () => {
+      for (let attempt = 0; attempt < 40; attempt += 1) {
+        const button = [...document.querySelectorAll('#ch-options .ch-opt')]
+          .find((b) => !b.closest('[hidden]') && b.textContent === ${JSON.stringify(correct)});
+        if (button) {
+          button.click();
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      throw new Error('No aparece la opción ${correct}');
     })()`);
   }
 
   function answerPlay(id) {
     const midi = challenge(id).midi;
-    return evaluate(`(() => {
-      const key = [...document.querySelectorAll('#ch-keys .ch-key')]
-        .find((k) => Number(k.dataset.midi) % 12 === ${midi} % 12);
-      if (!key) throw new Error('No aparece la tecla para MIDI ${midi}');
-      const letter = key.querySelector('small').textContent.trim().toLowerCase();
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: letter, bubbles: true }));
-      document.dispatchEvent(new KeyboardEvent('keyup', { key: letter, bubbles: true }));
+    return evaluate(`(async () => {
+      for (let attempt = 0; attempt < 40; attempt += 1) {
+        const key = [...document.querySelectorAll('#ch-keys .ch-key')]
+          .find((k) => Number(k.dataset.midi) % 12 === ${midi} % 12);
+        if (key) {
+          const letter = key.querySelector('small').textContent.trim().toLowerCase();
+          document.dispatchEvent(new KeyboardEvent('keydown', { key: letter, bubbles: true }));
+          document.dispatchEvent(new KeyboardEvent('keyup', { key: letter, bubbles: true }));
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      throw new Error('No aparece la tecla para MIDI ${midi}');
     })()`);
   }
 

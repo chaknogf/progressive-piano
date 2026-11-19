@@ -13,11 +13,14 @@
     "test:browser": "node tests/chords-by-key.browser.mjs",
     "test:browser:tuner": "node tests/tuner.browser.mjs",
     "test:browser:challenges": "node tests/challenges.browser.mjs",
+    "test:browser:melodies": "node tests/melodies.browser.mjs",
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@astrojs/preact": "^6.1.6",
     "@vercel/speed-insights": "^2.1.0",
-    "astro": "^5.9.0"
+    "astro": "^5.9.0",
+    "preact": "^11.2.0"
   },
   "devDependencies": {
     "vitest": "^2.1.0"

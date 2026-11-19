@@ -1,0 +1,213 @@
+{
+  "order": 5,
+  "id": "minuet",
+  "title": "Minueto en Sol",
+  "difficulty": "Intermedio",
+  "bpm": 112,
+  "meter": 3,
+  "key": "Sol mayor",
+  "melodyTrack": [
+    {
+      "beat": 0,
+      "midi": 74,
+      "duration": 1,
+      "label": "Re5"
+    },
+    {
+      "beat": 1,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 2,
+      "midi": 71,
+      "duration": 1,
+      "label": "Si"
+    },
+    {
+      "beat": 3,
+      "midi": 69,
+      "duration": 1,
+      "label": "La"
+    },
+    {
+      "beat": 4,
+      "midi": 72,
+      "duration": 1,
+      "label": "Do5"
+    },
+    {
+      "beat": 5,
+      "midi": 66,
+      "duration": 1,
+      "label": "Fa♯"
+    },
+    {
+      "beat": 6,
+      "midi": 71,
+      "duration": 1,
+      "label": "Si"
+    },
+    {
+      "beat": 7,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 8,
+      "midi": 74,
+      "duration": 1,
+      "label": "Re5"
+    },
+    {
+      "beat": 9,
+      "midi": 67,
+      "duration": 3,
+      "label": "Sol"
+    },
+    {
+      "beat": 12,
+      "midi": 76,
+      "duration": 1,
+      "label": "Mi5"
+    },
+    {
+      "beat": 13,
+      "midi": 72,
+      "duration": 1,
+      "label": "Do5"
+    },
+    {
+      "beat": 14,
+      "midi": 69,
+      "duration": 1,
+      "label": "La"
+    },
+    {
+      "beat": 15,
+      "midi": 74,
+      "duration": 1,
+      "label": "Re5"
+    },
+    {
+      "beat": 16,
+      "midi": 71,
+      "duration": 1,
+      "label": "Si"
+    },
+    {
+      "beat": 17,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 18,
+      "midi": 69,
+      "duration": 1,
+      "label": "La"
+    },
+    {
+      "beat": 19,
+      "midi": 66,
+      "duration": 1,
+      "label": "Fa♯"
+    },
+    {
+      "beat": 20,
+      "midi": 71,
+      "duration": 1,
+      "label": "Si"
+    },
+    {
+      "beat": 21,
+      "midi": 67,
+      "duration": 3,
+      "label": "Sol"
+    }
+  ],
+  "chordTrack": [
+    {
+      "beat": 0,
+      "duration": 3,
+      "symbol": "G",
+      "midi": [
+        62,
+        67,
+        71
+      ]
+    },
+    {
+      "beat": 3,
+      "duration": 3,
+      "symbol": "D",
+      "midi": [
+        62,
+        66,
+        69
+      ]
+    },
+    {
+      "beat": 6,
+      "duration": 3,
+      "symbol": "G",
+      "midi": [
+        62,
+        67,
+        71
+      ]
+    },
+    {
+      "beat": 9,
+      "duration": 3,
+      "symbol": "G",
+      "midi": [
+        62,
+        67,
+        71
+      ]
+    },
+    {
+      "beat": 12,
+      "duration": 3,
+      "symbol": "Em",
+      "midi": [
+        64,
+        67,
+        71
+      ]
+    },
+    {
+      "beat": 15,
+      "duration": 3,
+      "symbol": "D",
+      "midi": [
+        62,
+        66,
+        69
+      ]
+    },
+    {
+      "beat": 18,
+      "duration": 3,
+      "symbol": "D",
+      "midi": [
+        62,
+        66,
+        69
+      ]
+    },
+    {
+      "beat": 21,
+      "duration": 3,
+      "symbol": "G",
+      "midi": [
+        62,
+        67,
+        71
+      ]
+    }
+  ]
+}

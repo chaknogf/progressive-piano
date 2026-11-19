@@ -28,7 +28,9 @@ import ScaleTable from "../components/ScaleTable.astro";
 import NoteNameKeyboard from "../components/NoteNameKeyboard.astro";
 import ChallengeLaunch from "../components/ChallengeLaunch.astro";
 import ChallengeSession from "../components/ChallengeSession.astro";
+import MelodyLibrary from "../components/MelodyLibrary.astro";
 import challengesData from "../data/challenges.json";
+import { melodies } from "../data/melodies/index";
 import type { Challenge } from "../lib/challenges";
 
 const challenges = (challengesData.challenges ?? []) as unknown as Challenge[];
@@ -288,6 +290,7 @@ const extraNotes = extraSymbols.map((sym, i) => {
   <p><b>Explicación:</b> cadencias: auténtica (V→I), plagal (IV→I), semicadencia (reposo en V), rota (V→vi). Forma: estrofa, pre-coro, coro y puente. Melodía: notas del acorde, notas de paso y motivos.</p>
   <p><b>Cómo funcionan las cadencias:</b> son los signos de puntuación de la armonía: la auténtica (V→I) cierra con punto final, la plagal (IV→I) cierra con un "amén" más suave, la semicadencia se detiene en V como una coma y la rota (V→vi) desvía el final hacia el relativo menor.</p>
   <div class="box">Toca las cadencias en el teclado y escucha la diferencia de cierre.</div>
+  <MelodyLibrary melodies={melodies} />
   <p class="lesson-summary"><b>Resumen:</b> las cadencias son signos de puntuación armónicos; una estructura equilibrada alterna tensión y clímax; la melodía cobra vida con la armonía.</p>
   <ChallengeLaunch modulo="M8" />
  </section>

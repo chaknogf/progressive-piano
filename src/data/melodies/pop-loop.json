@@ -1,0 +1,125 @@
+{
+  "order": 4,
+  "id": "pop-loop",
+  "title": "Bucle pop de cuatro acordes",
+  "difficulty": "Intermedio",
+  "bpm": 100,
+  "meter": 4,
+  "key": "Do mayor",
+  "melodyTrack": [
+    {
+      "beat": 0,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 1,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 2,
+      "midi": 72,
+      "duration": 2,
+      "label": "Do5"
+    },
+    {
+      "beat": 4,
+      "midi": 74,
+      "duration": 1,
+      "label": "Re5"
+    },
+    {
+      "beat": 5,
+      "midi": 71,
+      "duration": 1,
+      "label": "Si"
+    },
+    {
+      "beat": 6,
+      "midi": 67,
+      "duration": 2,
+      "label": "Sol"
+    },
+    {
+      "beat": 8,
+      "midi": 72,
+      "duration": 1,
+      "label": "Do5"
+    },
+    {
+      "beat": 9,
+      "midi": 69,
+      "duration": 1,
+      "label": "La"
+    },
+    {
+      "beat": 10,
+      "midi": 76,
+      "duration": 2,
+      "label": "Mi5"
+    },
+    {
+      "beat": 12,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 13,
+      "midi": 69,
+      "duration": 1,
+      "label": "La"
+    },
+    {
+      "beat": 14,
+      "midi": 72,
+      "duration": 2,
+      "label": "Do5"
+    }
+  ],
+  "chordTrack": [
+    {
+      "beat": 0,
+      "duration": 4,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    },
+    {
+      "beat": 4,
+      "duration": 4,
+      "symbol": "G",
+      "midi": [
+        62,
+        67,
+        71
+      ]
+    },
+    {
+      "beat": 8,
+      "duration": 4,
+      "symbol": "Am",
+      "midi": [
+        60,
+        64,
+        69
+      ]
+    },
+    {
+      "beat": 12,
+      "duration": 4,
+      "symbol": "F",
+      "midi": [
+        60,
+        65,
+        69
+      ]
+    }
+  ]
+}

@@ -1,0 +1,267 @@
+{
+  "order": 1,
+  "id": "twinkle",
+  "title": "Estrellita, qué bonita es",
+  "difficulty": "Principiante",
+  "bpm": 96,
+  "meter": 4,
+  "key": "Do mayor",
+  "melodyTrack": [
+    {
+      "beat": 0,
+      "midi": 60,
+      "duration": 1,
+      "label": "Do"
+    },
+    {
+      "beat": 1,
+      "midi": 60,
+      "duration": 1,
+      "label": "Do"
+    },
+    {
+      "beat": 2,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 3,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 4,
+      "midi": 69,
+      "duration": 1,
+      "label": "La"
+    },
+    {
+      "beat": 5,
+      "midi": 69,
+      "duration": 1,
+      "label": "La"
+    },
+    {
+      "beat": 6,
+      "midi": 67,
+      "duration": 2,
+      "label": "Sol"
+    },
+    {
+      "beat": 8,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 9,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 10,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 11,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 12,
+      "midi": 62,
+      "duration": 1,
+      "label": "Re"
+    },
+    {
+      "beat": 13,
+      "midi": 62,
+      "duration": 1,
+      "label": "Re"
+    },
+    {
+      "beat": 14,
+      "midi": 60,
+      "duration": 2,
+      "label": "Do"
+    },
+    {
+      "beat": 16,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 17,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 18,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 19,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 20,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 21,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 22,
+      "midi": 62,
+      "duration": 2,
+      "label": "Re"
+    },
+    {
+      "beat": 24,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 25,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 26,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 27,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 28,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 29,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 30,
+      "midi": 62,
+      "duration": 1,
+      "label": "Re"
+    },
+    {
+      "beat": 31,
+      "midi": 60,
+      "duration": 1,
+      "label": "Do"
+    }
+  ],
+  "chordTrack": [
+    {
+      "beat": 0,
+      "duration": 4,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    },
+    {
+      "beat": 4,
+      "duration": 4,
+      "symbol": "F",
+      "midi": [
+        60,
+        65,
+        69
+      ]
+    },
+    {
+      "beat": 8,
+      "duration": 4,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    },
+    {
+      "beat": 12,
+      "duration": 4,
+      "symbol": "G",
+      "midi": [
+        62,
+        67,
+        71
+      ]
+    },
+    {
+      "beat": 16,
+      "duration": 4,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    },
+    {
+      "beat": 20,
+      "duration": 4,
+      "symbol": "F",
+      "midi": [
+        60,
+        65,
+        69
+      ]
+    },
+    {
+      "beat": 24,
+      "duration": 4,
+      "symbol": "G",
+      "midi": [
+        62,
+        67,
+        71
+      ]
+    },
+    {
+      "beat": 28,
+      "duration": 4,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    }
+  ]
+}

@@ -1,0 +1,267 @@
+{
+  "order": 2,
+  "id": "ode",
+  "title": "Oda a la alegría",
+  "difficulty": "Principiante",
+  "bpm": 108,
+  "meter": 4,
+  "key": "Do mayor",
+  "melodyTrack": [
+    {
+      "beat": 0,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 1,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 2,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 3,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 4,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 5,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 6,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 7,
+      "midi": 62,
+      "duration": 1,
+      "label": "Re"
+    },
+    {
+      "beat": 8,
+      "midi": 60,
+      "duration": 1,
+      "label": "Do"
+    },
+    {
+      "beat": 9,
+      "midi": 60,
+      "duration": 1,
+      "label": "Do"
+    },
+    {
+      "beat": 10,
+      "midi": 62,
+      "duration": 1,
+      "label": "Re"
+    },
+    {
+      "beat": 11,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 12,
+      "midi": 64,
+      "duration": 2,
+      "label": "Mi"
+    },
+    {
+      "beat": 14,
+      "midi": 62,
+      "duration": 1,
+      "label": "Re"
+    },
+    {
+      "beat": 15,
+      "midi": 62,
+      "duration": 1,
+      "label": "Re"
+    },
+    {
+      "beat": 16,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 17,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 18,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 19,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 20,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 21,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 22,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 23,
+      "midi": 62,
+      "duration": 1,
+      "label": "Re"
+    },
+    {
+      "beat": 24,
+      "midi": 60,
+      "duration": 1,
+      "label": "Do"
+    },
+    {
+      "beat": 25,
+      "midi": 60,
+      "duration": 1,
+      "label": "Do"
+    },
+    {
+      "beat": 26,
+      "midi": 62,
+      "duration": 1,
+      "label": "Re"
+    },
+    {
+      "beat": 27,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi"
+    },
+    {
+      "beat": 28,
+      "midi": 62,
+      "duration": 2,
+      "label": "Re"
+    },
+    {
+      "beat": 30,
+      "midi": 60,
+      "duration": 2,
+      "label": "Do"
+    }
+  ],
+  "chordTrack": [
+    {
+      "beat": 0,
+      "duration": 4,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    },
+    {
+      "beat": 4,
+      "duration": 4,
+      "symbol": "G",
+      "midi": [
+        62,
+        67,
+        71
+      ]
+    },
+    {
+      "beat": 8,
+      "duration": 4,
+      "symbol": "Am",
+      "midi": [
+        60,
+        64,
+        69
+      ]
+    },
+    {
+      "beat": 12,
+      "duration": 4,
+      "symbol": "F",
+      "midi": [
+        60,
+        65,
+        69
+      ]
+    },
+    {
+      "beat": 16,
+      "duration": 4,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    },
+    {
+      "beat": 20,
+      "duration": 4,
+      "symbol": "G",
+      "midi": [
+        62,
+        67,
+        71
+      ]
+    },
+    {
+      "beat": 24,
+      "duration": 4,
+      "symbol": "F",
+      "midi": [
+        60,
+        65,
+        69
+      ]
+    },
+    {
+      "beat": 28,
+      "duration": 4,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    }
+  ]
+}

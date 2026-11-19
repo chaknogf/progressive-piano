@@ -1,0 +1,201 @@
+{
+  "order": 3,
+  "id": "silent-night",
+  "title": "Noche de paz",
+  "difficulty": "Principiante",
+  "bpm": 80,
+  "meter": 3,
+  "key": "Do mayor",
+  "melodyTrack": [
+    {
+      "beat": 0,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 1,
+      "midi": 69,
+      "duration": 1,
+      "label": "La"
+    },
+    {
+      "beat": 2,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 3,
+      "midi": 64,
+      "duration": 3,
+      "label": "Mi"
+    },
+    {
+      "beat": 6,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 7,
+      "midi": 69,
+      "duration": 1,
+      "label": "La"
+    },
+    {
+      "beat": 8,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 9,
+      "midi": 64,
+      "duration": 3,
+      "label": "Mi"
+    },
+    {
+      "beat": 12,
+      "midi": 72,
+      "duration": 1,
+      "label": "Do5"
+    },
+    {
+      "beat": 13,
+      "midi": 72,
+      "duration": 1,
+      "label": "Do5"
+    },
+    {
+      "beat": 14,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 15,
+      "midi": 69,
+      "duration": 1,
+      "label": "La"
+    },
+    {
+      "beat": 16,
+      "midi": 69,
+      "duration": 1,
+      "label": "La"
+    },
+    {
+      "beat": 17,
+      "midi": 65,
+      "duration": 1,
+      "label": "Fa"
+    },
+    {
+      "beat": 18,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 19,
+      "midi": 67,
+      "duration": 1,
+      "label": "Sol"
+    },
+    {
+      "beat": 20,
+      "midi": 62,
+      "duration": 1,
+      "label": "Re"
+    },
+    {
+      "beat": 21,
+      "midi": 60,
+      "duration": 3,
+      "label": "Do"
+    }
+  ],
+  "chordTrack": [
+    {
+      "beat": 0,
+      "duration": 3,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    },
+    {
+      "beat": 3,
+      "duration": 3,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    },
+    {
+      "beat": 6,
+      "duration": 3,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    },
+    {
+      "beat": 9,
+      "duration": 3,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    },
+    {
+      "beat": 12,
+      "duration": 3,
+      "symbol": "F",
+      "midi": [
+        60,
+        65,
+        69
+      ]
+    },
+    {
+      "beat": 15,
+      "duration": 3,
+      "symbol": "F",
+      "midi": [
+        60,
+        65,
+        69
+      ]
+    },
+    {
+      "beat": 18,
+      "duration": 3,
+      "symbol": "G",
+      "midi": [
+        62,
+        67,
+        71
+      ]
+    },
+    {
+      "beat": 21,
+      "duration": 3,
+      "symbol": "C",
+      "midi": [
+        60,
+        64,
+        67
+      ]
+    }
+  ]
+}

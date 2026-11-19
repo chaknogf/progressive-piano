@@ -93,6 +93,22 @@ export function awardQuestionXp(questionId: string, attempt: 1 | 2, isAural: boo
   return gain + (state.streak % 3 === 0 ? 5 : 0);
 }
 
+/** XP de la biblioteca de melodías: proporcional a la precisión y una sola vez por pieza/modo. */
+export function awardPracticeXp(practiceId: string, xp: number): number {
+  if (xp <= 0 || typeof window === 'undefined') return 0;
+  const state = readRewardState();
+  if (state.awardedQuestions.includes(practiceId)) return 0;
+  state.xp += xp;
+  state.playCorrect += 1;
+  state.awardedQuestions.push(practiceId);
+  if (state.awardedQuestions.some((id) => id.startsWith('melody:')) && !state.badges.includes('Melodista')) {
+    state.badges.push('Melodista');
+  }
+  writeRewardState(state);
+  window.dispatchEvent(new CustomEvent('progress:changed'));
+  return xp;
+}
+
 export function breakStreak(): void {
   const state = readRewardState();
   state.streak = 0;

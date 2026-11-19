@@ -255,7 +255,7 @@ Implementa esta Etapa 1 completa, asegúrate de que compile sin errores en Astro
 
 **Archivos tocados:** `src/data/challenges.json`, `src/lib/challenges.ts`, `src/components/ChallengeSession.astro`, `tests/challenges.test.ts`, `tests/challenges.browser.mjs`, `AGENT.md`.
 
-**Verificación:** `pnpm test` 37/37 · `pnpm build` OK · `pnpm test:browser:challenges` OK · `pnpm test:browser:tuner` OK. `pnpm test:browser` (chords-by-key) sigue con el fallo preexistente de título (`El molde de la escala` vs `Acordes diatónicos por tonalidad`), presente en HEAD limpio y ajeno a la Etapa 2.
+**Verificación:** `pnpm test` 37/37 · `pnpm build` OK · `pnpm test:browser:challenges` OK · `pnpm test:browser:tuner` OK. El fallo preexistente de `pnpm test:browser` (chords-by-key) se resolvió al final de la Etapa 3B actualizando las aserciones al título `El molde de la escala`.
 
 ---
 
@@ -271,4 +271,28 @@ Implementa esta Etapa 1 completa, asegúrate de que compile sin errores en Astro
 
 **Nota E2E:** `tests/tuner.browser.mjs` esperaba 500 ms fijos a que el módulo ES de `Afinador.astro` generara las 6 cuerdas; en arranques fríos de Vite eso bastaba solo a veces (`0 !== 6`). Se añadió un bucle de reintento igual al de `challenges.browser.mjs`. No había ninguna regresión en el afinador: el script generaba las cuerdas justo después.
 
-**Verificación:** `pnpm test` 38/38 · `pnpm build` OK · `pnpm test:browser:challenges` OK · `pnpm test:browser:tuner` OK (ambos E2E ejecutados dos veces). Sigue el fallo preexistente de `pnpm test:browser` (chords-by-key), ajeno a estos cambios.
+**Verificación:** `pnpm test` 38/38 · `pnpm build` OK · `pnpm test:browser:challenges` OK · `pnpm test:browser:tuner` OK (ambos E2E ejecutados dos veces). El fallo preexistente de `pnpm test:browser` (chords-by-key) se resolvió al final de la Etapa 3B.
+
+---
+
+## ETAPA 3B · Biblioteca de Melodías y Práctica MIDI — COMPLETADA
+
+**Stack:** se añade Preact 11 + `@astrojs/preact` (integración `preact()` en `astro.config.mjs`, `jsx: "react-jsx"` y `jsxImportSource: "preact"` en `tsconfig.json`). El resto del sitio sigue siendo Astro estático sin backend. La biblioteca vive en M8, justo después de la explicación de cadencias.
+
+**Catálogo modular:** `src/data/melodies/` con un JSON por pieza (`twinkle`, `ode`, `silent-night`, `pop-loop`, `minuet`) y un `index.ts` que los descubre con `import.meta.glob('./*.json', { eager: true })`, ordena por el campo `order` y lo elimina del objeto exportado. **Para añadir una melodía basta con crear un JSON nuevo en esa carpeta: no hay que tocar ningún archivo existente.** Cada pieza tiene `id`, `title`, `difficulty` (Principiante/Intermedio), `bpm`, `meter`, `key`, `melodyTrack` (notas con `beat`, `midi`, `duration`, `label`) y `chordTrack` (bloques con `symbol` y `midi[]`). Todas las alturas están en C4–Mi5 (MIDI 60–79) para cubrirse con dos octavas QWERTY. `MELODY_CATALOG_VERSION` se exporta desde el agregador.
+
+**Audición «cómo suena»:** cada tarjeta del menú (y el selector de modo) tiene un botón **▶ Cómo suena / ■ Detener**. `auditionEvents(melody)` convierte la pieza en eventos para `playPiano`: melodía al frente (vel. 0,85, `focus: true`) y acordes una octava más graves y suaves (vel. 0,4), al BPM propio del JSON. **Suena una sola vez y se detiene sola al terminar** —es una referencia para el oído, no un bucle; el bucle es solo de la práctica—. El botón permite cortarla en cualquier momento y se cancela automáticamente al elegir pieza, entrar a practicar o volver al menú. Mientras suena, una ventana de 12 notas y una barra de progreso siguen la melodía. No requiere archivos de audio: se sintetiza desde los mismos datos modulares.
+
+**Selector de modo:** pantalla previa con **Practicar Melodía** (nota por nota, octava exacta) y **Practicar Acordes** (un bloque armónico por compás, en simultáneo o arpegio guiado). La entrada acepta QWERTY (`Z–M` = 60–71, `Q–T`/números = 72–79), pantalla táctil y Web MIDI (`navigator.requestMIDIAccess()`, eventos `noteon`).
+
+**Motor y validación:** `src/lib/melodies.ts` concentra la lógica pura: `matchesNote` (exige MIDI exacto, octava incluida), `matchesChord` (compara clases `midi % 12`, válido en cualquier octava), `rhythmAccuracy` (tolerancia de 2 pulsos), `evaluatePerformance` (70 % melodía + 30 % ritmo; XP base 25/40 + 10 por pieza perfecta; 1–3 estrellas), `eventAtBeat`, `trackLength` y `noteName`. Un fallo no avanza: muestra `Casi 🎹 — esperaba …` y el teclado marca la nota tocada en rojo; el acierto avanza y la marca en verde.
+
+**Teclado en cascada:** resalta la nota esperada, atenúa las tres siguientes y resalta las notas tocadas. El metrónomo usa Web Audio y muestra puntos por pulso (`#ml-beat`) sincronizados al BPM; el feedback de tempo indica `En hora ✓` o `Adelantado|Atrasado X pulsos`. La práctica va **en bucle por defecto**: al terminar una vuelta `completeCycle()` reinicia el recorrido sin cortar el metrónomo y sube el contador de vuelta; solo **Detener** (`#ml-stop`) muestra el resultado y otorga XP. El toggle `#ml-loop` permite desactivar el bucle. Transporte con Play/Pausa, Detener, reinicio, BPM ±4 (50–180; cambiarlo a mitad de vuelta rearma el reloj) y Volver al menú. Estética Dark Glassmorphism con `color-mix`, `backdrop-filter`, animación de pulso y `prefers-reduced-motion`.
+
+**Recompensas:** `awardPracticeXp(practiceId, xp)` en `src/lib/rewards.ts` entrega XP una sola vez por pieza/modo (`melody:<id>:<mode>`), suma `playCorrect`, desbloquea el badge **Melodista** y emite `progress:changed` para sincronizar el panel global.
+
+**Archivos tocados:** `astro.config.mjs`, `tsconfig.json`, `package.json`, `pnpm-lock.yaml`, `src/components/MelodyLibrary.tsx`, `src/components/MelodyLibrary.astro`, `src/data/melodies/*.json` (5 piezas) + `src/data/melodies/index.ts` (se elimina `src/data/melodies.json`), `src/lib/melodies.ts`, `src/lib/rewards.ts`, `src/pages/index.astro`, `tests/melodies.test.ts`, `tests/melodies.browser.mjs`, `tests/challenges.browser.mjs` (reintentos anti-flakiness), `tests/chords-by-key.browser.mjs` (aserciones actualizadas al renombrado didáctico de commit `461ffaa`), `AGENT.md`.
+
+**Nota E2E:** `tests/melodies.browser.mjs` recarga con CDP ya conectado (así captura errores de hidratación del island), espera a que la badge MIDI deje de decir «conectando…» y toca las notas en su pulso exacto mediante eventos QWERTY temporizados. Verifica 100 % de precisión, +50 XP por modo (Intermedio), idempotencia del XP, cascada, bucle automático (vuelta 2 sin detenerse), metrónomo visual, feedback de tempo, transporte y ausencia de errores de página. El resaltado de acierto/fallo dura 1,2 s: Preact confirma el render en `requestAnimationFrame`, que en Chrome headless puede tardar ~500 ms, y con 450 ms el test leía el DOM cuando la clase ya se había borrado. La audición se comprueba **al final** del test: crear osciladores antes de las mediciones de ritmo introduce jitter y volvía flaky el 100 % de precisión.
+
+**Verificación final:** `pnpm test` 48/48 · `pnpm build` OK · `pnpm test:browser:melodies` OK · `pnpm test:browser:challenges` OK · `pnpm test:browser:tuner` OK · `pnpm test:browser` (chords-by-key) OK. El fallo preexistente de `chords-by-key` quedó resuelto actualizando las aserciones obsoletas al título **El molde de la escala** y a los `aria-label` con separador `·`; el test ahora espera al view dinámico `svg.kb` en lugar del título estático.

@@ -147,6 +147,16 @@ try {
   await send('Runtime.enable');
   await send('Page.enable');
   await new Promise((resolve) => setTimeout(resolve, 500));
+  // En arranques fríos de Vite los scripts de Astro aún no han renderizado a los 500 ms.
+  // Esperamos al view dinámico (svg.kb), no al título, que es HTML estático.
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    try {
+      if (await evaluate(`Boolean(document.querySelector('[data-chord-view] svg.kb'))`)) break;
+    } catch {
+      // Página aún navegando.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
 
   const initial = await evaluate(`({
     title: document.querySelector('#key-tool-title')?.textContent.trim(),
@@ -155,9 +165,9 @@ try {
     keyboard: Boolean(document.querySelector('[data-chord-view] svg.kb')),
     guitar: Boolean(document.querySelector('[data-chord-view] svg.gt'))
   })`);
-  assert.equal(initial.title, 'Acordes diatónicos por tonalidad');
+  assert.equal(initial.title, 'El molde de la escala');
   assert.equal(initial.cards, 7);
-  assert.equal(initial.firstCardLabel, 'I, C, Mayor, Casa');
+  assert.equal(initial.firstCardLabel, 'I · C · Mayor');
   assert.ok(initial.keyboard && initial.guitar, 'El acorde inicial debe mostrar teclado y diagrama de guitarra.');
 
   const modes = await evaluate(`({
@@ -226,7 +236,7 @@ try {
     };
   })()`);
   assert.match(diminished.label, /E♯dim/);
-  assert.equal(diminished.ariaLabel, 'vii°, E♯dim, Disminuido');
+  assert.equal(diminished.ariaLabel, 'vii° · E♯dim · Disminuido');
   assert.ok(diminished.keyboard && diminished.guitar && diminished.playButton, 'E♯dim debe mostrar teclado, guitarra y control de audio.');
   assert.ok(diminished.oscillators > 0, 'Seleccionar E♯dim debe iniciar los osciladores de audio.');
 
