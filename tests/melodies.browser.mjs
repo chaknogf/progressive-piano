@@ -254,7 +254,7 @@ try {
   }
 
   const initial = await state();
-  assert.equal(initial.pieces, 5, 'El catálogo ofrece 5 piezas');
+  assert.ok(initial.pieces >= 5, 'El catálogo ofrece al menos 5 piezas');
   assert.equal(initial.menu, true);
   assert.equal(initial.mode, false);
   assert.equal(initial.session, false);
@@ -291,6 +291,21 @@ try {
   assert.equal((await state()).loop, 'false');
   await evaluate(`document.querySelector('#ml-loop').click()`);
   await waitFor(`document.querySelector('#ml-loop')?.getAttribute('aria-pressed') === 'true'`, 'bucle reactivado');
+
+  // Demo automática: Play toca y resalta la melodía; la primera nota tocada toma el control.
+  await evaluate(`document.querySelector('#ml-play').click()`);
+  await waitFor(`document.querySelector('#ml-stage')?.dataset.demo === '1'`, 'demo en curso');
+  await waitFor(`document.querySelectorAll('#ml-keyboard .ml-key.is-hit').length >= 1`, 'tecla iluminada por la demo');
+  assert.match(await evaluate(`document.querySelector('#ml-play').textContent`), /demo/);
+  await evaluate(`(() => {
+    const key = ${JSON.stringify(KEY_FOR_MIDI)}[60];
+    window.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    window.dispatchEvent(new KeyboardEvent('keyup', { key, bubbles: true, cancelable: true }));
+  })()`);
+  await waitFor(`document.querySelector('#ml-stage')?.dataset.demo === '0'`, 'demo interrumpida al tocar');
+  assert.equal((await state()).step, 0, 'al tomar el control se vuelve al paso 1');
+  await evaluate(`document.querySelector('#ml-play').click()`);
+  await waitFor(`document.querySelector('#ml-play')?.getAttribute('aria-pressed') === 'false'`, 'reproductor en pausa tras la demo');
 
   // Nota equivocada: no avanza, mensaje amable y feedback visual rojo.
   // Preact confirma el render en el siguiente frame: esperamos uno antes de leer.

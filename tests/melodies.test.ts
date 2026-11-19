@@ -37,9 +37,10 @@ describe('biblioteca de melodías', () => {
 
   it('descubre un JSON por pieza, ordena por order y no expone metadatos', () => {
     expect(MELODY_CATALOG_VERSION).toBe(1);
-    expect(melodies.map((melody) => melody.id)).toEqual([
+    expect(melodies.map((melody) => melody.id).slice(0, 5)).toEqual([
       'twinkle', 'ode', 'silent-night', 'pop-loop', 'minuet',
     ]);
+    expect(new Set(melodies.map((melody) => melody.id)).size).toBe(melodies.length);
     expect(melodies.every((melody) => !('order' in melody))).toBe(true);
   });
 
@@ -69,14 +70,15 @@ describe('biblioteca de melodías', () => {
         });
       }
       for (const note of melody.melodyTrack) {
-        expect(note.midi).toBeGreaterThanOrEqual(60);
-        expect(note.midi).toBeLessThanOrEqual(79);
+        expect(note.midi).toBeGreaterThanOrEqual(36);
+        expect(note.midi).toBeLessThanOrEqual(84);
         expect(note.label).toBeTruthy();
       }
       for (const chord of melody.chordTrack) {
         expect(chord.symbol).toBeTruthy();
         expect(chord.midi.length).toBeGreaterThanOrEqual(3);
-        expect(new Set(chord.midi.map((midi) => midi % 12)).size).toBe(chord.midi.length);
+        // Se admite duplicar la fundamental en otra octava (arreglos con bajo doblado).
+        expect(new Set(chord.midi.map((midi) => midi % 12)).size).toBeGreaterThanOrEqual(3);
       }
       expect(trackLength(melody.melodyTrack) % melody.meter, melody.id).toBe(0);
       expect(trackLength(melody.chordTrack) % melody.meter, melody.id).toBe(0);

@@ -1,0 +1,314 @@
+{
+  "order": 6,
+  "id": "si_antes_te_hubiera_conocido",
+  "title": "Si Antes Te Hubiera Conocido (Coro)",
+  "difficulty": "Principiante",
+  "bpm": 128,
+  "meter": 4,
+  "key": "Si mayor",
+  "melodyTrack": [
+    {
+      "beat": 0,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 0.5,
+      "midi": 59,
+      "duration": 0.5,
+      "label": "Si3"
+    },
+    {
+      "beat": 1,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 1.5,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 2,
+      "midi": 59,
+      "duration": 0.5,
+      "label": "Si3"
+    },
+    {
+      "beat": 6,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 6.5,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 7,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 7.5,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 8,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 8.5,
+      "midi": 64,
+      "duration": 0.5,
+      "label": "Mi4"
+    },
+    {
+      "beat": 9,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 9.5,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 10,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 16,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 16.5,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 17,
+      "midi": 66,
+      "duration": 0.5,
+      "label": "Fa♯4"
+    },
+    {
+      "beat": 17.5,
+      "midi": 64,
+      "duration": 1,
+      "label": "Mi4"
+    },
+    {
+      "beat": 18.5,
+      "midi": 63,
+      "duration": 0.75,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 19.25,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 21.5,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 22,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 22.5,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 23,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 23.5,
+      "midi": 64,
+      "duration": 0.5,
+      "label": "Mi4"
+    },
+    {
+      "beat": 24,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 24.5,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 25,
+      "midi": 59,
+      "duration": 0.5,
+      "label": "Si3"
+    },
+    {
+      "beat": 25.5,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 26,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 26.5,
+      "midi": 59,
+      "duration": 0.5,
+      "label": "Si3"
+    },
+    {
+      "beat": 28,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 28.5,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 29,
+      "midi": 59,
+      "duration": 0.5,
+      "label": "Si3"
+    },
+    {
+      "beat": 29.5,
+      "midi": 63,
+      "duration": 0.5,
+      "label": "Re♯4"
+    },
+    {
+      "beat": 30,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 31,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 31.5,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 32,
+      "midi": 61,
+      "duration": 0.5,
+      "label": "Do♯4"
+    },
+    {
+      "beat": 32.5,
+      "midi": 59,
+      "duration": 0.5,
+      "label": "Si3"
+    },
+    {
+      "beat": 33,
+      "midi": 59,
+      "duration": 3,
+      "label": "Si3"
+    }
+  ],
+  "chordTrack": [
+    {
+      "beat": 1.5,
+      "duration": 8,
+      "symbol": "B",
+      "midi": [
+        47,
+        59,
+        63,
+        66
+      ]
+    },
+    {
+      "beat": 9.5,
+      "duration": 7,
+      "symbol": "D#m",
+      "midi": [
+        51,
+        63,
+        66,
+        70
+      ]
+    },
+    {
+      "beat": 16.5,
+      "duration": 1,
+      "symbol": "D#m",
+      "midi": [
+        51,
+        63,
+        66,
+        70
+      ]
+    },
+    {
+      "beat": 17.5,
+      "duration": 8,
+      "symbol": "C#m",
+      "midi": [
+        49,
+        61,
+        64,
+        68
+      ]
+    },
+    {
+      "beat": 25.5,
+      "duration": 10.5,
+      "symbol": "E",
+      "midi": [
+        52,
+        64,
+        68,
+        71
+      ]
+    }
+  ]
+}

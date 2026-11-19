@@ -38,8 +38,10 @@ const BLACK_KEYS = [
   { pc: 8, after: 4 },
   { pc: 10, after: 5 },
 ];
-const FIRST_MIDI = 60;
-const LAST_MIDI = 79;
+// Cuatro octavas (Do2–Do6, MIDI 36–84): cubre los registros graves de las piezas
+// del catálogo y deja margen para melodías nuevas. QWERTY sigue en el centro (Do4–Sol5).
+const FIRST_MIDI = 36;
+const LAST_MIDI = 84;
 const ALL_MIDIS = Array.from({ length: LAST_MIDI - FIRST_MIDI + 1 }, (_, i) => FIRST_MIDI + i);
 const WHITE_MIDIS = ALL_MIDIS.filter((midi) => WHITE_PCS.includes(midi % 12));
 const BLACK_WIDTH = 3.4;
@@ -48,7 +50,7 @@ const BLACK_MIDIS = ALL_MIDIS.filter((midi) => !WHITE_PCS.includes(midi % 12)).m
   left: (WHITE_MIDIS.filter((white) => white < midi).length / WHITE_MIDIS.length) * 100 - BLACK_WIDTH / 2,
 }));
 
-// Dos octavas: fila inferior z–m = Do4–Si4, fila superior q–t = Do5–Sol5.
+// Dos octavas en el centro del teclado: z–m = Do4–Si4, q–t = Do5–Sol5.
 const QWERTY: Record<string, number> = {
   z: 60, s: 61, x: 62, d: 63, c: 64, v: 65, g: 66, b: 67, h: 68, n: 69, j: 70, m: 71,
   q: 72, '2': 73, w: 74, '3': 75, e: 76, r: 77, '5': 78, t: 79,
@@ -113,6 +115,7 @@ export default function MelodyLibrary({ melodies }: Props) {
   const [earnedXp, setEarnedXp] = useState(0);
   const [feedback, setFeedback] = useState('Elige una pieza para empezar.');
   const [midiStatus, setMidiStatus] = useState('MIDI: conectando…');
+  const [demoActive, setDemoActiveState] = useState(false);
   const [lastPlayed, setLastPlayed] = useState<number[]>([]);
   const [wasCorrect, setWasCorrect] = useState(true);
   const [previewId, setPreviewId] = useState<string | null>(null);
@@ -131,6 +134,8 @@ export default function MelodyLibrary({ melodies }: Props) {
   const metronomeRef = useRef<number | null>(null);
   const beatCountRef = useRef(0);
   const highlightTimerRef = useRef<number | null>(null);
+  const demoActiveRef = useRef(false);
+  const demoTimersRef = useRef<number[]>([]);
   const previewCancelRef = useRef<(() => void) | null>(null);
   const previewTokenRef = useRef(0);
 
@@ -156,11 +161,17 @@ export default function MelodyLibrary({ melodies }: Props) {
       clock.startedAt = performance.now();
       beatCountRef.current = 0;
       startMetronome();
+      // La demo se programa en pulsos: al cambiar el BPM hay que rearmarla.
+      if (demoActiveRef.current) startDemo();
     }
   }
   function setLoop(next: boolean) {
     loopRef.current = next;
     setLoopState(next);
+  }
+  function setDemoActive(next: boolean) {
+    demoActiveRef.current = next;
+    setDemoActiveState(next);
   }
   function setStep(next: number) {
     stepRef.current = next;
@@ -240,16 +251,22 @@ export default function MelodyLibrary({ melodies }: Props) {
     if (clock.running) clock.accumulated += performance.now() - clock.startedAt;
     clock.running = false;
     stopMetronome();
+    stopDemo();
     setPlaying(false);
   }
 
   function play() {
     const clock = elapsedRef.current;
+    // Play siempre arranca desde el principio para que la demo y el teclado coincidan.
+    clock.accumulated = 0;
     clock.startedAt = performance.now();
     clock.running = true;
+    beatCountRef.current = 0;
+    setBeat(0);
     startMetronome();
     setPlaying(true);
-    setFeedback('Escucha el clic y toca la nota resaltada.');
+    startDemo();
+    setFeedback('Mira cómo se toca: el teclado toca la melodía. Después, repite tú.');
   }
 
   function reset() {
@@ -310,15 +327,85 @@ export default function MelodyLibrary({ melodies }: Props) {
     setFeedback(`Precisión ${final.accuracy}% · ${final.correct}/${final.total} aciertos.`);
   }
 
-  function highlight(midis: number[], correct: boolean) {
+  function highlight(midis: number[], correct: boolean, ms = 1200) {
     setLastPlayed(midis);
     setWasCorrect(correct);
     if (highlightTimerRef.current !== null) window.clearTimeout(highlightTimerRef.current);
     // 1,2 s para que el acierto/fallo se vea con calma (y sobreviva a un frame lento).
-    highlightTimerRef.current = window.setTimeout(() => setLastPlayed([]), 1200);
+    highlightTimerRef.current = window.setTimeout(() => setLastPlayed([]), ms);
+  }
+
+  function stopDemo(): void {
+    demoTimersRef.current.forEach((id) => window.clearTimeout(id));
+    demoTimersRef.current = [];
+    if (demoActiveRef.current) setDemoActive(false);
+  }
+
+  /** Mantiene visible la nota tocada aunque el teclado tenga cuatro octavas. */
+  function scrollKeysIntoView(midis: number[]): void {
+    const scrollEl = document.getElementById('ml-keys-scroll');
+    const targetMidi = midis[Math.floor(midis.length / 2)] ?? midis[0];
+    if (!scrollEl || targetMidi === undefined) return;
+    const keyEl = scrollEl.querySelector<HTMLElement>(`[data-ml-midi="${targetMidi}"]`);
+    if (!keyEl) return;
+    const left = keyEl.offsetLeft - scrollEl.clientWidth / 2 + keyEl.offsetWidth / 2;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scrollEl.scrollTo({ left: Math.max(0, left), behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
+
+  /**
+   * Demo automática: suena y resalta cada nota en su pulso exacto con el metrónomo.
+   * Al terminar, el reloj vuelve a cero para que la práctica empiece en el paso 1.
+   */
+  function startDemo(): void {
+    stopDemo();
+    const active = track();
+    if (!active.length) return;
+    setDemoActive(true);
+    setStep(0);
+    const msPerBeat = 60_000 / bpmRef.current;
+
+    active.forEach((event, index) => {
+      const midis = expectedMidis(event);
+      const timer = window.setTimeout(() => {
+        if (!demoActiveRef.current) return;
+        const seconds = Math.max(0.15, (event.duration * msPerBeat) / 1000);
+        midis.forEach((midi) => playNote(midi, seconds, 0.65));
+        highlight(midis, true, Math.min(1200, Math.round(seconds * 1000) + 180));
+        setStep(Math.min(index + 1, active.length - 1));
+        scrollKeysIntoView(midis);
+      }, event.beat * msPerBeat);
+      demoTimersRef.current.push(timer);
+    });
+
+    const endTimer = window.setTimeout(() => {
+      if (!demoActiveRef.current) return;
+      stopDemo();
+      const clock = elapsedRef.current;
+      clock.accumulated = 0;
+      clock.startedAt = performance.now();
+      beatCountRef.current = 0;
+      setBeat(0);
+      setStep(0);
+      setLastPlayed([]);
+      chordBufferRef.current = [];
+      setFeedback('Demo terminada. Ahora toca tú la nota resaltada.');
+    }, trackLength(active) * msPerBeat + 250);
+    demoTimersRef.current.push(endTimer);
   }
 
   function handleNote(midi: number) {
+    // Tocar una tecla toma el control: corta la demo y empieza la práctica en el paso 1.
+    if (demoActiveRef.current) {
+      stopDemo();
+      const clock = elapsedRef.current;
+      clock.accumulated = 0;
+      clock.startedAt = performance.now();
+      beatCountRef.current = 0;
+      setBeat(0);
+      setStep(0);
+      setFeedback('Tu turno: sigue la nota resaltada.');
+    }
     const current = track();
     const event = current[stepRef.current];
     if (!event) return;
@@ -417,6 +504,7 @@ export default function MelodyLibrary({ melodies }: Props) {
     void connectMidi();
     return () => {
       pause();
+      stopDemo();
       stopPreview();
       if (highlightTimerRef.current !== null) window.clearTimeout(highlightTimerRef.current);
     };
@@ -592,7 +680,7 @@ export default function MelodyLibrary({ melodies }: Props) {
         <div class="ml-session" id="ml-session">
           <div class="ml-transport">
             <button type="button" class="ml-play" id="ml-play" aria-pressed={playing} onClick={() => (playing ? pause() : play())}>
-              {playing ? '❚❚ Pausa' : '▶ Play'}
+              {playing ? (demoActive ? '❚❚ Pausa · demo' : '❚❚ Pausa') : '▶ Play'}
             </button>
             <button type="button" class="ml-icon ml-stop" id="ml-stop" aria-label="Detener y ver resultado" title="Detener y ver resultado" onClick={finish}>⏹</button>
             <button type="button" class="ml-icon" id="ml-restart" aria-label="Reiniciar pieza" title="Reiniciar" onClick={reset}>↺</button>
@@ -629,9 +717,11 @@ export default function MelodyLibrary({ melodies }: Props) {
             data-step={String(step)}
             data-cycle={String(cycle)}
             data-beat={String(beat)}
+            data-demo={demoActive ? '1' : '0'}
           >
             <div class="ml-stage-info">
               <span class="ml-kind">{mode === 'chords' ? 'ACORDE POR COMPÁS' : 'NOTA POR NOTA'}</span>
+              {demoActive && <span class="ml-demo-badge">▶ VIENDO LA DEMO</span>}
               <strong class="ml-expected" id="ml-expected">
                 {currentEvent ? eventLabel(currentEvent) : '¡Pieza terminada!'}
               </strong>
@@ -651,8 +741,14 @@ export default function MelodyLibrary({ melodies }: Props) {
             <p class="ml-feedback" id="ml-feedback" role="status" aria-live="polite">{feedback}</p>
           </div>
 
-          <div class="ml-keys-scroll">
-            <div class="ml-keys" id="ml-keyboard" role="group" aria-label="Teclado virtual">
+          <div class="ml-keys-scroll" id="ml-keys-scroll">
+            <div
+              class="ml-keys"
+              id="ml-keyboard"
+              role="group"
+              aria-label="Teclado virtual de 4 octavas (Do2 a Do6)"
+              style={{ '--ml-white-keys': String(WHITE_MIDIS.length) }}
+            >
               {WHITE_MIDIS.map((midi) => {
                 const level = cascadeLevel.get(midi);
                 return (
@@ -664,7 +760,7 @@ export default function MelodyLibrary({ melodies }: Props) {
                     aria-label={`Tocar ${noteName(midi)}`}
                     onClick={() => handleNote(midi)}
                   >
-                    <span>{noteName(midi).replace(/\d+$/, '')}</span>
+                    <span>{midi % 12 === 0 ? noteName(midi) : noteName(midi).replace(/\d+$/, '')}</span>
                     <small>{KEY_HINT[midi] ?? ''}</small>
                   </button>
                 );
@@ -693,7 +789,7 @@ export default function MelodyLibrary({ melodies }: Props) {
             <span><i class="ml-dot ml-dot--hit" /> La que tocaste</span>
             <button type="button" class="ml-ghost" id="ml-connect-midi" onClick={() => void connectMidi()}>🎹 Conectar MIDI</button>
           </div>
-          <p class="ml-hint">QWERTY: <b>Z–M</b> (Do4–Si4) y <b>Q–T</b> (Do5–Sol5). Espacio no es necesario.</p>
+          <p class="ml-hint"><b>▶ Play</b> muestra la demo: el teclado toca y resalta la melodía; toca cualquier nota para tomar el control. Teclado de <b>4 octavas (Do2–Do6)</b>, QWERTY cubre el centro (<b>Z–M</b> = Do4–Si4, <b>Q–T</b> = Do5–Sol5).</p>
         </div>
       )}
 

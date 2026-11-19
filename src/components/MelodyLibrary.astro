@@ -303,6 +303,20 @@ const { melodies } = Astro.props;
   }
   .ml-stage-info { display: flex; flex-direction: column; gap: 3px; }
   .ml-kind { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; color: var(--ml-acc); }
+  .ml-demo-badge {
+    align-self: flex-start;
+    margin-top: 2px;
+    padding: 3px 8px;
+    border: 1px solid color-mix(in srgb, var(--ml-acc) 45%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ml-acc) 16%, transparent);
+    color: var(--ml-acc);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    animation: ml-demo-pulse 1s ease-in-out infinite;
+  }
+  @keyframes ml-demo-pulse { 50% { opacity: 0.55; } }
   .ml-expected { font: 700 1.4rem/1.2 Georgia, "Times New Roman", serif; }
   .ml-position { color: var(--mut); font-size: 0.75rem; }
   .ml-beat { display: inline-flex; align-items: center; gap: 7px; }
@@ -326,7 +340,7 @@ const { melodies } = Astro.props;
   .ml-feedback { margin: 0; max-width: 46ch; font-size: 0.85rem; font-weight: 700; color: var(--mut); }
 
   .ml-keys-scroll { overflow-x: auto; padding: 6px 2px 10px; }
-  .ml-keys { position: relative; height: 156px; min-width: 520px; border-radius: 14px; }
+  .ml-keys { position: relative; height: 156px; min-width: calc(var(--ml-white-keys, 14) * 38px); border-radius: 14px; }
   .ml-key {
     position: relative;
     display: flex;
@@ -407,6 +421,7 @@ const { melodies } = Astro.props;
     .ml-key, .ml-piece, .ml-mode-card, .ml-play { animation: none !important; transition: none !important; }
     .ml-key.is-expected { animation: none !important; }
     .ml-beat i.is-on { animation: none !important; }
+    .ml-demo-badge { animation: none !important; }
     .ml-preview-bar i { transition: none !important; }
   }
 </style>
